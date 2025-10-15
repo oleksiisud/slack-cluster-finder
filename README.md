@@ -1,15 +1,31 @@
-# Slack Cluster Finder Project #
+# 🖥️ Slack Cluster Finder — Frontend
 
-### Members and Roles ###
+The **Frontend Folder** is a the development of the frontend of the **Slack Cluster Finder**, which is React-based web application that allows users to analyze and visualize patterns within Slack channels.  
 
-* **Destiny Rosado Salcedo** \- Frontend Developer  
-* **Faizan Khan** \- Slackbot Developer
-* **Jessica Chen** \- Backend Developer  
-* **Oleksii Sudarin** \- Cluster Graph Developer
+It provides a simple, clean interface for inputting channel names and viewing clustering insights from the backend.
+
+**Note:** This is not the final product.
+
+---
+
+## ⚙️ Requirements
+
+Before running the frontend locally, make sure you have the following installed:
+
+- **Node.js** (v18 or higher)
+- **npm** (v9 or higher) or **yarn**
+- **Git**
+
+To check your versions:
+```bash
+node -v
+npm -v
+```
+
+Once you clone the repository:
+```bash
+cd frontend 
+npm run dev
+```
 
 
-**Project Scope (Objective)**  
-**Audience (Who is this project for?)**
-
-- Anyone who uses Slack or Discord and takes parts in servers  
-- For big servers where there are too many materials for someone to shift through
