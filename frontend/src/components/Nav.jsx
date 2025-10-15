@@ -10,6 +10,7 @@ const Nav = () => {
             <div className="logo">Slack Cluster Finder</div>
             <ul className="navbar-links">
               <Link to = {'/home'}><p className="navbar-link">Home</p></Link>
+              <Link to = {'/home'}><p className="navbar-link">About</p></Link>
             </ul>
           </div>
         </nav>
