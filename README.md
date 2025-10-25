@@ -4,7 +4,7 @@ The **Frontend Folder** is a the development of the frontend for **Slack Cluster
 
 It provides a simple, clean interface for inputting channel names and viewing clustering insights from the backend.
 
-**Note:** This is not the final product.
+**Note:** This is not the final product and will be further developed.
 
 ---
 
