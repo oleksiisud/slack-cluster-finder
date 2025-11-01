@@ -1,3 +1,19 @@
+/* ============================================
+   MAIN APP CONTAINER STYLES
+   ============================================ */
+   @import url('https://fonts.googleapis.com/css2?family=Jersey+10&display=swap');
+
+   /* ============================================
+      IMPORTED FONT
+      ============================================ */
+   
+   /* jersey-10-regular font styling for headings */
+   .jersey-10-regular {
+     font-family: "Jersey 10", sans-serif;
+     font-weight: 400;
+     font-style: normal;
+   }
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -26,10 +42,10 @@
 }
 
 .logo {
- font-size: 1.2rem;
+ font-size: 3rem;
  font-weight: 700;
+ font-family: "Jersey 10", sans-serif;
  color: #374151;
- text-decoration: none;
 }
 
 .navbar-links {
@@ -52,4 +68,25 @@
 .navbar-link:hover {
  color: #6366f1;
  background: rgba(99, 102, 241, 0.05);
+}
+
+.dark-mode-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  padding: 0.5rem;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  background-color: transparent;
+}
+
+.dark-mode-toggle:hover {
+  background: rgba(99, 102, 241, 0.1);
+  transform: scale(1.1);
 }

@@ -1,0 +1,21 @@
+/* ============================================
+   THEME COLORS - LIGHT MODE
+   ============================================ */
+.theme-light {
+    --dark-text: #1a1a1a;
+    --light-text: #6b7280;
+    --light-background: #BCD8FC;  /* Light blue sky background */
+    --accent: #DBE7E4;
+    --button-border: rgba(253, 254, 255, 0.95);
+}
+
+/* ============================================
+   THEME COLORS - DARK MODE
+   ============================================ */
+.theme-dark {
+    --dark-text: #e5e7eb;
+    --light-text: #9ca3af;
+    --light-background: #1f2937;  /* Dark blue-gray background */
+    --accent: #60a5fa;
+    --button-border: rgba(13, 26, 39, 0.95);
+}
