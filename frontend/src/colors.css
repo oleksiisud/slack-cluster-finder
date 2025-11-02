@@ -13,9 +13,14 @@
    THEME COLORS - DARK MODE
    ============================================ */
 .theme-dark {
-    --dark-text: #e5e7eb;
+    --dark-text: #EAE9FC;
     --light-text: #9ca3af;
-    --light-background: #1f2937;  /* Dark blue-gray background */
+    --light-background: #031F44;  /* Dark blue-gray background */
     --accent: #60a5fa;
     --button-border: rgba(13, 26, 39, 0.95);
 }
+
+/* 
+other options 
+red: (light: #E86D6D), (dark: #921717)
+*/
