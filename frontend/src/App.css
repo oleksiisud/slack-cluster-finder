@@ -109,7 +109,7 @@
   font-weight: 600;  /* Semi-bold */
   color: #374151;  /* Dark gray color */
   margin-bottom: 0.75rem;  /* Space below label */
-  text-align: left;  /* Left-aligns label */
+  text-align: center;  /* Left-aligns label */
 }
 
 /* ============================================
@@ -147,8 +147,8 @@
 
 /* Main submit button styling */
 .analyze-button {
-  width: 100%;  /* Full width */
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);  /* Purple gradient */
+  width: 100%;  /* Full width  #54B492  */ 
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);   /* Purple gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); */
   color: white;  /* White text */
   border: none;  /* No border */
   padding: 1rem 2rem;  /* Space inside button */
