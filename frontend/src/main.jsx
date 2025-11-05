@@ -4,7 +4,8 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import './colors.css'
 import App from './App.jsx'
-import Login from './components/Login.jsx'
+import Login from './components/landing-pages/Login.jsx'
+import Signup from './components/landing-pages/Signup.jsx' 
 import Account from './components/Account.jsx'
 import DataCollection from './components/DataCollection.jsx';
 
@@ -15,6 +16,7 @@ createRoot(document.getElementById('root')).render(
     <Route path ="/slack-cluster-finder" element = {<Login/>} > </Route>
     <Route path="/" element={<Login />} />
     <Route path="/log-in" element={<Login />} />
+    <Route path="/sign-up" element={<Signup />} />
     <Route path="/home" element={<App />} />
     <Route path="/account" element = {<Account />} />
     <Route path ="/new-dashboard" element = {<DataCollection/>} />

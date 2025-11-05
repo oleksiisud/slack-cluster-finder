@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './Login.css'
 
 
@@ -43,6 +44,7 @@ const Login = () => {
         />
         
         <button type="submit">Enter</button>
+        <Link to={'/sign-up'}><p className="navbar-link"><button type="submit">New User? Sign up</button></p></Link>
       </form>
     </div>
   )
