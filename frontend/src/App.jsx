@@ -46,14 +46,15 @@ function App() {
 
         <div className="main-content">
           <div className="input-section">
-            <p className="input-label">Welcome Back Username</p>
+            <p className="input-label">Welcome Back **Username**</p>
             <form onSubmit={handleChannelSubmit} className="channel-input-form">
               <div className="input-group">
               <select name="category" className="input-label" value={category} onChange={event => handleCategoryChange(event.target.value)}>
                   <option id="0" value="" disabled>Select your dashboard</option>
                   <option id="1" value="/new-dashboard" >Create New DashBoard!</option>
-                  <option id="2" value="fake-channel.com" >Slack Channel - CTP-11</option>
+                  <option id="2" value="fake-channel1.com" >Slack Channel - CTP-11</option>
                   <option id="3" value="fake-channel2.com" >Discord Channel - CISC_1115</option>
+                  <option id="4" value="fake-channel3.com" >WhatsApp - Trip To Japan GC 🇯🇵</option>
               </select>
                 {/* <label htmlFor="slack-channel" className="input-label">
                   Select Slack Channel
