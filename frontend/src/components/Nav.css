@@ -42,11 +42,30 @@
 }
 
 .logo {
- font-size: 3rem;
- font-weight: 700;
- font-family: "Jersey 10", sans-serif;
- color: #374151;
+  font-size: 3rem;
+  font-weight: 700;
+  font-family: "Jersey 10", sans-serif;
+  /* Animated gradient text effect for title */
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 3s ease infinite;
+  background-size: 200% 200%;
+  text-shadow: none;
+  color: transparent; /* Ensure no fallback color shows */
 }
+
+@keyframes gradientShift {
+  0%, 100% { 
+    background-position: 0% 50%; 
+  }
+  50% { 
+    background-position: 100% 50%; 
+  }
+}
+
+
 
 .navbar-links {
  list-style: none;

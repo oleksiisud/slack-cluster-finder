@@ -40,7 +40,7 @@ function App() {
       <Nav />
       <div className="App">
         <div className="hero-section">
-          <h1 className="jersey-10-regular">Slack Cluster Finder</h1>
+          <h1 className="jersey-10-regular hero-title">Hello User</h1>
           <p className="hero-subtitle"> Your personalized dashboards </p>
         </div>
 
@@ -72,7 +72,7 @@ function App() {
               <button
                 type="submit"
                 className="analyze-button"
-                disabled={!slackChannel.trim() || isLoading}
+                disabled={!category || isLoading}
               >
                 {isLoading ? "Analyzing..." : "Analyze Channel"}
               </button>

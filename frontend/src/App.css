@@ -13,13 +13,35 @@
   font-weight: 400;
   font-style: normal;
 }
+
 /* Main container that holds the entire app */
 .App {
   min-height: 100vh;  /* Full viewport height minimum */
   /* background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%); */ /* Commented out gradient background */
-  background-color: var(--light-background);  /* Blue sky background color */
+  background: linear-gradient(135deg, var(--light-background) 0%, rgba(99, 102, 241, 0.1) 100%);  /* Blue sky background color with gradient */
   padding-top: 80px;  /* Space at top to account for fixed navbar */
+  position: relative;
 }
+
+/* Animated background elements */
+/* .App::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.App > * {
+  position: relative;
+  z-index: 1;
+} */
 
 /* Color of input text (general input styling) */
 #input {
@@ -53,6 +75,32 @@
   font-weight: 700;  /* Bold font */
   margin-bottom: 1rem;  /* Space below title */
   text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);  /* Shadow effect for readability */
+}
+
+/* Animated gradient text effect for title */
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 700;
+  font-family: "Jersey 10", sans-serif;
+  /* Animated gradient text effect for title */
+  background: linear-gradient(135deg, #818cf8 0%, #a78bfa 50%, #f472b6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 3s ease infinite;
+  background-size: 200% 200%;
+  text-shadow: none;
+  color: transparent; /* Ensure no fallback color shows */
+}
+
+@keyframes gradientShift {
+  0%, 100% { 
+    background-position: 0% 50%; 
+  }
+  50% { 
+    background-position: 100% 50%; 
+  }
 }
 
 /* Subtitle text below main title */

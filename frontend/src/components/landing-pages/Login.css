@@ -16,7 +16,7 @@
 /* Main form wrapper container */
 .form {
   min-height: 100vh;
-  background-color: #BCD8FC;;
+  background: linear-gradient(135deg, #BCD8FC 0%, rgba(99, 102, 241, 0.15) 100%);
   display: flex;
   flex-direction: column;
   justify-content: center;
