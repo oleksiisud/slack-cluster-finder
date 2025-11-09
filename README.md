@@ -6,6 +6,7 @@
 * **Faizan Khan** \- Slackbot Developer
 * **Jessica Chen** \- Backend Developer  
 * **Oleksii Sudarin** \- Cluster Graph Developer
+* **Eric Azayev** \- User Stories/UI/UX
 
 
 **Project Scope (Objective)**  
