@@ -1,9 +1,13 @@
 import Nav from "./Nav.jsx";
+import { useState, useEffect } from "react";
+import { keepTheme } from "../themes.js"
 import './DataCollection.css';
 
 const DataCollection = () => {
 
-
+    useEffect(() => {
+        keepTheme();
+    }, [])
     return (
         <> 
         <Nav/>

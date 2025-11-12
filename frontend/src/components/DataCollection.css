@@ -5,7 +5,7 @@
 /* Main account page container */
 .DataCollection {
     min-height: 100vh;
-    background-color: var(--light-background);  /* Dynamic background color */
+    background: var(--gradient);  /* Dynamic background color */
     color: var(--dark-text);
     display: flex;
     flex-direction: column;

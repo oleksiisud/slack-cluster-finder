@@ -14,14 +14,14 @@
   font-style: normal;
 }
 
-/* Main container that holds the entire app */
 .App {
-  min-height: 100vh;  /* Full viewport height minimum */
-  /* background: linear-gradient(135deg, #1e3a8a 0%, #3730a3 100%); */ /* Commented out gradient background */
-  background: linear-gradient(135deg, var(--light-background) 0%, rgba(99, 102, 241, 0.1) 100%);  /* Blue sky background color with gradient */
-  padding-top: 80px;  /* Space at top to account for fixed navbar */
+  min-height: 100vh;
+  background: var(--gradient);  /* now uses full gradient from theme */
+  padding-top: 80px;
   position: relative;
+  transition: background 0.5s ease; /* smooth transition when switching themes */
 }
+
 
 /* Animated background elements */
 /* .App::before {
@@ -172,7 +172,7 @@
   border: 2px solid #e5e7eb;  /* Light gray border */
   border-radius: 12px;  /* Rounded corners */
   transition: all 0.3s ease;  /* Smooth animations */
-  background: white;  /* White background */
+  background:rgba(234, 242, 252, 0.95);  /* White background */
   color: black;  /* Black text */
 }
 
@@ -196,7 +196,7 @@
 /* Main submit button styling */
 .analyze-button {
   width: 100%;  /* Full width  #54B492  */ 
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);   /* Purple gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); */
+  background: #2f27b9;   /* Purple gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); */
   color: white;  /* White text */
   border: none;  /* No border */
   padding: 1rem 2rem;  /* Space inside button */
@@ -392,4 +392,34 @@
     flex-direction: column;  /* Vertical stack */
     align-items: center;  /* Center items */
   }
+}
+
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.channel-card {
+  padding: 2rem;
+  background: white;
+  border-radius: 16px;
+  border: 2px solid #e5e7eb;
+  cursor: pointer;
+  transition: 0.25s ease;
+  text-align: center;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+}
+
+.channel-card:hover {
+  transform: translateY(-5px);
+  border-color: #6366f1;
+  box-shadow: 0 12px 24px rgba(99,102,241,0.2);
+}
+
+.channel-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.2rem;
 }

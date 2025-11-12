@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import Nav from "./components/Nav";
 import { keepTheme } from "./themes.js"
+import ChannelCard from "./components/DataCard";
+
 import "./App.css";
 
 function App() {
@@ -9,6 +11,13 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [category, setCategory] = useState('');
   const navigate = useNavigate();
+ 
+const channels = [
+  { label: "Create New Dashboard", value: "/new-dashboard" },
+  { label: "Slack Channel - CTP-11", value: "fake-channel1.com" },
+  { label: "Discord - CISC_1115", value: "fake-channel2.com" },
+  { label: "WhatsApp Trip to Japan GC 🇯🇵", value: "fake-channel3.com" }
+];
   // const [clusterData, setClusterData] = useState(null);
 
   const handleCategoryChange = (category) => {
@@ -37,50 +46,28 @@ function App() {
 
   return (
     <>
-      <Nav />
-      <div className="App">
-        <div className="hero-section">
-          <h1 className="jersey-10-regular hero-title">Hello User</h1>
-          <p className="hero-subtitle"> Your personalized dashboards </p>
-        </div>
+    <Nav />
+    <div className="App">
 
-        <div className="main-content">
-          <div className="input-section">
-            <p className="input-label">Welcome Back **Username**</p>
-            <form onSubmit={handleChannelSubmit} className="channel-input-form">
-              <div className="input-group">
-              <select name="category" className="input-label" value={category} onChange={event => handleCategoryChange(event.target.value)}>
-                  <option id="0" value="" disabled>Select your dashboard</option>
-                  <option id="1" value="/new-dashboard" >Create New DashBoard!</option>
-                  <option id="2" value="fake-channel1.com" >Slack Channel - CTP-11</option>
-                  <option id="3" value="fake-channel2.com" >Discord Channel - CISC_1115</option>
-                  <option id="4" value="fake-channel3.com" >WhatsApp - Trip To Japan GC 🇯🇵</option>
-              </select>
-                {/* <label htmlFor="slack-channel" className="input-label">
-                  Select Slack Channel
-                </label>
-                <input
-                  id="slack-channel"
-                  type="text"
-                  placeholder="Enter channel name or link (e.g., #general, #dev-team)"
-                  value={slackChannel}
-                  onChange={(e) => setSlackChannel(e.target.value)}
-                  className="channel-input"
-                  disabled={isLoading}
-                /> */}
-              </div>
-              <button
-                type="submit"
-                className="analyze-button"
-                disabled={!category || isLoading}
-              >
-                {isLoading ? "Analyzing..." : "Analyze Channel"}
-              </button>
-            </form>
+      <div className="hero-section">
+        <h1 className="jersey-10-regular hero-title">Hello CX40</h1>
+        <p className="hero-subtitle">Your personalized dashboards</p>
+      </div>
+
+      <div className="main-content">
+        <div className="input-section">
+          <p className="input-label">Select Your Dashboard</p>
+
+          <div className="card-grid">
+            {channels.map((c, i) => (
+              <ChannelCard key={i} label={c.label} value={c.value} />
+            ))}
           </div>
         </div>
       </div>
-    </>
+
+    </div>
+  </>
   );
 }
 

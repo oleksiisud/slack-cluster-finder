@@ -1,5 +1,7 @@
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import { keepTheme } from "/src/themes.js"
 import './Login.css'
 
 
@@ -14,10 +16,13 @@ const Login = () => {
     // Redirect to Slack Cluster Finder Page
     navigate('/home');
   };
+  useEffect(() => {
+      keepTheme();
+    }, [])
   
   return (
     <div className="form">
-      <h1> Sign into Slack Cluster Finder</h1>
+      <h1> Sign into Context Search</h1>
       <form className="login-form" onSubmit={handleSubmit}>
         <h2 className="jersey-10-regular">Welcome</h2>
         

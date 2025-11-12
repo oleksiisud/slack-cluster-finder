@@ -1,8 +1,12 @@
 import Nav from "./Nav.jsx";
+import { useState, useEffect } from "react";
+import { keepTheme } from "../themes.js"
 import "./Account.css";
 
 const Account = () => {
-
+  useEffect(() => {
+    keepTheme();
+}, [])
   return (
     <>
       <Nav/>

@@ -22,7 +22,7 @@
 
 .navbar {
  width: 100%;
- background: rgba(253, 254, 255, 0.95);
+ background: rgba(234, 242, 252, 0.95);
  backdrop-filter: blur(10px);
  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
  position: fixed;
@@ -33,13 +33,21 @@
 }
 
 .navbar-content {
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* .navbar-content {
  padding: 1rem 2rem;
  max-width: 1200px;
  margin: 0 auto;
  display: flex;
  justify-content: space-between;
  align-items: center;
-}
+} */
 
 .logo {
   font-size: 3rem;

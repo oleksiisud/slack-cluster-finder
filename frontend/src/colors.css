@@ -1,10 +1,13 @@
 /* ============================================
    THEME COLORS - LIGHT MODE
    ============================================ */
-.theme-light {
+/* ============================================
+   THEME COLORS - LIGHT MODE
+   ============================================ */
+   .theme-light {
+    --gradient: linear-gradient(135deg, #BCD8FC 0%, #fdcb8a 100%); /* light blue to soft yellow */
     --dark-text: #1a1a1a;
     --light-text: #6b7280;
-    --light-background: #BCD8FC;  /* Light blue sky background */
     --accent: #DBE7E4;
     --button-border: rgba(253, 254, 255, 0.95);
 }
@@ -13,9 +16,9 @@
    THEME COLORS - DARK MODE
    ============================================ */
 .theme-dark {
+    --gradient: linear-gradient(135deg, #2158a0 0%, #4d1e8a 100%); /* dark blue gradient */
     --dark-text: #EAE9FC;
     --light-text: #9ca3af;
-    --light-background: #031F44;  /* Dark blue-gray background */
     --accent: #60a5fa;
     --button-border: rgba(13, 26, 39, 0.95);
 }

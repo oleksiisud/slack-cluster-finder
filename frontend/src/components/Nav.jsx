@@ -22,7 +22,7 @@ const Nav = () => {
   return (
     <nav className="navbar">
       <div className="navbar-content">
-        <div className="jersey-10-regular logo">Slack Cluster Finder</div>
+        <div className="jersey-10-regular logo">Context Search</div>
         <ul className="navbar-links">
           <Link to={'/home'}><p className="navbar-link">Home</p></Link>
           <Link to={'https://github.com/oleksiisud/slack-cluster-finder'}><p className="navbar-link">About</p></Link>
