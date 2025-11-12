@@ -1,0 +1,425 @@
+/* ============================================
+   MAIN APP CONTAINER STYLES
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Jersey+10&display=swap');
+
+/* ============================================
+   IMPORTED FONT
+   ============================================ */
+
+/* jersey-10-regular font styling for headings */
+.jersey-10-regular {
+  font-family: "Jersey 10", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.App {
+  min-height: 100vh;
+  background: var(--gradient);  /* now uses full gradient from theme */
+  padding-top: 80px;
+  position: relative;
+  transition: background 0.5s ease; /* smooth transition when switching themes */
+}
+
+
+/* Animated background elements */
+/* .App::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.App > * {
+  position: relative;
+  z-index: 1;
+} */
+
+/* Color of input text (general input styling) */
+#input {
+  color: black;
+}
+
+/* ============================================
+   LOGIN BUTTON SECTION
+   ============================================ */
+
+/* Container for Login/Sign up button */
+.button-layout{
+  padding-top: 10px;  /* Space above the button */
+  color: white;  /* White text color */
+}
+
+/* ============================================
+   HERO SECTION (Top banner with title)
+   ============================================ */
+
+/* Main hero/banner section at top of page */
+.hero-section {
+  text-align: center;  /* Center all content */
+  padding: 4rem 2rem 2rem;  /* Space: top sides bottom */
+  color: var(--dark-text);  /* Dynamic text color */
+}
+
+/* Main heading title styling */
+.hero-section h1 {
+  font-size: 3.5rem;  /* Large title size */
+  font-weight: 700;  /* Bold font */
+  margin-bottom: 1rem;  /* Space below title */
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);  /* Shadow effect for readability */
+}
+
+/* Animated gradient text effect for title */
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 700;
+  font-family: "Jersey 10", sans-serif;
+  /* Animated gradient text effect for title */
+  background: linear-gradient(135deg, #818cf8 0%, #a78bfa 50%, #f472b6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 3s ease infinite;
+  background-size: 200% 200%;
+  text-shadow: none;
+  color: transparent; /* Ensure no fallback color shows */
+}
+
+@keyframes gradientShift {
+  0%, 100% { 
+    background-position: 0% 50%; 
+  }
+  50% { 
+    background-position: 100% 50%; 
+  }
+}
+
+/* Subtitle text below main title */
+.hero-subtitle {
+  font-size: 1.2rem;  /* Smaller text size */
+  opacity: 0.9;  /* Slightly transparent */
+  max-width: 600px;  /* Limits width for readability */
+  margin: 0 auto 3rem;  /* Centers horizontally and adds space below */
+  line-height: 1.6;  /* More space between lines */
+}
+
+/* ============================================
+   MAIN CONTENT AREA
+   ============================================ */
+
+/* Container for the main content area */
+.main-content {
+  max-width: 1200px;  /* Limits width for better readability */
+  margin: 0 auto;  /* Centers the container */
+  padding: 0 2rem 4rem;  /* Space on sides and bottom */
+}
+
+/* ============================================
+   INPUT SECTION (Channel input form)
+   ============================================ */
+
+/* White card container for the input form */
+.input-section {
+  background: rgba(255, 255, 255, 0.95);  /* Semi-transparent white */
+  backdrop-filter: blur(10px);  /* Blur effect behind the card */
+  border-radius: 20px;  /* Rounded corners */
+  padding: 3rem;  /* Space inside the card */
+  margin-bottom: 3rem;  /* Space below the card */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);  /* Shadow for depth */
+}
+
+/* Container for the channel input form */
+.channel-input-form {
+  max-width: 600px;  /* Limits form width */
+  margin: 0 auto;  /* Centers the form */
+  color: black;  /* Black text inside form */
+}
+
+/* Group wrapper for label + input pairs */
+.input-group {
+  margin-bottom: 2rem;  /* Space between input groups */
+  color: black;  /* Black text */
+}
+
+/* Label text styling (e.g., "Select Slack Channel") */
+.input-label {
+  display: block;  /* Makes label take full width */
+  font-size: 1.1rem;  /* Slightly larger text */
+  font-weight: 600;  /* Semi-bold */
+  color: #374151;  /* Dark gray color */
+  margin-bottom: 0.75rem;  /* Space below label */
+  text-align: center;  /* Left-aligns label */
+}
+
+/* ============================================
+   TEXT INPUT FIELD
+   ============================================ */
+
+/* The actual input field where users type channel name */
+.channel-input {
+  width: 100%;  /* Full width */
+  padding: 1rem 1.5rem;  /* Space inside input */
+  font-size: 1rem;  /* Standard text size */
+  border: 2px solid #e5e7eb;  /* Light gray border */
+  border-radius: 12px;  /* Rounded corners */
+  transition: all 0.3s ease;  /* Smooth animations */
+  background:rgba(234, 242, 252, 0.95);  /* White background */
+  color: black;  /* Black text */
+}
+
+/* Input field when focused (clicked/typing) */
+.channel-input:focus {
+  outline: none;  /* Removes default browser outline */
+  border-color: #6366f1;  /* Changes border to purple */
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);  /* Purple glow effect */
+}
+
+/* Input field when disabled (loading state) */
+.channel-input:disabled {
+  background: #f9fafb;  /* Light gray background */
+  cursor: not-allowed;  /* Shows "stop" cursor */
+}
+
+/* ============================================
+   ANALYZE BUTTON
+   ============================================ */
+
+/* Main submit button styling */
+.analyze-button {
+  width: 100%;  /* Full width  #54B492  */ 
+  background: #2f27b9;   /* Purple gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); */
+  color: white;  /* White text */
+  border: none;  /* No border */
+  padding: 1rem 2rem;  /* Space inside button */
+  font-size: 1.1rem;  /* Larger text */
+  font-weight: 600;  /* Semi-bold */
+  border-radius: 12px;  /* Rounded corners */
+  cursor: pointer;  /* Hand cursor on hover */
+  transition: all 0.3s ease;  /* Smooth animations */
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);  /* Purple shadow */
+}
+
+/* Button when hovered (not disabled) */
+.analyze-button:hover:not(:disabled) {
+  transform: translateY(-2px);  /* Lifts button up slightly */
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);  /* Larger shadow */
+}
+
+/* Button when disabled (loading/no input) */
+.analyze-button:disabled {
+  opacity: 0.6;  /* Makes button semi-transparent */
+  cursor: not-allowed;  /* Shows "stop" cursor */
+  transform: none;  /* No hover lift effect */
+}
+
+/* ============================================
+   VISUALIZATION SECTION (Results display)
+   ============================================ */
+
+/* Container for displaying cluster results */
+.visualization-section {
+  background: rgba(255, 255, 255, 0.95);  /* Semi-transparent white */
+  backdrop-filter: blur(10px);  /* Blur effect behind */
+  border-radius: 20px;  /* Rounded corners */
+  padding: 3rem;  /* Space inside */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);  /* Shadow for depth */
+  min-height: 400px;  /* Minimum height */
+}
+
+/* ============================================
+   LOADING STATE
+   ============================================ */
+
+/* Container showing loading spinner */
+.loading-state {
+  display: flex;  /* Flexbox layout */
+  flex-direction: column;  /* Stack items vertically */
+  align-items: center;  /* Center horizontally */
+  justify-content: center;  /* Center vertically */
+  text-align: center;  /* Center text */
+  color: #6b7280;  /* Gray text */
+  padding: 4rem 2rem;  /* Space around */
+}
+
+/* Spinning loading indicator */
+.loading-spinner {
+  width: 50px;  /* Circle width */
+  height: 50px;  /* Circle height */
+  border: 4px solid #e5e7eb;  /* Light gray border */
+  border-top: 4px solid #6366f1;  /* Purple top border */
+  border-radius: 50%;  /* Makes it circular */
+  animation: spin 1s linear infinite;  /* Rotates continuously */
+  margin-bottom: 1rem;  /* Space below spinner */
+}
+
+/* Animation that rotates spinner 360 degrees */
+@keyframes spin {
+  0% { transform: rotate(0deg); }  /* Start */
+  100% { transform: rotate(360deg); }  /* End */
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+
+/* Container shown when no data/clusters */
+.empty-state {
+  display: flex;  /* Flexbox layout */
+  flex-direction: column;  /* Stack vertically */
+  align-items: center;  /* Center horizontally */
+  justify-content: center;  /* Center vertically */
+  text-align: center;  /* Center text */
+  color: #9ca3af;  /* Light gray text */
+  padding: 4rem 2rem;  /* Space around */
+}
+
+/* Large icon in empty state */
+.empty-icon {
+  font-size: 4rem;  /* Large icon size */
+  margin-bottom: 1rem;  /* Space below icon */
+}
+
+/* ============================================
+   CLUSTER MAP (Results visualization)
+   ============================================ */
+
+/* Heading for cluster visualization */
+.cluster-map-container h3 {
+  color: #374151;  /* Dark gray */
+  font-size: 1.5rem;  /* Medium-large text */
+  margin-bottom: 2rem;  /* Space below */
+  text-align: center;  /* Centered */
+}
+
+/* Container for the actual cluster visualization */
+.cluster-map {
+  min-height: 300px;  /* Minimum height */
+}
+
+/* Container for mock/multiple cluster visualizations */
+.mock-visualization {
+  display: flex;  /* Flexbox layout */
+  flex-wrap: wrap;  /* Wraps to new line if needed */
+  gap: 2rem;  /* Space between items */
+  justify-content: center;  /* Center items */
+  align-items: flex-start;  /* Align to top */
+}
+
+/* Individual cluster group card */
+.cluster-group {
+  background: #f8fafc;  /* Very light gray background */
+  border: 2px solid #e2e8f0;  /* Light border */
+  border-radius: 16px;  /* Rounded corners */
+  padding: 2rem;  /* Space inside */
+  min-width: 250px;  /* Minimum width */
+  text-align: center;  /* Center text */
+  transition: all 0.3s ease;  /* Smooth animations */
+}
+
+/* Cluster card when hovered */
+.cluster-group:hover {
+  transform: translateY(-4px);  /* Lifts card up */
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);  /* Shadow effect */
+  border-color: #6366f1;  /* Purple border */
+}
+
+/* Heading inside each cluster group */
+.cluster-group h4 {
+  color: #374151;  /* Dark gray */
+  font-size: 1.2rem;  /* Medium text */
+  margin-bottom: 1rem;  /* Space below */
+  font-weight: 600;  /* Semi-bold */
+}
+
+/* Container for cluster nodes/items */
+.cluster-nodes {
+  display: flex;  /* Flexbox layout */
+  flex-direction: column;  /* Stack vertically */
+  gap: 0.75rem;  /* Space between nodes */
+}
+
+/* Individual cluster node/item */
+.cluster-node {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);  /* Purple gradient */
+  color: rgb(26, 25, 25);  /* Dark text */
+  padding: 0.75rem 1rem;  /* Space inside */
+  border-radius: 8px;  /* Rounded corners */
+  font-weight: 500;  /* Medium weight */
+  font-size: 0.9rem;  /* Slightly smaller text */
+  transition: all 0.3s ease;  /* Smooth animations */
+  cursor: pointer;  /* Hand cursor */
+}
+
+/* Cluster node when hovered */
+.cluster-node:hover {
+  transform: scale(1.05);  /* Slightly enlarges */
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);  /* Purple shadow */
+}
+
+/* ============================================
+   RESPONSIVE STYLES (Mobile/Tablet)
+   ============================================ */
+
+/* Styles for screens smaller than 768px */
+@media (max-width: 768px) {
+  /* Smaller title on mobile */
+  .hero-section h1 {
+    font-size: 2.5rem;  /* Reduced from 3.5rem */
+  }
+  
+  /* Less padding on mobile */
+  .main-content {
+    padding: 0 1rem 2rem;  /* Reduced side padding */
+  }
+  
+  /* Reduced padding in cards */
+  .input-section,
+  .visualization-section {
+    padding: 2rem 1.5rem;  /* Less space inside */
+  }
+  
+  /* Stack visualizations vertically on mobile */
+  .mock-visualization {
+    flex-direction: column;  /* Vertical stack */
+    align-items: center;  /* Center items */
+  }
+}
+
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.channel-card {
+  padding: 2rem;
+  background: white;
+  border-radius: 16px;
+  border: 2px solid #e5e7eb;
+  cursor: pointer;
+  transition: 0.25s ease;
+  text-align: center;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.06);
+}
+
+.channel-card:hover {
+  transform: translateY(-5px);
+  border-color: #6366f1;
+  box-shadow: 0 12px 24px rgba(99,102,241,0.2);
+}
+
+.channel-card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.2rem;
+}

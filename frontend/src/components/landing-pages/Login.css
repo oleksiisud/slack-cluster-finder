@@ -1,0 +1,217 @@
+/* ============================================
+   LOGIN PAGE CONTAINER
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Jersey+10&display=swap');
+
+
+/* ============================================
+   IMPORTED FONT
+   ============================================ */
+/* jersey-10-regular font styling for headings */
+.jersey-10-regular {
+    font-family: "Jersey 10", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+/* Main form wrapper container */
+.form {
+  min-height: 100vh;
+  background: var(--gradient);
+  /* background: linear-gradient(135deg, var(--light-background) 0%, rgba(99, 102, 241, 0.1) 100%);  */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+/* ============================================
+   LOGIN FORM CARD
+   ============================================ */
+
+/* Main login form card/container */
+.login-form {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  padding: 3rem 2.5rem;
+  box-shadow: 0 20px 60px rgba(44, 130, 201, 0.2);
+  width: 100%;
+  max-width: 450px;
+  transition: all 0.3s ease;
+}
+
+/* Card hover effect (optional enhancement) */
+.login-form:hover {
+  box-shadow: 0 25px 70px rgba(44, 130, 201, 0.3);
+  transform: translateY(-2px);
+}
+
+/* ============================================
+   HEADINGS
+   ============================================ */
+
+/* Main title outside card */
+.form > h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 2rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Welcome heading inside card */
+.login-form h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #2C82C9;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+/* Subtitle inside card */
+.login-form h4 {
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: #6B9BCF;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
+
+/* Label styling */
+.login-form label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #2C5282;
+  margin-bottom: 0.5rem;
+  margin-top: 1.25rem;
+}
+
+/* First label no top margin */
+.login-form label:first-of-type {
+  margin-top: 0;
+}
+
+/* Input field styling */
+.login-form input {
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  font-size: 1rem;
+  border: 2px solid #C2DAF0;
+  border-radius: 12px;
+  background: white;
+  color: #1a365d;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+/* Input focus state */
+.login-form input:focus {
+  outline: none;
+  border-color: #2C82C9;
+  box-shadow: 0 0 0 3px rgba(44, 130, 201, 0.1);
+  background: #F7FBFF;
+}
+
+/* Input placeholder styling */
+.login-form input::placeholder {
+  color: #A0C4E3;
+}
+
+/* ============================================
+   SUBMIT BUTTON
+   ============================================ */
+
+/* Submit button */
+.login-form button {
+  width: 100%;
+  background: linear-gradient(135deg, #2C82C9 0%, #4A90E2 100%);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(44, 130, 201, 0.3);
+  margin-top: 2rem;
+}
+
+/* Button hover effect */
+.login-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(44, 130, 201, 0.4);
+  background: linear-gradient(135deg, #2569A8 0%, #3A7ECE 100%);
+}
+
+/* Button active/press effect */
+.login-form button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(44, 130, 201, 0.3);
+}
+
+/* ============================================
+   RESPONSIVE STYLES
+   ============================================ */
+
+/* Mobile/tablet adjustments */
+@media (max-width: 768px) {
+  /* Main title smaller on mobile */
+  .form > h1 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Less padding on smaller screens */
+  .login-form {
+    padding: 2rem 1.5rem;
+  }
+
+  /* Smaller card */
+  .login-form {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Even less padding on very small screens */
+  .form {
+    padding: 1rem;
+  }
+
+  .login-form {
+    padding: 1.5rem 1.25rem;
+  }
+
+  .form > h1 {
+    font-size: 1.75rem;
+  }
+}
+
+/* /* ============================================
+   ANIMATIONS
+   ============================================ */
+
+/* Fade in animation for form */
+/*
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-form {
+  animation: fadeIn 0.5s ease-out;
+} 
+*/

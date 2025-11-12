@@ -1,0 +1,58 @@
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { keepTheme } from "/src/themes.js"
+import './Login.css'
+
+
+const Login = () => {
+  // Will add MongoDB Auth and JWS
+  
+  const navigate = useNavigate();
+  
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    // TODO: Add MongoDB Auth and JWT validation
+    // Redirect to Slack Cluster Finder Page
+    navigate('/home');
+  };
+  useEffect(() => {
+      keepTheme();
+    }, [])
+  
+  return (
+    <div className="form">
+      <h1> Sign into Context Search</h1>
+      <form className="login-form" onSubmit={handleSubmit}>
+        <h2 className="jersey-10-regular">Welcome</h2>
+        
+        <label htmlFor="email">Email Address</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          placeholder="Enter your email"
+          // value={loginData.email}
+          // onChange={handleChange}
+          // required    
+        />
+        
+        <label htmlFor="password">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          placeholder="Enter your password"
+          // value={loginData.password}
+          // onChange={handleChange}
+          // required    
+        />
+        
+        <button type="submit">Enter</button>
+        <Link to={'/sign-up'}><p className="navbar-link"><button type="submit">New User? Sign up</button></p></Link>
+      </form>
+    </div>
+  )
+}
+
+export default Login;
