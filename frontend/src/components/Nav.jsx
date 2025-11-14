@@ -1,17 +1,21 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { setTheme as setThemeFunction } from '../themes.js';
 import './Nav.css'
+import { useAuth } from '../AuthContext.jsx';
 
 const Nav = () => {
+  const { session, signOut } = useAuth();
   const [theme, setThemeState] = useState(localStorage.getItem('theme') || 'theme-dark');
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Apply theme on component mount
     const currentTheme = localStorage.getItem('theme') || 'theme-dark';
     setThemeFunction(currentTheme);
     setThemeState(currentTheme);
-  }, []);
+    if (!session) navigate('/log-in');
+  }, [session, navigate]);
 
   const toggleTheme = () => {
     const newTheme = theme === 'theme-dark' ? 'theme-light' : 'theme-dark';
@@ -30,6 +34,7 @@ const Nav = () => {
           <button className="dark-mode-toggle" onClick={toggleTheme}>
             {theme === 'theme-dark' ? '🐈' : '🐈‍⬛'}
           </button>
+          {session ? <button onClick={signOut}>Sign Out</button> : null}
         </ul>
       </div>
     </nav>

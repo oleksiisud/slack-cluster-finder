@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Nav from "./components/Nav";
 import { keepTheme } from "./themes.js"
 import ChannelCard from "./components/DataCard";
+import { useAuth } from './AuthContext.jsx';
 
 import "./App.css";
 
@@ -11,6 +12,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [category, setCategory] = useState('');
   const navigate = useNavigate();
+  const {session} = useAuth();
  
 const channels = [
   { label: "Create New Dashboard", value: "/new-dashboard" },
@@ -30,7 +32,14 @@ const channels = [
  }
   useEffect(() => {
     keepTheme();
-  }, [])
+    console.log("useEffect triggered, session:", session);
+    if (session) {
+      console.log("Logged In");
+    }
+    else {
+      console.log("Session is null");
+    }
+  }, [session])
 
   const handleChannelSubmit = async (e) => {
     e.preventDefault();
