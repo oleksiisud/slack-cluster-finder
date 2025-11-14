@@ -1,4 +1,4 @@
-# 🖥️ Slack Cluster Finder — Frontend
+# 🖥️ Slack Cluster Finder DS Project
 
 The **Frontend Folder** is a the development of the frontend for **Slack Cluster Finder**, which is React-based web application that allows users to analyze and visualize patterns within Slack channels.  
 
