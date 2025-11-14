@@ -22,12 +22,10 @@ createRoot(document.getElementById('root')).render(
           <Route path="/" element={<Login />} />
           <Route path="/log-in" element={<Login />} />
           <Route path="/sign-up" element={<Signup />} />
-          <Route element={<ProtectedRoute />}>
-            <Route path="/home" element={<App />} />
-            <Route path="/account" element = {<Account />} />
-            <Route path ="/new-dashboard" element = {<DataCollection/>} />
-            <Route path="/dashboard/:channelId" element={<Dashboard />} />
-          </Route>
+          <Route path="/home" element={<App />} />
+          <Route path="/account" element = {<Account />} />
+          <Route path ="/new-dashboard" element = {<DataCollection/>} />
+          <Route path="/dashboard/:channelId" element={<Dashboard />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
