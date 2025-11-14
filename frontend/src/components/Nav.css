@@ -1,0 +1,119 @@
+/* ============================================
+   MAIN APP CONTAINER STYLES
+   ============================================ */
+   @import url('https://fonts.googleapis.com/css2?family=Jersey+10&display=swap');
+
+   /* ============================================
+      IMPORTED FONT
+      ============================================ */
+   
+   /* jersey-10-regular font styling for headings */
+   .jersey-10-regular {
+     font-family: "Jersey 10", sans-serif;
+     font-weight: 400;
+     font-style: normal;
+   }
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar {
+ width: 100%;
+ background: rgba(234, 242, 252, 0.95);
+ backdrop-filter: blur(10px);
+ box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+ position: fixed;
+ top: 0;
+ left: 0;
+ z-index: 999;
+ font-family: system-ui, -apple-system, sans-serif;
+}
+
+.navbar-content {
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* .navbar-content {
+ padding: 1rem 2rem;
+ max-width: 1200px;
+ margin: 0 auto;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
+} */
+
+.logo {
+  font-size: 3rem;
+  font-weight: 700;
+  font-family: "Jersey 10", sans-serif;
+  /* Animated gradient text effect for title */
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 3s ease infinite;
+  background-size: 200% 200%;
+  text-shadow: none;
+  color: transparent; /* Ensure no fallback color shows */
+}
+
+@keyframes gradientShift {
+  0%, 100% { 
+    background-position: 0% 50%; 
+  }
+  50% { 
+    background-position: 100% 50%; 
+  }
+}
+
+
+
+.navbar-links {
+ list-style: none;
+ display: flex;
+ gap: 1.5rem;
+ margin: 0;
+ padding: 0;
+}
+
+.navbar-link {
+ text-decoration: none;
+ color: #6b7280;
+ font-weight: 500;
+ transition: color 0.3s ease;
+ padding: 0.5rem 1rem;
+ border-radius: 8px;
+}
+
+.navbar-link:hover {
+ color: #6366f1;
+ background: rgba(99, 102, 241, 0.05);
+}
+
+.dark-mode-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  padding: 0.5rem;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  background-color: transparent;
+}
+
+.dark-mode-toggle:hover {
+  background: rgba(99, 102, 241, 0.1);
+  transform: scale(1.1);
+}
