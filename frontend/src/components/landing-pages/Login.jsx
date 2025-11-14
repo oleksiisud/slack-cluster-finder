@@ -1,20 +1,54 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+
 import { keepTheme } from "/src/themes.js"
 import './Login.css'
+import { supabase } from '../../supabaseClient.js';
+import { useAuth } from '../../AuthContext.jsx';
 
 
 const Login = () => {
-  // Will add MongoDB Auth and JWS
-  
+  const { session } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
+  useEffect(() => {
+    if (session) navigate('/home');
+  }, [session, navigate])
+
+
+  const handleSlackLogin = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'slack_oidc',
+      });
+      if (error) throw error;
+    } catch (error) {
+      alert(error.error_description || error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
   
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    // TODO: Add MongoDB Auth and JWT validation
-    // Redirect to Slack Cluster Finder Page
-    navigate('/home');
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
+      // Navigation will happen via useEffect on auth state change
+    } catch (error) {
+      alert(error.error_description || error.message);
+    } finally {
+      setLoading(false);
+    }
   };
   useEffect(() => {
       keepTheme();
@@ -32,9 +66,9 @@ const Login = () => {
           name="email"
           type="email"
           placeholder="Enter your email"
-          // value={loginData.email}
-          // onChange={handleChange}
-          // required    
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required    
         />
         
         <label htmlFor="password">Password</label>
@@ -43,12 +77,17 @@ const Login = () => {
           name="password"
           type="password"
           placeholder="Enter your password"
-          // value={loginData.password}
-          // onChange={handleChange}
-          // required    
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required    
         />
         
-        <button type="submit">Enter</button>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Signing in...' : 'Enter'}
+        </button>
+        <button type="button" onClick={handleSlackLogin} disabled={loading}>
+          {loading ? 'Signing in...' : 'Sign in with Slack'}
+        </button>
         <Link to={'/sign-up'}><p className="navbar-link"><button type="submit">New User? Sign up</button></p></Link>
       </form>
     </div>
