@@ -1,0 +1,84 @@
+2025-11-14 18:40:51,507 WARNING PyNaCl is not installed, voice will NOT be supported
+2025-11-14 18:40:51,508 INFO logging in using static token
+2025-11-14 18:41:58,623 WARNING PyNaCl is not installed, voice will NOT be supported
+2025-11-14 18:41:58,623 INFO logging in using static token
+2025-11-14 18:53:41,251 WARNING PyNaCl is not installed, voice will NOT be supported
+2025-11-14 18:53:41,251 INFO logging in using static token
+2025-11-14 18:53:41,334 ERROR Discord login failed: Improper token passed. Check that DISCORD_BOT_TOKEN is the bot token from the Developer Portal and has not been revoked.
+2025-11-14 19:03:54,651 WARNING PyNaCl is not installed, voice will NOT be supported
+2025-11-14 19:03:54,652 INFO logging in using static token
+2025-11-14 19:03:54,750 ERROR Discord login failed: Improper token passed. Check that DISCORD_BOT_TOKEN is the bot token from the Developer Portal and has not been revoked.
+2025-11-14 19:10:21,134 WARNING PyNaCl is not installed, voice will NOT be supported
+2025-11-14 19:10:21,135 INFO logging in using static token
+2025-11-14 19:10:21,250 ERROR Discord login failed: Improper token passed. Check that DISCORD_BOT_TOKEN is the bot token from the Developer Portal and has not been revoked.
+2025-11-14 19:14:44,655 WARNING PyNaCl is not installed, voice will NOT be supported
+2025-11-14 19:14:44,656 INFO logging in using static token
+2025-11-14 19:14:44,774 ERROR Discord login failed: Improper token passed. Check that DISCORD_BOT_TOKEN is the bot token from the Developer Portal and has not been revoked.
+2025-11-14 19:16:02,940 WARNING PyNaCl is not installed, voice will NOT be supported
+2025-11-14 19:16:02,941 INFO logging in using static token
+2025-11-14 19:16:03,037 ERROR Discord login failed: Improper token passed. Check that DISCORD_BOT_TOKEN is the bot token from the Developer Portal and has not been revoked.
+2025-11-14 19:30:35,312 WARNING PyNaCl is not installed, voice will NOT be supported
+2025-11-14 19:30:35,313 INFO logging in using static token
+2025-11-14 19:30:35,435 ERROR Discord login failed: Improper token passed. Check that DISCORD_BOT_TOKEN is the bot token from the Developer Portal and has not been revoked.
+2025-11-14 19:43:54,293 WARNING PyNaCl is not installed, voice will NOT be supported
+2025-11-14 19:43:54,293 INFO logging in using static token
+2025-11-14 19:43:54,866 ERROR Discord bot failed to start: Shard ID None is requesting privileged intents that have not been explicitly enabled in the developer portal. It is recommended to go to https://discord.com/developers/applications/ and explicitly enable the privileged intents within your application's page. If this is not possible, then consider disabling the privileged intents instead.
+Traceback (most recent call last):
+  File "/Users/test/slack-cluster-finder/discordbot/discordbot.py", line 131, in <module>
+    bot.run(DISCORD_BOT_TOKEN)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/test/slack-cluster-finder/.venv/lib/python3.14/site-packages/discord/client.py", line 929, in run
+    asyncio.run(runner())
+    ~~~~~~~~~~~^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/test/slack-cluster-finder/.venv/lib/python3.14/site-packages/discord/client.py", line 918, in runner
+    await self.start(token, reconnect=reconnect)
+  File "/Users/test/slack-cluster-finder/.venv/lib/python3.14/site-packages/discord/client.py", line 847, in start
+    await self.connect(reconnect=reconnect)
+  File "/Users/test/slack-cluster-finder/.venv/lib/python3.14/site-packages/discord/client.py", line 771, in connect
+    raise PrivilegedIntentsRequired(exc.shard_id) from None
+discord.errors.PrivilegedIntentsRequired: Shard ID None is requesting privileged intents that have not been explicitly enabled in the developer portal. It is recommended to go to https://discord.com/developers/applications/ and explicitly enable the privileged intents within your application's page. If this is not possible, then consider disabling the privileged intents instead.
+2025-11-14 19:45:20,810 WARNING PyNaCl is not installed, voice will NOT be supported
+2025-11-14 19:45:20,811 INFO logging in using static token
+2025-11-14 19:45:21,731 ERROR Discord bot failed to start: Shard ID None is requesting privileged intents that have not been explicitly enabled in the developer portal. It is recommended to go to https://discord.com/developers/applications/ and explicitly enable the privileged intents within your application's page. If this is not possible, then consider disabling the privileged intents instead.
+Traceback (most recent call last):
+  File "/Users/test/slack-cluster-finder/discordbot/discordbot.py", line 139, in <module>
+    bot.run(DISCORD_BOT_TOKEN)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/Users/test/slack-cluster-finder/.venv/lib/python3.14/site-packages/discord/client.py", line 929, in run
+    asyncio.run(runner())
+    ~~~~~~~~~~~^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.14/lib/python3.14/asyncio/base_events.py", line 719, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "/Users/test/slack-cluster-finder/.venv/lib/python3.14/site-packages/discord/client.py", line 918, in runner
+    await self.start(token, reconnect=reconnect)
+  File "/Users/test/slack-cluster-finder/.venv/lib/python3.14/site-packages/discord/client.py", line 847, in start
+    await self.connect(reconnect=reconnect)
+  File "/Users/test/slack-cluster-finder/.venv/lib/python3.14/site-packages/discord/client.py", line 771, in connect
+    raise PrivilegedIntentsRequired(exc.shard_id) from None
+discord.errors.PrivilegedIntentsRequired: Shard ID None is requesting privileged intents that have not been explicitly enabled in the developer portal. It is recommended to go to https://discord.com/developers/applications/ and explicitly enable the privileged intents within your application's page. If this is not possible, then consider disabling the privileged intents instead.
+2025-11-14 19:46:19,018 WARNING PyNaCl is not installed, voice will NOT be supported
+2025-11-14 19:46:19,018 WARNING Privileged message content intent is missing, commands may not work as expected.
+2025-11-14 19:46:19,018 INFO logging in using static token
+2025-11-14 19:46:19,602 INFO Shard ID None has connected to Gateway (Session ID: ba3ff64f89594e4e49773e7cc85232c3).
+2025-11-14 19:46:21,603 INFO Logged in as d-bot-02#2207
+2025-11-14 19:47:33,359 WARNING PyNaCl is not installed, voice will NOT be supported
+2025-11-14 19:47:33,360 WARNING Privileged message content intent is missing, commands may not work as expected.
+2025-11-14 19:47:33,360 INFO logging in using static token
+2025-11-14 19:47:34,096 INFO Shard ID None has connected to Gateway (Session ID: ace32de595fd221e9c7d8f8b01100b8d).
+2025-11-14 19:47:36,098 INFO Logged in as d-bot-02#2207
