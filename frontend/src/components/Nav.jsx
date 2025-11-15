@@ -14,8 +14,10 @@ const Nav = () => {
     const currentTheme = localStorage.getItem('theme') || 'theme-dark';
     setThemeFunction(currentTheme);
     setThemeState(currentTheme);
-    if (!session) navigate('/log-in');
-  }, [session, navigate]);
+    // if (!session) {
+    //   navigate('log-in');
+    // }
+  }, []);
 
   const toggleTheme = () => {
     const newTheme = theme === 'theme-dark' ? 'theme-light' : 'theme-dark';
