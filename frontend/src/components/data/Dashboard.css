@@ -1,0 +1,53 @@
+.Dashboard {
+    min-height: 100vh;
+    background: var(--gradient);
+    padding: 6rem 2rem 2rem;
+    color: var(--dark-text);
+  }
+  
+  /* Dashboard Title */
+  .Dashboard h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--dark-text);
+  }
+  
+  /* Main layout: Graph + Filters */
+  .dashboard-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;   /* Left side bigger */
+    gap: 2rem;
+    width: 100%;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+  
+  /* Graph Section */
+  .graph-section,
+  .filter-section {
+    background: rgba(255, 255, 255, 0.2);  /* transparent box */
+    border-radius: 12px;
+    padding: 1.5rem;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  /* Placeholder boxes */
+  .graph-placeholder,
+  .filter-placeholder {
+    height: 400px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px dashed rgba(255, 255, 255, 0.4);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Mobile responsive */
+  @media (max-width: 900px) {
+    .dashboard-layout {
+      grid-template-columns: 1fr; /* Stacks vertically */
+    }
+  }
+  

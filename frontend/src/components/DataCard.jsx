@@ -11,10 +11,13 @@ export default function DataCard({ label, value }) {
         .toLowerCase()
         .replace(/\s+/g, "-")
         .replace(/[^a-z0-9\-]/g, "");
-
-      navigate(`/dashboard/${id}`);
+  
+      navigate(`/dashboard/${id}`, {
+        state: { label }  
+      });
     }
   };
+  
 
   return (
     <div className="channel-card" onClick={handleClick}>

@@ -14,8 +14,10 @@ const Nav = () => {
     const currentTheme = localStorage.getItem('theme') || 'theme-dark';
     setThemeFunction(currentTheme);
     setThemeState(currentTheme);
-    if (!session) navigate('/log-in');
-  }, [session, navigate]);
+    // if (!session) {
+    //   navigate('log-in');
+    // }
+  }, []);
 
   const toggleTheme = () => {
     const newTheme = theme === 'theme-dark' ? 'theme-light' : 'theme-dark';
@@ -26,7 +28,7 @@ const Nav = () => {
   return (
     <nav className="navbar">
       <div className="navbar-content">
-        <div className="jersey-10-regular logo">Context Search</div>
+        <div className="jersey-10-regular logo">Stellar Search </div>
         <ul className="navbar-links">
           <Link to={'/home'}><p className="navbar-link">Home</p></Link>
           <Link to={'https://github.com/oleksiisud/slack-cluster-finder'}><p className="navbar-link">About</p></Link>

@@ -10,7 +10,7 @@ import Login from './components/landing-pages/Login.jsx'
 import Signup from './components/landing-pages/Signup.jsx' 
 import Account from './components/Account.jsx'
 import DataCollection from './components/DataCollection.jsx';
-import Dashboard from './components/Dashboard.jsx';
+import Dashboard from './components/data/Dashboard.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';
 
 createRoot(document.getElementById('root')).render(
