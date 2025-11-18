@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Slack Cluster Finder",
+  "version": "1.0.0",
+  "description": "Quickly navigate to cluster finder with Ctrl+S on verified URLs",
+  "permissions": [],
+  "icons": {
+    "16": "StellarLogo.png",
+    "48": "StellarLogo.png",
+    "128": "StellarLogo.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://*.slack.com/*"],
+      "js": ["config.js", "content.js"],
+      "run_at": "document_end"
+    }
+  ]
+}
