@@ -6,7 +6,7 @@ The **Frontend Folder** is a the development of the frontend for **Slack Cluster
 * **Faizan Khan** \- Slackbot Developer
 * **Jessica Chen** \- Backend Developer  
 * **Oleksii Sudarin** \- Cluster Graph Developer
-* **Eric Azayev** \- User Stories/UI/UX
+* **Eric Azayev** \- User Stories/Slack App Developer
 
 **Note:** This is not the final product and will be further developed.
 
