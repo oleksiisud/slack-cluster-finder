@@ -13,4 +13,12 @@ Slack is a widely used application, but its search and message filtering are ver
 
 **Note:** This is not the final product and will be further developed.
 
+
+**Tech Stack:**
+- TypeScript/Python/JavaScript -> Slackbot/Discordbot/Slack App
+- Plotly/Python -> Cluster Graphs
+- FastAPI/Supabase -> Backend
+- React -> Frontend
+
+
 ---
