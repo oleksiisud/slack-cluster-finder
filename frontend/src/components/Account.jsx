@@ -12,7 +12,7 @@ const Account = () => {
       <Nav/>
       <div className = "Account">
         <h1>Account</h1>
-        <p>I will add a profile info, setting, past dashboard, preferences, etc.</p>
+        <p>Will add a profile info, setting, past dashboard, preferences, etc.</p>
         </div>
     </>
   );
