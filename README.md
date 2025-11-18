@@ -14,7 +14,7 @@ The **Frontend Folder** is a the development of the frontend for **Slack Cluster
 
 ## ⚙️ Requirements
 
-Before running the frontend locally, make sure you have the following installed:
+Before running the application locally, make sure you have the following installed:
 
 - **Node.js** (v18 or higher)
 - **npm** (v9 or higher) or **yarn**
