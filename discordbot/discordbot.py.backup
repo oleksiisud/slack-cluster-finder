@@ -1,11 +1,4 @@
 import os
-import ssl
-import certifi
-
-# Fix SSL certificates for macOS
-_create_default_https_context = ssl.create_default_context
-ssl._create_default_https_context = lambda *args, **kwargs: _create_default_https_context(cafile=certifi.where(), *args, **kwargs)
-
 import json
 import hashlib
 import asyncio
@@ -22,9 +15,6 @@ HASH_SALT = os.getenv('HASH_SALT', 'dev-salt')
 
 # Feature flags (use 'true'/'1' to enable)
 ENABLE_MESSAGE_CONTENT = os.getenv('DISCORD_ENABLE_MESSAGE_CONTENT', 'false').lower() in ('1', 'true', 'yes')
-ENABLE_MEMBERS = os.getenv('DISCORD_ENABLE_MEMBERS', 'false').lower() in ('1', 'true', 'yes')
-
-intents = discord.Intents.default()
 ENABLE_MEMBERS = os.getenv('DISCORD_ENABLE_MEMBERS', 'false').lower() in ('1', 'true', 'yes')
 
 intents = discord.Intents.default()
