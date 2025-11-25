@@ -1,4 +1,4 @@
-.cluster-graph-container {
+.radial-cluster-graph-container {
   width: 100%;
   height: 100%;
   position: relative;
@@ -16,12 +16,33 @@
   font-size: 1.2rem;
 }
 
-/* Custom Tooltip */
+/* Back button */
+.back-button {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+  background: rgba(78, 205, 196, 0.2);
+  border: 1px solid rgba(78, 205, 196, 0.5);
+  color: #4ECDC4;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.back-button:hover {
+  background: rgba(78, 205, 196, 0.3);
+  transform: translateX(-3px);
+}
+
+/* Tooltip styles */
 .graph-tooltip-wrapper {
   position: absolute;
   pointer-events: none;
   z-index: 1000;
-  transform: translate(20px, -50%);
 }
 
 .graph-tooltip {
@@ -34,9 +55,21 @@
   max-width: 350px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   color: white;
+  animation: tooltipFadeIn 0.2s ease-out;
 }
 
-/* Cluster Tooltip */
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Cluster tooltip */
 .cluster-tooltip h4 {
   color: #4ECDC4;
   margin: 0 0 10px 0;
@@ -66,46 +99,7 @@
   border: 1px solid rgba(78, 205, 196, 0.3);
 }
 
-.tooltip-messages {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.tooltip-messages strong {
-  display: block;
-  margin-bottom: 8px;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 0.85rem;
-}
-
-.tooltip-message {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 6px 8px;
-  border-radius: 6px;
-  margin-bottom: 6px;
-  font-size: 0.85rem;
-  line-height: 1.4;
-}
-
-.msg-user {
-  color: #4ECDC4;
-  font-weight: 600;
-  margin-right: 5px;
-}
-
-.msg-text {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.tooltip-more {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.8rem;
-  font-style: italic;
-  margin-top: 6px;
-}
-
-/* Message Tooltip */
+/* Message tooltip */
 .message-tooltip {
   max-width: 400px;
 }
@@ -173,22 +167,6 @@
   filter: brightness(0) saturate(100%) invert(71%) sepia(36%) saturate(517%) hue-rotate(126deg) brightness(92%) contrast(87%);
 }
 
-/* Animation */
-.graph-tooltip {
-  animation: tooltipFadeIn 0.2s ease-out;
-}
-
-@keyframes tooltipFadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
 /* Responsive */
 @media (max-width: 768px) {
   .graph-tooltip {
@@ -200,4 +178,10 @@
   .cluster-tooltip h4 {
     font-size: 1rem;
   }
+
+  .back-button {
+    padding: 8px 16px;
+    font-size: 0.9rem;
+  }
 }
+

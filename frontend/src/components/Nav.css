@@ -30,10 +30,11 @@
  left: 0;
  z-index: 999;
  font-family: system-ui, -apple-system, sans-serif;
+ padding: 0;
 }
 
 .navbar-content {
-  padding: 1rem 2rem;
+  padding: 0rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -90,6 +91,7 @@
  transition: color 0.3s ease;
  padding: 0.5rem 1rem;
  border-radius: 8px;
+ margin: auto 0;
 }
 
 .navbar-link:hover {

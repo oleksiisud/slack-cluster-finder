@@ -6,6 +6,12 @@ import React, { useRef, useCallback, useEffect, useState } from 'react';
 import ForceGraph2D from 'react-force-graph-2d';
 import './ClusterGraph.css';
 
+// Import SVG icons
+import UserIcon from '../../assets/settings.svg'; // Using settings as generic user icon
+import ChannelIcon from '../../assets/cloud-data-connection.svg';
+import ClockIcon from '../../assets/clock-hour-3.svg';
+import LinkIcon from '../../assets/search.svg';
+
 const ClusterGraph = ({ 
   clusteringData, 
   onClusterClick, 
@@ -17,20 +23,19 @@ const ClusterGraph = ({
   const [graphData, setGraphData] = useState({ nodes: [], links: [] });
   const [hoveredNode, setHoveredNode] = useState(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+  const [tooltip, setTooltip] = useState(null);
 
   // Update dimensions on resize
   useEffect(() => {
     const updateDimensions = () => {
-      // Get the container element
       const container = graphRef.current?.parentElement;
       if (container) {
         const rect = container.getBoundingClientRect();
         setDimensions({
-          width: rect.width - 20, // Account for padding
+          width: rect.width - 20,
           height: rect.height - 20,
         });
       } else {
-        // Fallback dimensions based on 2/3 of screen width
         const graphWidth = (window.innerWidth * 2/3) - 100;
         setDimensions({
           width: graphWidth,
@@ -39,7 +44,6 @@ const ClusterGraph = ({
       }
     };
 
-    // Initial update with slight delay to ensure container is rendered
     setTimeout(updateDimensions, 100);
     window.addEventListener('resize', updateDimensions);
     return () => window.removeEventListener('resize', updateDimensions);
@@ -54,19 +58,23 @@ const ClusterGraph = ({
 
     const { clusters, messages } = clusteringData;
 
-    // Create nodes for each cluster
-    const clusterNodes = clusters.map(cluster => ({
-      id: cluster.cluster_id,
-      label: cluster.label,
-      tags: cluster.tags,
-      size: cluster.size,
-      type: 'cluster',
-      val: Math.sqrt(cluster.size) * 3, // Visual size
-      color: getClusterColor(cluster.cluster_id, clusters.length),
-      messages: messages.filter(m => m.cluster_id === cluster.cluster_id),
-    }));
+    // Create nodes for each cluster (containing all their messages)
+    const clusterNodes = clusters.map(cluster => {
+      const clusterMessages = messages.filter(m => m.cluster_id === cluster.cluster_id);
+      
+      return {
+        id: cluster.cluster_id,
+        label: cluster.label,
+        tags: cluster.tags,
+        size: cluster.size,
+        type: 'cluster',
+        val: Math.sqrt(cluster.size) * 4, // Visual size
+        color: getClusterColor(cluster.cluster_id, clusters.length),
+        messages: clusterMessages,
+      };
+    });
 
-    // Create nodes for individual messages (smaller, connected to clusters)
+    // Create message nodes if searching
     const messageNodes = [];
     const links = [];
 
@@ -80,13 +88,13 @@ const ClusterGraph = ({
 
     // If there's a search query, show matching messages
     if (searchQuery && filteredMessages.length > 0) {
-      filteredMessages.forEach((msg, idx) => {
+      filteredMessages.forEach((msg) => {
         const msgNodeId = `msg_${msg.message_id}`;
         messageNodes.push({
           id: msgNodeId,
           label: msg.text.substring(0, 30) + '...',
           type: 'message',
-          val: 2,
+          val: 3,
           color: '#64B5F6',
           message: msg,
         });
@@ -95,7 +103,7 @@ const ClusterGraph = ({
         links.push({
           source: msgNodeId,
           target: msg.cluster_id,
-          distance: 50,
+          distance: 60,
         });
       });
     }
@@ -130,13 +138,90 @@ const ClusterGraph = ({
   }, [clusteringData, searchQuery]);
 
   // Handle node click
-  const handleNodeClick = useCallback((node) => {
+  const handleNodeClick = useCallback((node, event) => {
     if (node.type === 'cluster') {
       onClusterClick?.(node);
     } else if (node.type === 'message') {
-      onMessageClick?.(node.message);
+      // Redirect to permalink if available
+      if (node.message.permalink) {
+        window.open(node.message.permalink, '_blank');
+      } else {
+        onMessageClick?.(node.message);
+      }
     }
   }, [onClusterClick, onMessageClick]);
+
+  // Handle node hover
+  const handleNodeHover = useCallback((node, prevNode) => {
+    setHoveredNode(node);
+    
+    if (node) {
+      // Show tooltip
+      if (node.type === 'cluster') {
+        setTooltip({
+          node,
+          content: (
+            <div className="graph-tooltip cluster-tooltip">
+              <h4>{node.label}</h4>
+              <p className="tooltip-size">{node.size} messages</p>
+              <div className="tooltip-tags">
+                {node.tags.slice(0, 5).map(tag => (
+                  <span key={tag} className="tooltip-tag">{tag}</span>
+                ))}
+              </div>
+              <div className="tooltip-messages">
+                <strong>Recent messages:</strong>
+                {node.messages.slice(0, 3).map((msg, idx) => (
+                  <div key={idx} className="tooltip-message">
+                    <span className="msg-user">{msg.user}:</span> 
+                    <span className="msg-text">{msg.text.substring(0, 60)}...</span>
+                  </div>
+                ))}
+                {node.messages.length > 3 && (
+                  <div className="tooltip-more">
+                    +{node.messages.length - 3} more messages
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        });
+      } else if (node.type === 'message') {
+        setTooltip({
+          node,
+          content: (
+            <div className="graph-tooltip message-tooltip">
+              <div className="tooltip-header">
+                <span className="tooltip-user">
+                  <img src={UserIcon} alt="" className="tooltip-icon" />
+                  {node.message.user}
+                </span>
+                <span className="tooltip-channel">
+                  <img src={ChannelIcon} alt="" className="tooltip-icon" />
+                  {node.message.channel}
+                </span>
+              </div>
+              <p className="tooltip-text">{node.message.text}</p>
+              <div className="tooltip-meta">
+                <span className="tooltip-meta-item">
+                  <img src={ClockIcon} alt="" className="tooltip-icon" />
+                  {new Date(node.message.timestamp).toLocaleString()}
+                </span>
+                {node.message.permalink && (
+                  <span className="tooltip-link">
+                    <img src={LinkIcon} alt="" className="tooltip-icon" />
+                    Click to open
+                  </span>
+                )}
+              </div>
+            </div>
+          )
+        });
+      }
+    } else {
+      setTooltip(null);
+    }
+  }, []);
 
   // Custom node rendering
   const nodeCanvasObject = useCallback((node, ctx, globalScale) => {
@@ -158,27 +243,27 @@ const ClusterGraph = ({
 
     // Add glow effect for clusters
     if (node.type === 'cluster') {
-      ctx.shadowBlur = isSelected || isHovered ? 20 : 10;
+      ctx.shadowBlur = isSelected || isHovered ? 25 : 12;
       ctx.shadowColor = node.color;
     }
 
     // Draw border
-    ctx.strokeStyle = isSelected ? '#FFF' : 'rgba(255,255,255,0.3)';
-    ctx.lineWidth = isSelected ? 2 : 1;
+    ctx.strokeStyle = isSelected ? '#FFF' : 'rgba(255,255,255,0.4)';
+    ctx.lineWidth = isSelected ? 3 : 1.5;
     ctx.stroke();
 
-    // Draw label
+    // Draw label for clusters
+    ctx.shadowBlur = 0;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#FFF';
-    ctx.shadowBlur = 0;
     
-    if (node.type === 'cluster' || isHovered) {
-      // Show full label for clusters and hovered nodes
-      const maxWidth = 100;
+    if (node.type === 'cluster') {
+      // Show label below node
+      const maxWidth = 120;
       const words = label.split(' ');
       let line = '';
-      let y = node.y + node.val + 15;
+      let y = node.y + node.val + 18;
 
       words.forEach(word => {
         const testLine = line + word + ' ';
@@ -192,27 +277,30 @@ const ClusterGraph = ({
         }
       });
       ctx.fillText(line, node.x, y);
-    }
 
-    // Show size badge for clusters
-    if (node.type === 'cluster') {
+      // Show size badge
       ctx.beginPath();
-      ctx.arc(node.x + node.val - 5, node.y - node.val + 5, 8, 0, 2 * Math.PI);
-      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.arc(node.x + node.val - 8, node.y - node.val + 8, 10, 0, 2 * Math.PI);
+      ctx.fillStyle = 'rgba(255,255,255,0.95)';
       ctx.fill();
       ctx.strokeStyle = node.color;
+      ctx.lineWidth = 2;
       ctx.stroke();
       
       ctx.fillStyle = '#000';
-      ctx.font = `bold ${10/globalScale}px Sans-Serif`;
-      ctx.fillText(node.size, node.x + node.val - 5, node.y - node.val + 5);
+      ctx.font = `bold ${11/globalScale}px Sans-Serif`;
+      ctx.fillText(node.size, node.x + node.val - 8, node.y - node.val + 8);
+    } else if (node.type === 'message' && (isHovered || isSelected)) {
+      // Show abbreviated label for messages when hovered
+      ctx.font = `${fontSize}px Sans-Serif`;
+      ctx.fillText(label, node.x, node.y + node.val + 15);
     }
   }, [selectedClusterId, hoveredNode]);
 
   // Link styling
   const linkCanvasObject = useCallback((link, ctx) => {
-    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(link.source.x, link.source.y);
     ctx.lineTo(link.target.x, link.target.y);
@@ -233,14 +321,14 @@ const ClusterGraph = ({
         ref={graphRef}
         graphData={graphData}
         nodeId="id"
-        nodeLabel="label"
+        nodeLabel={() => ''} // We handle tooltips manually
         nodeVal="val"
         nodeCanvasObject={nodeCanvasObject}
         linkCanvasObject={linkCanvasObject}
         linkDistance={link => link.distance || 100}
         linkStrength={link => link.strength || 0.1}
         onNodeClick={handleNodeClick}
-        onNodeHover={setHoveredNode}
+        onNodeHover={handleNodeHover}
         width={dimensions.width}
         height={dimensions.height}
         backgroundColor="#0a0e27"
@@ -251,6 +339,19 @@ const ClusterGraph = ({
         enableZoomInteraction={true}
         enablePanInteraction={true}
       />
+      
+      {/* Custom tooltip */}
+      {tooltip && hoveredNode && (
+        <div 
+          className="graph-tooltip-wrapper"
+          style={{
+            left: `${hoveredNode.x}px`,
+            top: `${hoveredNode.y}px`,
+          }}
+        >
+          {tooltip.content}
+        </div>
+      )}
     </div>
   );
 };
@@ -268,4 +369,3 @@ const getClusterColor = (clusterId, totalClusters) => {
 };
 
 export default ClusterGraph;
-

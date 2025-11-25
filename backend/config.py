@@ -15,9 +15,12 @@ class Config:
     LLM_MODEL = os.getenv("LLM_MODEL", "meta-llama/Llama-3.2-3B-Instruct")
     
     # Clustering parameters
-    MIN_CLUSTER_SIZE = int(os.getenv("MIN_CLUSTER_SIZE", "2"))
-    MAX_CLUSTERS = int(os.getenv("MAX_CLUSTERS", "50"))
-    DISTANCE_THRESHOLD = float(os.getenv("DISTANCE_THRESHOLD", "1.0"))
+    # Higher MIN_CLUSTER_SIZE = fewer, more meaningful clusters
+    MIN_CLUSTER_SIZE = int(os.getenv("MIN_CLUSTER_SIZE", "3"))
+    # Lower MAX_CLUSTERS = fewer overall clusters
+    MAX_CLUSTERS = int(os.getenv("MAX_CLUSTERS", "15"))
+    # Higher DISTANCE_THRESHOLD = fewer, larger clusters (groups more similar messages together)
+    DISTANCE_THRESHOLD = float(os.getenv("DISTANCE_THRESHOLD", "1.5"))
     
     # Server configuration
     HOST = os.getenv("HOST", "0.0.0.0")

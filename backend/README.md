@@ -42,7 +42,9 @@ API documentation: `http://localhost:8000/docs`
 
 ## API Endpoints
 
-### POST `/cluster`
+### Clustering Endpoints
+
+#### POST `/cluster`
 Cluster messages and generate topic labels.
 
 **Request body**:
@@ -111,6 +113,47 @@ Get information about loaded models.
 
 ### POST `/cache/clear`
 Clear the clustering cache.
+
+### Slack Integration Endpoints
+
+#### POST `/slack/test`
+Test Slack API connection with a user token.
+
+**Request body**:
+```json
+{
+  "user_token": "xoxp-your-token-here"
+}
+```
+
+**Response**:
+```json
+{
+  "ok": true,
+  "user": "john_doe",
+  "team": "MyCompany",
+  "user_id": "U123ABC",
+  "error": null
+}
+```
+
+#### POST `/slack/fetch`
+Fetch messages directly from Slack workspace.
+
+**Request body**:
+```json
+{
+  "user_token": "xoxp-your-token-here",
+  "include_public": true,
+  "include_private": true,
+  "include_dms": false,
+  "include_permalinks": false
+}
+```
+
+**Response**: Array of messages in standard format (same as `/cluster` input)
+
+**Note**: See `SLACK_INTEGRATION_GUIDE.md` for detailed setup instructions.
 
 ## Configuration
 
