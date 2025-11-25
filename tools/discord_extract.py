@@ -1,4 +1,88 @@
 #!/usr/bin/env python3
+"""Simple Discord extractor using REST API for channels provided in DISCORD_CHANNELS.
+
+Reads DISCORD_CHANNELS as comma-separated channel IDs from env. Writes NDJSON to out/discord_messages.ndjson.
+
+Usage: source .env; python3 tools/discord_extract.py
+"""
+from __future__ import annotations
+
+import json
+import os
+import sys
+import hashlib
+from typing import Optional
+
+try:
+    import requests
+except Exception:
+    print("requests not installed. Install with: pip install requests")
+    raise
+
+HASH_SALT = os.getenv("HASH_SALT", "dev-salt")
+DISCORD_BOT_TOKEN = os.getenv("DISCORD_BOT_TOKEN")
+DISCORD_CHANNELS = os.getenv("DISCORD_CHANNELS", "")
+
+OUT_DIR = "out"
+os.makedirs(OUT_DIR, exist_ok=True)
+OUT_FILE = os.path.join(OUT_DIR, "discord_messages.ndjson")
+
+
+def hash_user(user_id: Optional[str]) -> Optional[str]:
+    if not user_id:
+        return None
+    h = hashlib.sha256()
+    h.update(HASH_SALT.encode("utf-8"))
+    h.update(user_id.encode("utf-8"))
+    return h.hexdigest()
+
+
+def fetch_channel_messages(channel_id: str, limit: int = 50):
+    url = f"https://discord.com/api/v10/channels/{channel_id}/messages"
+    headers = {"Authorization": f"Bot {DISCORD_BOT_TOKEN}"}
+    params = {"limit": limit}
+    r = requests.get(url, headers=headers, params=params)
+    if r.status_code != 200:
+        print(f"Failed to fetch channel {channel_id}: {r.status_code} {r.text}")
+        return []
+    return r.json()
+
+
+def main():
+    if not DISCORD_BOT_TOKEN:
+        print("DISCORD_BOT_TOKEN not set in environment. Aborting.")
+        sys.exit(1)
+    if not DISCORD_CHANNELS:
+        print("DISCORD_CHANNELS not set. Set a comma-separated list of channel IDs in .env to extract.")
+        sys.exit(1)
+
+    channels = [c.strip() for c in DISCORD_CHANNELS.split(",") if c.strip()]
+    total = 0
+    written = 0
+    with open(OUT_FILE, "w", encoding="utf-8") as fh:
+        for ch in channels:
+            msgs = fetch_channel_messages(ch, limit=50)
+            for m in msgs:
+                total += 1
+                out = {
+                    "platform": "discord",
+                    "channel_id": ch,
+                    "id": m.get("id"),
+                    "timestamp": m.get("timestamp"),
+                    "user_hash": hash_user((m.get("author") or {}).get("id")),
+                    "content": m.get("content"),
+                    "raw": m,
+                }
+                fh.write(json.dumps(out, ensure_ascii=False) + "\n")
+                written += 1
+
+    print(f"Channels scanned: {len(channels)}; messages found: {total}; written: {written}")
+    print(f"NDJSON saved to: {OUT_FILE}")
+
+
+if __name__ == "__main__":
+    main()
+#!/usr/bin/env python3
 """
 Discord extractor supporting mock-mode (read export JSON) and api-mode (uses discord.py)
 Writes NDJSON records to an output file.

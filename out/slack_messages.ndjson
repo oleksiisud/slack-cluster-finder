@@ -1,3 +1,0 @@
-{"platform": "slack", "team": "T_TEST", "channel_id": "C1", "channel_name": "general", "message": {"ts": "1620000000.000200", "user": "U1", "text": "Hello everyone"}}
-{"platform": "slack", "team": "T_TEST", "channel_id": "C1", "channel_name": "general", "message": {"ts": "1620000010.000300", "user": "U2", "text": "Hi!"}}
-{"platform": "slack", "team": "T_TEST", "channel_id": "C2", "channel_name": "random", "message": {"ts": "1620000100.000400", "user": "U3", "text": "Random thought"}}

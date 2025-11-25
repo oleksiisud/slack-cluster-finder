@@ -1,4 +1,130 @@
 #!/usr/bin/env python3
+"""Simple Slack extractor: list channels and fetch recent messages.
+
+Writes NDJSON lines to out/slack_messages.ndjson and prints a short summary.
+
+Usage: source .env; python3 tools/slack_extract.py [--limit N]
+"""
+from __future__ import annotations
+
+import json
+import os
+import sys
+import hashlib
+from typing import Optional
+
+try:
+    from slack_sdk import WebClient
+    from slack_sdk.errors import SlackApiError
+except Exception as e:  # pragma: no cover - dependency may not be installed
+    print("slack_sdk not installed. Install with: pip install slack_sdk")
+    raise
+
+HASH_SALT = os.getenv("HASH_SALT", "dev-salt")
+SLACK_BOT_TOKEN = os.getenv("SLACK_BOT_TOKEN")
+
+OUT_DIR = "out"
+os.makedirs(OUT_DIR, exist_ok=True)
+OUT_FILE = os.path.join(OUT_DIR, "slack_messages.ndjson")
+
+
+def hash_user(user_id: Optional[str]) -> Optional[str]:
+    if not user_id:
+        return None
+    h = hashlib.sha256()
+    h.update(HASH_SALT.encode("utf-8"))
+    h.update(user_id.encode("utf-8"))
+    return h.hexdigest()
+
+
+def fetch_recent_messages(limit: int = 50) -> None:
+    if not SLACK_BOT_TOKEN:
+        print("SLACK_BOT_TOKEN not set in environment. Aborting.")
+        sys.exit(1)
+    client = WebClient(token=SLACK_BOT_TOKEN)
+
+    # quick auth test to help diagnose token type / permissions
+    try:
+        auth_res = client.auth_test()
+        if auth_res.get("ok"):
+            print(f"auth.test ok: team={auth_res.get('team')} user_id={auth_res.get('user_id')}")
+    except SlackApiError as e:
+        err = getattr(e.response, 'data', None) or getattr(e.response, 'body', None) or str(e)
+        print("auth.test failed:", err)
+        print("Make sure SLACK_BOT_TOKEN is a bot token (xoxb- or xoxe-) with appropriate scopes and the app is installed to the workspace.")
+        sys.exit(1)
+
+    # list conversations (public channels + private channels)
+    conv_types = "public_channel,private_channel"
+    channels = []
+    cursor = None
+    while True:
+        try:
+            res = client.conversations_list(types=conv_types, limit=200, cursor=cursor)
+        except SlackApiError as e:
+            # e.response contains structured data
+            err = getattr(e.response, 'data', None) or getattr(e.response, 'body', None) or str(e)
+            print("conversations.list failed:", err)
+            print("If you see 'not_allowed_token_type' the token provided is the wrong type (xapp- instead of xoxb-).")
+            print("Ensure SLACK_BOT_TOKEN is a bot token (xoxb-/xoxe-) and not an App-Level token (xapp-).")
+            break
+        if not res.get("ok"):
+            print("conversations.list failed:", res)
+            break
+        channels.extend(res.get("channels", []))
+        cursor = res.get("response_metadata", {}).get("next_cursor")
+        if not cursor:
+            break
+
+    total_messages = 0
+    written = 0
+    with open(OUT_FILE, "w", encoding="utf-8") as fh:
+        for ch in channels:
+            ch_id = ch.get("id")
+            ch_name = ch.get("name") or ch.get("name_normalized") or ""
+            # fetch history
+            c = None
+            while True:
+                try:
+                    res = client.conversations_history(channel=ch_id, limit=min(200, limit), cursor=c)
+                except SlackApiError as e:
+                    err = getattr(e.response, 'data', None) or getattr(e.response, 'body', None) or str(e)
+                    print(f"conversations.history failed for {ch_id}:", err)
+                    print("Make sure the bot has the conversations.history/conversations:read scopes and is a member of private channels if needed.")
+                    break
+                if not res.get("ok"):
+                    print(f"conversations.history failed for {ch_id}:", res)
+                    break
+                msgs = res.get("messages", [])
+                for m in msgs:
+                    total_messages += 1
+                    out = {
+                        "platform": "slack",
+                        "channel_id": ch_id,
+                        "channel_name": ch_name,
+                        "ts": m.get("ts"),
+                        "user_hash": hash_user(m.get("user") or (m.get("user_profile") or {}).get("id")),
+                        "text": m.get("text"),
+                        "raw": m,
+                    }
+                    fh.write(json.dumps(out, ensure_ascii=False) + "\n")
+                    written += 1
+                c = res.get("response_metadata", {}).get("next_cursor")
+                break  # we only fetch one page per channel (limit param)
+
+    print(f"Channels scanned: {len(channels)}; messages found: {total_messages}; written: {written}")
+    print(f"NDJSON saved to: {OUT_FILE}")
+
+
+if __name__ == "__main__":
+    limit = 50
+    if len(sys.argv) > 1:
+        try:
+            limit = int(sys.argv[1])
+        except Exception:
+            pass
+    fetch_recent_messages(limit=limit)
+#!/usr/bin/env python3
 """
 Simple Slack extractor supporting mock-mode (read export JSON) and api-mode (uses slack_sdk).
 Writes NDJSON records to an output file.
