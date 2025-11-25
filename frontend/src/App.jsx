@@ -53,13 +53,21 @@ const channels = [
     }, 2000); // Added a delay so setTimeout has a valid second argument
   };
 
+  useEffect(() => {
+    console.log("SESSION DATA:", session);
+  }, [session]);
+  const userName = session?.user?.user_metadata?.name
+                || session?.user?.user_metadata?.full_name
+                || session?.user?.email
+                || "User";
+
   return (
     <>
     <Nav />
     <div className="App">
 
       <div className="hero-section">
-        <h1 className="jersey-10-regular hero-title">Hello CX40</h1>
+        <h1 className="jersey-10-regular hero-title">Hello {userName}</h1>
         <p className="hero-subtitle">Your personalized dashboards</p>
       </div>
 
