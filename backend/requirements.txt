@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+sentence-transformers
+scikit-learn
+numpy
+scipy
+python-multipart
+pydantic
+python-dotenv
+httpx
+huggingface-hub
+requests
