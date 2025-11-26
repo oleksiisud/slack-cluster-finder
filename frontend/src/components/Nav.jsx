@@ -7,6 +7,7 @@ import { useAuth } from '../AuthContext.jsx';
 const Nav = () => {
   const { session, signOut } = useAuth();
   const [theme, setThemeState] = useState(localStorage.getItem('theme') || 'theme-dark');
+  const [gradient, setGradient] = useState('linear-gradient(135deg, #2f3061 0%, #3d2c65 50%, #5e5285 100%)'); // Default gradient
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,9 +15,12 @@ const Nav = () => {
     const currentTheme = localStorage.getItem('theme') || 'theme-dark';
     setThemeFunction(currentTheme);
     setThemeState(currentTheme);
-    // if (!session) {
-    //   navigate('log-in');
-    // }
+
+    // Fetch user-defined gradient from localStorage or API
+    const userGradient = localStorage.getItem('userGradient');
+    if (userGradient) {
+      setGradient(userGradient);
+    }
   }, []);
 
   const toggleTheme = () => {
@@ -25,10 +29,14 @@ const Nav = () => {
     setThemeState(newTheme);
   };
 
+  const userName = session?.user?.user_metadata?.name
+                || session?.user?.user_metadata?.full_name
+                || 'User';
+
   return (
-    <nav className="navbar">
+    <nav className="navbar" style={{ background: gradient }}>
       <div className="navbar-content">
-        <div className="jersey-10-regular logo">Stellar Search </div>
+        <div className="jersey-10-regular logo">{userName} EZSearch Dashboards </div>
         <ul className="navbar-links">
           <Link to={'/home'}><p className="navbar-link">Home</p></Link>
           <Link to={'https://github.com/oleksiisud/slack-cluster-finder'}><p className="navbar-link">About</p></Link>

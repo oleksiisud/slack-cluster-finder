@@ -20,19 +20,25 @@
   padding: 0;
 }
 
+/* Default navbar */
 .navbar {
- width: 100%;
- /* background: var(--gradient);   */
- background-color: rgba(234, 242, 252, 0.95); 
- backdrop-filter: blur(10px);
- /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); */
- position: fixed;
- top: 0;
- left: 0;
- z-index: 999;
- transition: top 0.3s;
- font-family: system-ui, -apple-system, sans-serif;
-}
+    width: 100%;
+    background: black;
+    backdrop-filter: blur(10px);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    transition: border-bottom 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    border-bottom: 1px solid transparent; /* hidden at top */
+  }
+  
+  .navbar-scrolled {
+    border-bottom: 1px solid #333;
+    background: rgba(0, 0, 0, 0.85);
+  }
+  
+  
 
 .navbar-content {
   padding: 1rem 2rem;
@@ -42,22 +48,12 @@
   width: 100%;
 }
 
-/* .navbar-content {
- padding: 1rem 2rem;
- max-width: 1200px;
- margin: 0 auto;
- display: flex;
- justify-content: space-between;
- align-items: center;
-} */
-
 .logo {
   font-size: 3rem;
   font-weight: 700;
   font-family: "Jersey 10", sans-serif;
   /* Animated gradient text effect for title */
-  background: linear-gradient(135deg, #2f3061 0%, #3d2c65 50%, #5e5285 100%);
-  /* background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%); */
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

@@ -16,7 +16,8 @@
    THEME COLORS - DARK MODE
    ============================================ */
 .theme-dark {
-    --gradient: linear-gradient(135deg, #2158a0 0%, #4d1e8a 100%); /* dark blue gradient */
+   --gradient: linear-gradient(135deg, #2f3061 0%, #3d2c65 50%, #5e5285 100%);
+ 
     --dark-text: #EAE9FC;
     --light-text: #9ca3af;
     --accent: #60a5fa;
@@ -24,6 +25,7 @@
 }
 
 /* 
+  /*--gradient: linear-gradient(135deg, #2158a0 0%, #4d1e8a 100%);  dark blue gradient 
 other options 
 red: (light: #E86D6D), (dark: #921717)
 green: (light: #B0CE69), (dark: #789631)

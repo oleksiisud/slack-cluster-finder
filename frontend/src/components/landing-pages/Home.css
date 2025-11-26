@@ -1,0 +1,252 @@
+/* ============================================
+   MAIN APP CONTAINER STYLES
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Jersey+10&display=swap');
+
+/* ============================================
+      IMPORTED FONT
+      ============================================ */
+
+/* jersey-10-regular font styling for headings */
+.jersey-10-regular {
+  font-family: "Jersey 10", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+body {
+  /* fallback while image loads */
+  /* fallback while image loads */
+  background-color: black;
+  background-image: url('/frontend/src/components/landing-pages/stars_transparent.gif');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.Homepage {
+  padding-top: 150px;
+  /* space for navbar */
+  padding-top: 150px;
+  /* space for navbar */
+  color: white;
+  background-color: transparent !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  /* use min-height instead */
+}
+
+/* Header fade-in on page load */
+.HomepageHeader {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 2rem;
+  text-align: center;
+  margin: 0;
+  transition: opacity 500ms ease, transform 500ms ease;
+  will-change: opacity, transform;
+}
+
+.HomepageHeader--hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.HomepageHeader--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Walkthrough fade/slide */
+.Walkthrough {
+  width: 1000px;
+  height: 500px;
+  border: 1px solid #412b8a;
+  border-radius: 14px;
+  margin-top: 40px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 600ms ease, transform 600ms ease;
+  will-change: opacity, transform;
+}
+
+.Walkthrough--hidden {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.Walkthrough--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* make the 3 boxes sit horizontally */
+.Steps {
+  display: flex;
+  width: 90%;
+  /* widgets take up 90% of big box width */
+  height: 70%;
+  /* widgets take up 70% of big box height */
+  gap: 20px;
+}
+
+.messages,
+.gif,
+.cluster {
+  flex: 1;
+  border: 1px solid black;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.messages-window {
+  flex: 1;
+  overflow-y: scroll;
+  padding-right: 10 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 80%;
+  /* makes chat narrower */
+  margin: 0 auto;
+}
+
+.message {
+  max-width: 90%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: white;
+}
+
+.from-them {
+  background: #2a2a2a;
+  align-self: flex-start;
+}
+
+.from-me {
+  background: #3b82f6;
+  align-self: flex-end;
+}
+
+.message_header {
+  display: flex;
+  justify-content: center;
+}
+
+.gif {
+  flex: 1;
+  background: #1a1a1a;
+  border: 1px solid black;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 10px;
+  background: url('/fix_cloud.gif') 0 0;
+  background-size: 700% 100%;
+  /* if 7 frames horizontally */
+  animation: playGif 1s steps(24) infinite;
+}
+
+.gif-image {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 8px;
+  object-fit: contain;
+  /* keeps aspect ratio */
+}
+
+.AboutInfo {
+  font-family: 'Courier New', Courier, monospace;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 3rem 1rem;
+  text-align: center;
+  /* vertical spacing so it isn't flush to the Walkthrough */
+}
+
+.Motive {
+  margin-top: 7rem;
+  font-size: 1.2rem;
+  color: white;
+  margin-bottom: 10px;
+  margin-left: 2rem;
+  /* box */
+  border: 2px solid #412b8a;
+  border-radius: 50%;
+  width: 600px;
+  height: 500px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: flex-start;
+  text-align: inherit;
+  align-items: center;
+  padding: 1rem;
+  /* ensure transform/opacity transitions work */
+  transition: opacity 500ms ease, transform 500ms ease;
+  will-change: opacity, transform;
+}
+
+/* hidden/visible states for scroll animation */
+.Motive--hidden,
+.Solution--hidden {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.Motive--visible,
+.Solution--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* small screens: stack vertically */
+@media (max-width: 900px) {
+  .AboutInfo {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .Motive,
+  .Solution {
+    width: 300px;
+    height: 300px;
+  }
+}
+
+.Solution {
+  margin-top: 14rem;
+  font-size: 1.2rem;
+  color: white;
+  margin-bottom: 20px;
+  margin-left: 25px;
+  /* box */
+  border: 2px solid #412b8a;
+  border-radius: 50%;
+  width: 600px;
+  height: 500px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: flex-start;
+  text-align: inherit;
+  align-items: center;
+  padding: 1rem;
+  /* ensure transform/opacity transitions work */
+  transition: opacity 500ms ease, transform 500ms ease;
+  will-change: opacity, transform;
+}
