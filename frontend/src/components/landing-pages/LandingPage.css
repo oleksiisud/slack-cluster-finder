@@ -168,7 +168,7 @@ body {
   object-fit: contain;
   /* keeps aspect ratio */
 }
-
+/* 
 .AboutInfo {
   font-family: 'Courier New', Courier, monospace;
   width: 100%;
@@ -177,7 +177,7 @@ body {
   align-items: flex-start;
   padding: 3rem 1rem;
   text-align: center;
-  /* vertical spacing so it isn't flush to the Walkthrough */
+  /* vertical spacing so it isn't flush to the Walkthrough 
 }
 
 .Motive {
@@ -186,7 +186,7 @@ body {
   color: white;
   margin-bottom: 10px;
   margin-left: 2rem;
-  /* box */
+  /* box 
   border: 2px solid #412b8a;
   border-radius: 50%;
   width: 600px;
@@ -197,12 +197,12 @@ body {
   text-align: inherit;
   align-items: center;
   padding: 1rem;
-  /* ensure transform/opacity transitions work */
+  /* ensure transform/opacity transitions work 
   transition: opacity 500ms ease, transform 500ms ease;
   will-change: opacity, transform;
 }
 
-/* hidden/visible states for scroll animation */
+/* hidden/visible states for scroll animation 
 .Motive--hidden,
 .Solution--hidden {
   opacity: 0;
@@ -215,7 +215,7 @@ body {
   transform: translateY(0);
 }
 
-/* small screens: stack vertically */
+/* small screens: stack vertically 
 @media (max-width: 900px) {
   .AboutInfo {
     flex-direction: column;
@@ -235,7 +235,7 @@ body {
   color: white;
   margin-bottom: 20px;
   margin-left: 25px;
-  /* box */
+  /* box 
   border: 2px solid #412b8a;
   border-radius: 50%;
   width: 600px;
@@ -246,7 +246,57 @@ body {
   text-align: inherit;
   align-items: center;
   padding: 1rem;
-  /* ensure transform/opacity transitions work */
+  /* ensure transform/opacity transitions work 
   transition: opacity 500ms ease, transform 500ms ease;
   will-change: opacity, transform;
+} */
+
+.AboutInfo {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15rem;
+  padding: 3rem 1rem;
+  
+}
+
+.Motive, 
+.Solution{
+  flex: 1 1 400px; /* responsive width */
+  max-width: 500px;
+  background: linear-gradient(135deg, #8b5cf6, #6366f1);
+  color: white;
+  text-align: center;
+  padding: 2rem;
+  margin-top: 20rem;
+  border-radius: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  font-family: 'Courier New', Courier, monospace;
+  line-height: 1.6;
+}
+
+.Motive:hover,
+.Solution:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+.Motive p,
+.Solution p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 900px) {
+  .AboutInfo {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .Motive,
+  .Solution {
+    width: 90%;
+    padding: 1.5rem;
+  }
 }
