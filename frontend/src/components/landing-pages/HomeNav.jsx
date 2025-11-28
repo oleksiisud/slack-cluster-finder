@@ -20,15 +20,15 @@ const HomeNav = () => {
   }, []);
 
   return (
-    <nav className={`navbar ${scrolled ? 'navbar-scrolled' : ''}`}>
-      <div className="navbar-content">
-        <div className="jersey-10-regular logo">EZSearch</div>
-        <ul className="navbar-links">
-          <Link to="/"><p className="navbar-link">Home</p></Link>
+    <nav className={`home-navbar ${scrolled ? 'navbar-scrolled' : ''}`}>
+      <div className="home-navbar-content">
+        <div className="jersey-10-regular logo">Stellar-Search</div>
+        <ul className="home-navbar-links">
+          <Link to="/"><p className="home-navbar-link">Home</p></Link>
           <Link to="https://github.com/oleksiisud/slack-cluster-finder">
-            <p className="navbar-link">Development</p>
+            <p className="home-navbar-link">Development</p>
           </Link>
-          <Link to="/log-in"><p className="navbar-link">Get Started</p></Link>
+          <Link to="/log-in"><p className="home-navbar-link">Get Started</p></Link>
         </ul>
       </div>
     </nav>

@@ -7,8 +7,14 @@ import { useAuth } from '../AuthContext.jsx';
 const Nav = () => {
   const { session, signOut } = useAuth();
   const [theme, setThemeState] = useState(localStorage.getItem('theme') || 'theme-dark');
-  const [gradient, setGradient] = useState('linear-gradient(135deg, #2f3061 0%, #3d2c65 50%, #5e5285 100%)'); // Default gradient
+  // const [gradient, setGradient] = useState('linear-gradient(135deg, #2f3061 0%, #3d2c65 50%, #5e5285 100%)'); // Default gradient
   const navigate = useNavigate();
+
+  // sign out redirects user to landing page
+  const handleSignOut = async () => {
+    await signOut();      // log the user out
+    navigate("/");        // then go to homepage
+  };
 
   useEffect(() => {
     // Apply theme on component mount
@@ -17,10 +23,10 @@ const Nav = () => {
     setThemeState(currentTheme);
 
     // Fetch user-defined gradient from localStorage or API
-    const userGradient = localStorage.getItem('userGradient');
-    if (userGradient) {
-      setGradient(userGradient);
-    }
+    // const userGradient = localStorage.getItem('userGradient');
+    // if (userGradient) {
+    //   setGradient(userGradient);
+    // }
   }, []);
 
   const toggleTheme = () => {
@@ -34,17 +40,18 @@ const Nav = () => {
                 || 'User';
 
   return (
-    <nav className="navbar" style={{ background: gradient }}>
+    <nav className="navbar">
       <div className="navbar-content">
-        <div className="jersey-10-regular logo">{userName} EZSearch Dashboards </div>
+        <div className="jersey-10-regular logo">{userName} Stellar-Search Dashboards </div>
         <ul className="navbar-links">
-          <Link to={'/home'}><p className="navbar-link">Home</p></Link>
-          <Link to={'https://github.com/oleksiisud/slack-cluster-finder'}><p className="navbar-link">About</p></Link>
-          <Link to={'/account'}><p className="navbar-link">Account</p></Link>
+          <Link to={'/home'} className="nav-buttons">Home</Link>
+          <Link to={'/account'} className="nav-buttons">Account</Link>
           <button className="dark-mode-toggle" onClick={toggleTheme}>
             {theme === 'theme-dark' ? '🐈' : '🐈‍⬛'}
           </button>
-          {session ? <button onClick={signOut}>Sign Out</button> : null}
+          {session && (
+              <button className="sign-out-button" onClick={handleSignOut}> Sign Out </button>
+)}
         </ul>
       </div>
     </nav>
