@@ -25,6 +25,9 @@ const Login = () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'slack_oidc',
+        options: {
+          redirectTo: `${window.location.origin}/home`,
+        }
       });
       if (error) throw error;
     } catch (error) {

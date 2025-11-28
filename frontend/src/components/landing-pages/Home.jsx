@@ -4,8 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import './Home.css'
 
 import FakeMessages from '../data/fakeMessages.jsx';
-import fillerGif from './fix_cloud.gif';
-import stars from './stars.gif';
+import fillerGif from './landing-pages-assets/fix_cloud.gif';
+import stars from './landing-pages-assets/stars.gif';
 import MiniCluster from './MiniCluster.jsx';
 
 const Home = () => {

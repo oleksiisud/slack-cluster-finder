@@ -19,12 +19,14 @@ import ProtectedRoute from './ProtectedRoute.jsx';
 const Root = () => {
   const location = useLocation();
 
-  // Render HomeNav only on the homepage and login/signup routes
-  const isHomeNavVisible = ["/slack-cluster-finder", "/", "/log-in", "/sign-up"].includes(location.pathname);
+  const hideNav = ["/log-in", "/sign-up"].includes(location.pathname);
+
+  const showHomeNav = ["/slack-cluster-finder", "/", "/"].includes(location.pathname);
 
   return (
     <>
-      {isHomeNavVisible ? <HomeNav /> : <Nav />}
+      {!hideNav && (showHomeNav ? <HomeNav /> : <Nav />)}
+
       <Routes>
         <Route path="/slack-cluster-finder" element={<Homepage />} />
         <Route path="/" element={<Homepage />} />
