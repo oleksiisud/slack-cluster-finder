@@ -1,7 +1,7 @@
 // ...existing code...
 import { useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './Home.css'
+import './LandingPage.css'
 
 import FakeMessages from '../data/fakeMessages.jsx';
 import fillerGif from './landing-pages-assets/fix_cloud.gif';
