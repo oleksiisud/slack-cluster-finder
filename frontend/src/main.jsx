@@ -11,7 +11,7 @@ import Signup from './components/landing-pages/Signup.jsx';
 import Account from './components/Account.jsx';
 import DataCollection from './components/DataCollection.jsx';
 import Dashboard from './components/data/Dashboard.jsx';
-import Homepage from './components/landing-pages/Home.jsx';
+import Homepage from './components/landing-pages/LandingPage.jsx';
 import Nav from './components/Nav.jsx';
 import HomeNav from './components/landing-pages/HomeNav.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';

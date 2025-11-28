@@ -17,7 +17,6 @@
    ============================================ */
 .theme-dark {
    --gradient: linear-gradient(135deg, #2f3061 0%, #3d2c65 50%, #5e5285 100%);
- 
     --dark-text: #EAE9FC;
     --light-text: #9ca3af;
     --accent: #60a5fa;

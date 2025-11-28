@@ -42,7 +42,7 @@ const Nav = () => {
   return (
     <nav className="navbar">
       <div className="navbar-content">
-        <div className="jersey-10-regular logo">{userName} Stellar-Search Dashboards </div>
+        <div className="jersey-10-regular logo">{userName}'s Stellar-Search Dashboards </div>
         <ul className="navbar-links">
           <Link to={'/home'} className="nav-buttons">Home</Link>
           <Link to={'/account'} className="nav-buttons">Account</Link>

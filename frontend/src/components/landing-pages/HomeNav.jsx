@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { FaGithub } from "react-icons/fa6";
 import './HomeNav.css'
 
 const HomeNav = () => {
@@ -26,7 +27,7 @@ const HomeNav = () => {
         <ul className="home-navbar-links">
           <Link to="/"><p className="home-navbar-link">Home</p></Link>
           <Link to="https://github.com/oleksiisud/slack-cluster-finder">
-            <p className="home-navbar-link">Development</p>
+            <p className="home-navbar-link"> <FaGithub/> </p>
           </Link>
           <Link to="/log-in"><p className="home-navbar-link">Get Started</p></Link>
         </ul>

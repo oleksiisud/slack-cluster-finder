@@ -21,10 +21,9 @@
 }
 
 .navbar {
-background: rgb(182, 189, 224) !important;
  width: 100%;
  /* background: var(--gradient);   */
- background-color: rgba(234, 242, 252, 0.95); 
+ background-color: rgba(199, 209, 222, 0.95); 
  backdrop-filter: blur(10px);
  /* box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); */
  position: fixed;
@@ -47,7 +46,6 @@ background: rgb(182, 189, 224) !important;
   font-size: 3rem;
   font-weight: 700;
   font-family: "Jersey 10", sans-serif;
-
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;

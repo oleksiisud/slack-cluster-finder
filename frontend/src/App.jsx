@@ -36,8 +36,8 @@ function App() {
 
       <div className="App">
         <div className="hero-section">
-          <h1 className="jersey-10-regular hero-title">Your personalized dashboards</h1>
-          <p className="hero-subtitle"></p>
+          {/* <h1 className="jersey-10-regular hero-title">Your personalized dashboards</h1> */}
+          <p className="hero-subtitle"> Click the center node to create your first chat </p>
         </div>
 
         <div className="main-content">

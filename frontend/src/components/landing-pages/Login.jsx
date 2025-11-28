@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-
 import { keepTheme } from "/src/themes.js"
-import './Login.css'
+import { IoLogoSlack } from "react-icons/io5";
+import { MdEmail } from "react-icons/md";
+import { RiLockPasswordFill } from "react-icons/ri";
 import { supabase } from '../../supabaseClient.js';
 import { useAuth } from '../../AuthContext.jsx';
-
+import './Login.css'
 
 const Login = () => {
   const { session } = useAuth();
@@ -59,11 +60,11 @@ const Login = () => {
   
   return (
     <div className="form">
-      <h1> Sign into Context Search</h1>
+      <h1> Login to Stellar-Search</h1>
       <form className="login-form" onSubmit={handleSubmit}>
         <h2 className="jersey-10-regular">Welcome</h2>
         
-        <label htmlFor="email">Email Address</label>
+        <label htmlFor="email">Email Address <MdEmail/> </label>
         <input
           id="email"
           name="email"
@@ -74,7 +75,7 @@ const Login = () => {
           required    
         />
         
-        <label htmlFor="password">Password</label>
+        <label htmlFor="password">Password <RiLockPasswordFill/> </label>
         <input
           id="password"
           name="password"
@@ -89,7 +90,13 @@ const Login = () => {
           {loading ? 'Signing in...' : 'Enter'}
         </button>
         <button type="button" onClick={handleSlackLogin} disabled={loading}>
-          {loading ? 'Signing in...' : 'Sign in with Slack'}
+                {loading ? (
+            "Signing in..."
+          ) : (
+            <>
+              Sign in with Slack <IoLogoSlack size={20} />
+            </>
+          )}
         </button>
         <Link to={'/sign-up'}><p className="navbar-link"><button type="submit">New User? Sign up</button></p></Link>
       </form>
