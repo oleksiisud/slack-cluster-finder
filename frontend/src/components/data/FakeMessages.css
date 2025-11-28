@@ -4,12 +4,12 @@
     align-items: flex-start;
   }
   
-/*   
-  .avatar {
+  .profile-pic {
     width: 32px;
     height: 32px;
-    border-radius: 6px;
-  } */
+    border-radius: 50%; /* circular */
+    object-fit: cover;
+  }
   
   .message-content {
     display: flex;
