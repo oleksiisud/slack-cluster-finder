@@ -9,12 +9,12 @@ import stardoodle from './data_assets/star_doodle.jpg';
 // Optional mapping
 const profilePics = {
   Lena: starPic,
-  Arjun: starPic,
+  Arjun: stardoodle,
   Maya: kirby,
   Chris: starPic,
   Jordan: mario,
   Alex: starPic,
-  Nia: starPic,
+  Nia: stardoodle,
   Eli: starPic,
   Sam: stardoodle,
 };

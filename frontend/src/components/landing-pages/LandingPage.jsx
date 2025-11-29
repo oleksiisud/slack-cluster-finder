@@ -1,12 +1,13 @@
-import { useRef, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import FakeMessages from '../data/fakeMessages.jsx';
-import fillerGif from './landing-pages-assets/fix_cloud.gif';
 import stars from './landing-pages-assets/stars.gif';
+import FakeMessages from '../data/fakeMessages.jsx';
 import MiniCluster from './MiniCluster.jsx';
-import AOS from 'aos';
+import { useRef, useEffect } from 'react';
 import 'aos/dist/aos.css';
 import './LandingPage.css'
+import AOS from 'aos';
+
+
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 
 const LandingPage = () => {
   const motiveRef = useRef(null);
@@ -39,19 +40,27 @@ const LandingPage = () => {
         backgroundColor: 'transparent'
       }}
     >
-      <h2 ref={headerRef} className="HomepageHeader HomepageHeader--hidden">
-        Search through your messages easily
-      </h2>
-
+      <h1 ref={headerRef} className="HomepageHeader HomepageHeader--hidden">
+        Understand your workspace in seconds.
+      </h1>
+      <p>yerrr</p>
       <div ref={walkthroughRef} className="Walkthrough" data-aos="fade-up">
+     
         <div className="Steps">
           <div className="messages" data-aos="fade-right">
+            <h3 className="walkthrough-headers" data-aos= "fade-down">Raw Messages</h3>
             <FakeMessages />
           </div>
           <div className='gif' data-aos="fade-up">
-            <img src={fillerGif} alt="construction smoke" className="gif-image" />
+          <h3 className="walkthrough-headers" data-aos= "fade-down" >AI Understanding</h3>
+          <DotLottieReact className="gif-image"
+               src="https://lottie.host/85b12a28-2e57-4379-a441-bacf673ea60d/Jjhd1m2Rhz.lottie"
+                loop
+                autoplay
+              />
           </div>
           <div className="cluster" data-aos="fade-left">
+          <h3 className="walkthrough-headers" data-aos= "fade-down">Topic Clusters</h3>
             <MiniCluster />
           </div>
         </div>
