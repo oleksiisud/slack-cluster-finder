@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-
 import { keepTheme } from "./themes.js";
-import ChannelCard from "./components/DataCard";
 import channels from './data/channels.js'; // Import shared channels data
 import { useAuth } from './AuthContext.jsx';
 import DashboardGraph from "./components/DashboardGraph";

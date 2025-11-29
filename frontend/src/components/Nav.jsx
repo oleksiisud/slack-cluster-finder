@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { setTheme as setThemeFunction } from '../themes.js';
-import './Nav.css'
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext.jsx';
+import { useState, useEffect } from 'react';
+import './Nav.css'
 
 const Nav = () => {
   const { session, signOut } = useAuth();
   const [theme, setThemeState] = useState(localStorage.getItem('theme') || 'theme-dark');
-  // const [gradient, setGradient] = useState('linear-gradient(135deg, #2f3061 0%, #3d2c65 50%, #5e5285 100%)'); // Default gradient
   const navigate = useNavigate();
 
   // sign out redirects user to landing page
@@ -22,11 +22,6 @@ const Nav = () => {
     setThemeFunction(currentTheme);
     setThemeState(currentTheme);
 
-    // Fetch user-defined gradient from localStorage or API
-    // const userGradient = localStorage.getItem('userGradient');
-    // if (userGradient) {
-    //   setGradient(userGradient);
-    // }
   }, []);
 
   const toggleTheme = () => {
@@ -42,7 +37,17 @@ const Nav = () => {
   return (
     <nav className="navbar">
       <div className="navbar-content">
-        <div className="jersey-10-regular logo">{userName}'s Stellar-Search Dashboards </div>
+        <div className="jersey-10-regular logo">
+         <div className="lottie-wrapper">
+         < DotLottieReact
+               src="https://lottie.host/b3fb3cdb-4df9-483f-93b4-92867bf0c3da/SZB4LHzuZu.lottie"
+               loop
+               autoplay
+               style={{ width: "40px", height: "40px" }}
+               />
+          </div>
+        {userName}'s Stellar-Search Dashboards 
+        </div>
         <ul className="navbar-links">
           <Link to={'/home'} className="nav-buttons">Home</Link>
           <Link to={'/account'} className="nav-buttons">Account</Link>

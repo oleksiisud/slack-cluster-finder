@@ -52,6 +52,18 @@
   background-clip: text;
 }
 
+.lottie-wrapper {
+  width: 40px;       /* Desired width */
+  height: 40px;      /* Desired height */
+  display: inline-block;
+  vertical-align: middle; /* align with text */
+}
+
+.lottie-wrapper > div {
+  width: 100% !important;
+  height: 100% !important;
+}
+
 @keyframes gradientShift {
   0%, 100% { 
     background-position: 0% 50%; 
