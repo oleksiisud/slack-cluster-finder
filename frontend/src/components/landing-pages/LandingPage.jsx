@@ -43,7 +43,6 @@ const LandingPage = () => {
       <h1 ref={headerRef} className="HomepageHeader HomepageHeader--hidden">
         Understand your workspace in seconds.
       </h1>
-      <p>yerrr</p>
       <div ref={walkthroughRef} className="Walkthrough" data-aos="fade-up">
      
         <div className="Steps">
