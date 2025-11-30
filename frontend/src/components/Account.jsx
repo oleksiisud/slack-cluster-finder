@@ -15,7 +15,7 @@ const Account = () => {
   const slackWorkspace =
     user?.user_metadata?.slack_workspace || "No workspace connected";
 
-  // Dummy for now - fetch user's Slack token from user_settings
+  // Dummy for now - fetch user's Slack token from user_settings table in Supabase
   const fetchUserToken = async () => {
     if (!user) return null;
     const { data, error } = await supabase
@@ -39,10 +39,10 @@ const Account = () => {
       if (!user) return;
       setLoading(true);
       try {
-        // Dummy for now - fetching user token to associate with dashboards from user_chat table
+        // Dummy for now - fetching user token to associate with dashboards from user_settings table
         const token = await fetchUserToken();
         const { data: dashboardsData, error } = await supabase
-          .from("user_chats")
+          .from("user_settings")
           .select("*")
           .eq("user_id", user.id);
 
@@ -56,14 +56,15 @@ const Account = () => {
             ...d,
             token: token || d.token,
             // when the token will expire, we can calculate time left here or store them somewhere
+            // if we dont want this information, we can remove it
             time_left: d.time_left || "N/A",
           }));
         } else {
           // fake dashboards to show layout, delete before production
           finalDashboards = [
-            { id: 1, name: "Cat Behavior Dashboard", token: token || "abc123", time_left: "2 days" },
-            { id: 2, name: "Model Analytics", token: token || "xyz789", time_left: "5 hours" },
-            { id: 3, name: "User Insights", token: token || "lmn456", time_left: "1 week" },
+            // { id: 1, name: "Cat Behavior Dashboard", token: token || "abc123", time_left: "2 days" },
+            // { id: 2, name: "Model Analytics", token: token || "xyz789", time_left: "5 hours" },
+            // { id: 3, name: "User Insights", token: token || "lmn456", time_left: "1 week" },
           ];
         }
 
