@@ -1,74 +1,27 @@
-.home-container {
-  width: 100%;
+.app-container {
+  width: 100vw;
   height: 100vh;
   background: #0a0e27;
-  color: white;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
-}
-
-.home-header {
-  padding: 20px;
-  text-align: center;
-  background: linear-gradient(180deg, rgba(10, 14, 39, 0.95) 0%, rgba(10, 14, 39, 0) 100%);
-  position: relative;
-  z-index: 10;
-}
-
-.home-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin: 0 0 10px 0;
-  background: linear-gradient(135deg, #4ECDC4 0%, #45B7D1 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.home-subtitle {
-  font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.8);
-  margin: 5px 0;
-}
-
-.home-hint {
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.5);
-  font-style: italic;
-  margin: 5px 0;
-}
-
-.home-loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  font-size: 1.5rem;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.home-graph {
-  flex: 1;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   overflow: hidden;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .home-title {
-    font-size: 1.8rem;
-  }
-
-  .home-subtitle {
-    font-size: 0.95rem;
-  }
-
-  .home-hint {
-    font-size: 0.8rem;
-  }
+.main-content {
+  flex: 1;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  transition: margin-right 0.3s ease;
 }
 
+.main-content.sidebar-active {
+  margin-right: 320px;
+}
+
+.view-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #0a0e27;
+}

@@ -4,15 +4,12 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import './colors.css'
-import { AuthProvider } from './AuthContext.jsx'
-import Home from './Home.jsx'
-import Login from './components/landing-pages/Login.jsx'
-import Signup from './components/landing-pages/Signup.jsx' 
-import Account from './components/Account.jsx'
-import CreateChat from './pages/CreateChat.jsx';
-import Dashboard from './components/data/Dashboard.jsx';
-import ProtectedRoute from './ProtectedRoute.jsx';
-import RadialClusterGraph from './components/graph/RadialClusterGraph.jsx';
+import { AuthProvider } from './AuthContext'
+import Home from './Home'
+import Login from './components/landing-pages/Login'
+import Signup from './components/landing-pages/Signup' 
+import Account from './components/Account'
+import ProtectedRoute from './ProtectedRoute';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -28,8 +25,6 @@ createRoot(document.getElementById('root')).render(
           {/* Main app routes */}
           <Route path="/home" element={<Home />} />
           <Route path="/account" element={<Account />} />
-          <Route path="/create-chat" element={<CreateChat />} />
-          <Route path="/dashboard/:channelId" element={<Dashboard />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

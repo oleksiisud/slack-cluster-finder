@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Moon, Sun } from 'lucide-react';
 import { setTheme as setThemeFunction } from '../themes.js';
 import './Nav.css'
 import { useAuth } from '../AuthContext.jsx';
@@ -28,16 +29,31 @@ const Nav = () => {
   return (
     <nav className="navbar">
       <div className="navbar-content">
-        <div className="jersey-10-regular logo">Stellar Search </div>
-        <ul className="navbar-links">
-          <Link to={'/home'}><p className="navbar-link">Home</p></Link>
-          <Link to={'https://github.com/oleksiisud/slack-cluster-finder'}><p className="navbar-link">About</p></Link>
-          <Link to={'/account'}><p className="navbar-link">Account</p></Link>
-          <button className="dark-mode-toggle" onClick={toggleTheme}>
-            {theme === 'theme-dark' ? '🐈' : '🐈‍⬛'}
+        <div className="jersey-10-regular logo">Stellar Search</div>
+        
+        <div className="navbar-right">
+          <ul className="navbar-links">
+            <li>
+              <Link to={'/home'} className="navbar-link">Home</Link>
+            </li>
+            <li>
+              <Link to={'https://github.com/oleksiisud/slack-cluster-finder'} className="navbar-link">About</Link>
+            </li>
+            <li>
+              <Link to={'/account'} className="navbar-link">Account</Link>
+            </li>
+          </ul>
+          
+          <button className="dark-mode-toggle" onClick={toggleTheme} aria-label="Toggle theme">
+            {theme === 'theme-dark' ? <Sun size={20} /> : <Moon size={20} />}
           </button>
-          {session ? <button onClick={signOut}>Sign Out</button> : null}
-        </ul>
+          
+          {session && (
+            <button onClick={signOut} className="sign-out-btn">
+              Sign Out
+            </button>
+          )}
+        </div>
       </div>
     </nav>
   )
