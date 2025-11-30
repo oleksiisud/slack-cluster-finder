@@ -4,7 +4,7 @@ Slack is a widely used application, but its search and message filtering are ver
 
 **Stellar Search** fixes this problem by delivering insights from your chat logs through context clustering.
 
-* **Eric Azayev** \- User Stories/Slack App Developer
+* **Eric Azayev** \- User Stories/Slack App Developer and Metrics
 * **Jessica Chen** \- Backend Developer   
 * **Faizan Khan** \- Slackbot Developer
 * **Destiny Rosado Salcedo** \- Frontend Developer 
