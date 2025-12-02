@@ -12,6 +12,10 @@ const Account = () => {
   const userName = user?.user_metadata?.name || user?.user_metadata?.full_name || user?.email ||  "User";
   const userAvatar = user?.user_metadata?.picture || "/default-avatar.png";
   
+  // temp solution, display team ID instead of workspace name
+  const teamId = user?.user_metadata?.custom_claims?.["https://slack.com/team_id"] || "No team ID found";
+
+  // Dummy for now - fetch the users Slack workspace from someowhere, not from user_metadata
   const slackWorkspace =
     user?.user_metadata?.slack_workspace || "No workspace connected";
 
@@ -21,8 +25,8 @@ const Account = () => {
     const { data, error } = await supabase
     // if we want to store them in this table we can fetch them here
     // if not, we can change the table, or remove this function entirely
-      .from("user_settings")
-      .select("chat_id")
+      .from("user_chats")
+      .select("access_token")
       .eq("user_id", user.id)
       .single();
 
@@ -43,7 +47,7 @@ const Account = () => {
         const token = await fetchUserToken();
         const { data: dashboardsData, error } = await supabase
           .from("user_chats")
-          .select("access_token")
+          .select("clustering_data")
           .eq("user_id", user.id);
 
         if (error) {
@@ -86,7 +90,7 @@ const Account = () => {
           <img src={userAvatar} alt="avatar" className="avatar" />
           <h1>{userName}</h1>
           <p className="workspace">
-            Connected Slack workspace: <strong>{slackWorkspace}</strong>
+            Connected Slack workspace: <strong>{teamId}</strong>
           </p>
 
           <h2>Your Dashboards</h2>
