@@ -5,8 +5,8 @@ export default function Home() {
 
   const dashboards = [
     { id: 1, title: "Slack — CTP-11", source: "Slack", url: "fake1" },
-    { id: 2, title: "Discord — CISC_1115", source: "Discord", url: "fake2" },
-    { id: 3, title: "WhatsApp — Trip To Japan", source: "WhatsApp", url: "fake3" },
+    // { id: 2, title: "Discord — CISC_1115", source: "Discord", url: "fake2" },
+    // { id: 3, title: "WhatsApp — Trip To Japan", source: "WhatsApp", url: "fake3" },
   ];
 
   return (

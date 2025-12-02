@@ -1,49 +1,77 @@
-/* ============================================
-   ACCOUNT PAGE STYLES
-   ============================================ */
-
-/* Main account page container */
-.Account {
-  min-height: 100vh;
-  background: var(--gradient);  /* Dynamic background color */
-  color: var(--dark-text);
+.AccountPage {
+  margin-top: 8rem;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: flex-start;
+  padding: 3rem 1rem;
+  background: #1a1a1a;
+  min-height: 100vh;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.AccountCard {
+  background: #2c2c3e;
+  padding: 2rem;
+  border-radius: 16px;
+  max-width: 1000px;
+  width: 100%;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
   text-align: center;
-  padding: 6rem 2rem 2rem;  /* Space at top for navbar */
 }
 
-/* Account heading styling */
-.Account h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  color: var(--dark-text);
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+.avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin-bottom: 1rem;
 }
 
-/* Account paragraph text */
-.Account p {
-  font-size: 1.2rem;
-  max-width: 600px;
-  line-height: 1.6;
-  color: var(--dark-text);
-  opacity: 0.9;
+.workspace {
+  margin-bottom: 2rem;
+  font-style: italic;
+  color: #d1d1ff;
 }
 
-/* Responsive styles */
-@media (max-width: 768px) {
-  .Account {
-    padding: 5rem 1.5rem 2rem;
-  }
+.dashboard-list {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
 
-  .Account h1 {
-    font-size: 2rem;
-  }
+.dashboard-card {
+  background: #3b3b5a;
+  flex: 0 0 250px;
+  padding: 1rem;
+  border-radius: 12px;
+  text-align: left;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+}
 
-  .Account p {
-    font-size: 1rem;
-  }
+.dashboard-card h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1.1rem;
+  color: #e0e0ff;
+}
+
+.dashboard-card p {
+  margin: 0.3rem 0;
+  font-size: 0.9rem;
+  color: #cfcfff;
+}
+
+/* Scrollbar styling */
+.dashboard-list::-webkit-scrollbar {
+  height: 8px;
+}
+
+.dashboard-list::-webkit-scrollbar-thumb {
+  background: #5a5a7a;
+  border-radius: 4px;
+}
+
+.dashboard-list::-webkit-scrollbar-track {
+  background: #2c2c3e;
 }

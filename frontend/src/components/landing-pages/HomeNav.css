@@ -1,0 +1,114 @@
+/* ============================================
+   MAIN APP CONTAINER STYLES
+   ============================================ */
+   @import url('https://fonts.googleapis.com/css2?family=Jersey+10&display=swap');
+
+   /* ============================================
+      IMPORTED FONT
+      ============================================ */
+   
+   /* jersey-10-regular font styling for headings */
+   .jersey-10-regular {
+     font-family: "Jersey 10", sans-serif;
+     font-weight: 400;
+     font-style: normal;
+   }
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Default navbar */
+.home-navbar {
+    width: 100%;
+    background: black;
+    backdrop-filter: blur(10px);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    transition: border-bottom 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    border-bottom: 1px solid transparent; /* hidden at top */
+  }
+  
+  .home-navbar-scrolled {
+    border-bottom: 1px solid #333;
+    background: rgba(0, 0, 0, 0.85);
+  }
+  
+  
+
+.home-navbar-content {
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.logo {
+  font-size: 3rem;
+  font-weight: 700;
+  font-family: "Jersey 10", sans-serif;
+  /* Animated gradient text effect for title */
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 3s ease infinite;
+  background-size: 200% 200%;
+  text-shadow: none;
+  color: transparent; /* Ensure no fallback color shows */
+}
+
+@keyframes gradientShift {
+  0%, 100% { 
+    background-position: 0% 50%; 
+  }
+  50% { 
+    background-position: 100% 50%; 
+  }
+}
+
+
+.home-navbar-links a {
+  text-decoration: none;
+ color: white;
+}
+
+.home-navbar-links {
+ list-style: none;
+ display: flex;
+ gap: 1.5rem;
+ margin: 0;
+ padding: 0;
+}
+
+.home-navbar-link {
+ text-decoration: none;
+ color: #6b7280;
+ font-weight: 500;
+ transition: color 0.3s ease;
+ padding: 0.5rem 1rem;
+ border-radius: 8px;
+}
+
+.home-navbar-link:hover {
+ color: #6366f1;
+ background: rgba(99, 102, 241, 0.05);
+}
+
+/* HomeNav.css */
+.home-lottie-wrapper {
+  width: 40px;       /* Desired width */
+  height: 40px;      /* Desired height */
+  display: inline-block;
+  vertical-align: middle; /* align with text */
+}
+
+.home-lottie-wrapper > div {
+  width: 100% !important;
+  height: 100% !important;
+}
