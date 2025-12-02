@@ -68,7 +68,6 @@ function Home() {
 
   return (
     <div className="app-container">
-      <Nav />
       <div className={`main-content ${view === 'dashboard' && isSidebarOpen ? 'sidebar-active' : ''}`}>
         {view === 'home' ? (
           <InteractiveGraph data={MOCK_HOME_DATA} onNodeClick={handleNodeClick} isHome={true} />

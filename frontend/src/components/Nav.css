@@ -21,7 +21,7 @@
 }
 
 .navbar {
-  height: 64px;
+  height: 72px;
   background: rgba(234, 242, 252, 0.95);
   box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
   display: flex;
@@ -36,8 +36,15 @@
   width: 100%;
 }
 
+.lottie-wrapper {
+  width: 40px;       /* Desired width */
+  height: 40px;      /* Desired height */
+  display: inline-block;
+  vertical-align: middle; /* align with text */
+}
+
 .logo {
-  font-size: 1.5rem;
+  font-size: 2rem;
   font-weight: 700;
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
   -webkit-background-clip: text;

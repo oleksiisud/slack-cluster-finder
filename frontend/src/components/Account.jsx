@@ -81,7 +81,6 @@ const Account = () => {
 
   return (
     <>
-      <Nav />
       <div className="AccountPage">
         <div className="AccountCard">
           <img src={userAvatar} alt="avatar" className="avatar" />

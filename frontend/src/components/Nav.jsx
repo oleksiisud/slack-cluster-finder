@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Moon, Sun } from 'lucide-react';
 import { setTheme as setThemeFunction } from '../themes.js';
-import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext.jsx';
-import { useState, useEffect } from 'react';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
+import { FaGithub } from "react-icons/fa6";
 import './Nav.css'
 
 const Nav = () => {
@@ -39,7 +39,17 @@ const Nav = () => {
   return (
     <nav className="navbar">
       <div className="navbar-content">
-        <div className="jersey-10-regular logo">Stellar Search</div>
+        <div className="jersey-10-regular logo">
+          <div className="lottie-wrapper">
+            < DotLottieReact
+              src="https://lottie.host/b3fb3cdb-4df9-483f-93b4-92867bf0c3da/SZB4LHzuZu.lottie"
+              loop
+              autoplay
+              style={{ width: "40px", height: "40px" }}
+            />
+          </div>
+          Stellar Search
+        </div>
         
         <div className="navbar-right">
           <ul className="navbar-links">
@@ -47,7 +57,7 @@ const Nav = () => {
               <Link to={'/home'} className="navbar-link">Home</Link>
             </li>
             <li>
-              <Link to={'https://github.com/oleksiisud/slack-cluster-finder'} className="navbar-link">About</Link>
+              <Link to={'https://github.com/oleksiisud/slack-cluster-finder'} className="navbar-link"> <FaGithub/> </Link>
             </li>
             <li>
               <Link to={'/account'} className="navbar-link">Account</Link>

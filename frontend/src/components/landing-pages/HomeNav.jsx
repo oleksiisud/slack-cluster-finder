@@ -1,51 +1,82 @@
-import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { Moon, Sun } from 'lucide-react';
+import { setTheme as setThemeFunction } from '../../themes.js';
+import { useAuth } from '../../AuthContext.jsx';
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { FaGithub } from "react-icons/fa6";
 import './HomeNav.css'
 
 const HomeNav = () => {
+  const { session, signOut } = useAuth();
+  const [theme, setThemeState] = useState(localStorage.getItem('theme') || 'theme-dark');
+  const navigate = useNavigate();
 
-  const [scrolled, setScrolled] = useState(false);
+  // sign out redirects user to landing page
+  const handleSignOut = async () => {
+    await signOut();      // log the user out
+    navigate("/");        // then go to homepage
+  };
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-    };
+    // Apply theme on component mount
+    const currentTheme = localStorage.getItem('theme') || 'theme-dark';
+    setThemeFunction(currentTheme);
+    setThemeState(currentTheme);
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  return (
-    <nav className={`home-navbar ${scrolled ? 'home-navbar-scrolled' : ''}`}>
-      <div className="home-navbar-content">
-        <div className="jersey-10-regular logo">
-        <div className="home-lottie-wrapper">
-          < DotLottieReact
-                src="https://lottie.host/b3fb3cdb-4df9-483f-93b4-92867bf0c3da/SZB4LHzuZu.lottie"
-                loop
-                autoplay
-                style={{ width: "40px", height: "40px" }}
-                />
-          </div>
-              Stellar Search
-         </div>
+  const toggleTheme = () => {
+    const newTheme = theme === 'theme-dark' ? 'theme-light' : 'theme-dark';
+    setThemeFunction(newTheme);
+    setThemeState(newTheme);
+  };
 
-        <ul className="home-navbar-links">
-          <Link to="/"><p className="home-navbar-link">Home</p></Link>
-          <Link to="https://github.com/oleksiisud/slack-cluster-finder">
-            <p className="home-navbar-link"> <FaGithub/> </p>
-          </Link>
-          <Link to="/log-in"><p className="home-navbar-link">Get Started</p></Link>
-        </ul>
+  const userName = session?.user?.user_metadata?.name
+                || session?.user?.user_metadata?.full_name
+                || 'User';
+
+  return (
+    <nav className="home-navbar">
+      <div className="navbar-content">
+        <div className="jersey-10-regular logo">
+          <div className="lottie-wrapper">
+            < DotLottieReact
+              src="https://lottie.host/b3fb3cdb-4df9-483f-93b4-92867bf0c3da/SZB4LHzuZu.lottie"
+              loop
+              autoplay
+              style={{ width: "40px", height: "40px" }}
+            />
+          </div>
+          Stellar Search
+        </div>
+        
+        <div className="navbar-right">
+          <ul className="navbar-links">
+            <li>
+              <Link to={'/home'} className="navbar-link">Home</Link>
+            </li>
+            <li>
+              <Link to={'https://github.com/oleksiisud/slack-cluster-finder'} className="navbar-link"> <FaGithub/> </Link>
+            </li>
+            <li>
+              <Link to={'/account'} className="navbar-link">Account</Link>
+            </li>
+          </ul>
+          
+          <button className="dark-mode-toggle" onClick={toggleTheme} aria-label="Toggle theme">
+            {theme === 'theme-dark' ? <Sun size={20} /> : <Moon size={20} />}
+          </button>
+          
+          {session && (
+            <button onClick={signOut} className="sign-out-btn">
+              Sign Out
+            </button>
+          )}
+        </div>
       </div>
     </nav>
-  );
-};
+  )
+}
 
 export default HomeNav;

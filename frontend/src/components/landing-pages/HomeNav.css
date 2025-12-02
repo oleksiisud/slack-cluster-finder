@@ -1,18 +1,18 @@
 /* ============================================
    MAIN APP CONTAINER STYLES
    ============================================ */
-   @import url('https://fonts.googleapis.com/css2?family=Jersey+10&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jersey+10&display=swap');
 
-   /* ============================================
-      IMPORTED FONT
-      ============================================ */
-   
-   /* jersey-10-regular font styling for headings */
-   .jersey-10-regular {
-     font-family: "Jersey 10", sans-serif;
-     font-weight: 400;
-     font-style: normal;
-   }
+/* ============================================
+   IMPORTED FONT
+   ============================================ */
+
+/* jersey-10-regular font styling for headings */
+.jersey-10-regular {
+  font-family: "Jersey 10", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}
 
 * {
   box-sizing: border-box;
@@ -20,47 +20,40 @@
   padding: 0;
 }
 
-/* Default navbar */
 .home-navbar {
-    width: 100%;
-    background: black;
-    backdrop-filter: blur(10px);
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1;
-    transition: border-bottom 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
-    border-bottom: 1px solid transparent; /* hidden at top */
-  }
-  
-  .home-navbar-scrolled {
-    border-bottom: 1px solid #333;
-    background: rgba(0, 0, 0, 0.85);
-  }
-  
-  
-
-.home-navbar-content {
-  padding: 1rem 2rem;
+  height: 72px;
+  background: black;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  padding: 0 24px;
+}
+
+.navbar-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
 }
 
+.lottie-wrapper {
+  width: 40px;       /* Desired width */
+  height: 40px;      /* Desired height */
+  display: inline-block;
+  vertical-align: middle; /* align with text */
+}
+
 .logo {
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: 700;
-  font-family: "Jersey 10", sans-serif;
-  /* Animated gradient text effect for title */
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: gradientShift 3s ease infinite;
   background-size: 200% 200%;
-  text-shadow: none;
-  color: transparent; /* Ensure no fallback color shows */
+  animation: gradientShift 3s ease infinite;
+  color: transparent;
+  font-family: 'Jersey 10', sans-serif;
 }
 
 @keyframes gradientShift {
@@ -72,43 +65,117 @@
   }
 }
 
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
 
-.home-navbar-links a {
+.navbar-links {
+  list-style: none;
+  display: flex;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+}
+
+.navbar-links li {
+  list-style: none;
+}
+
+.navbar-link {
   text-decoration: none;
- color: white;
-}
-
-.home-navbar-links {
- list-style: none;
- display: flex;
- gap: 1.5rem;
- margin: 0;
- padding: 0;
-}
-
-.home-navbar-link {
- text-decoration: none;
- color: #6b7280;
- font-weight: 500;
- transition: color 0.3s ease;
- padding: 0.5rem 1rem;
- border-radius: 8px;
-}
-
-.home-navbar-link:hover {
- color: #6366f1;
- background: rgba(99, 102, 241, 0.05);
-}
-
-/* HomeNav.css */
-.home-lottie-wrapper {
-  width: 40px;       /* Desired width */
-  height: 40px;      /* Desired height */
+  color: #6b7280;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  white-space: nowrap;
   display: inline-block;
-  vertical-align: middle; /* align with text */
 }
 
-.home-lottie-wrapper > div {
-  width: 100% !important;
-  height: 100% !important;
+.navbar-link:hover {
+  color: #6366f1;
+  background: rgba(99, 102, 241, 0.1);
+  transform: translateY(-1px);
+}
+
+/* dark mode button styles */
+.dark-mode-toggle {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  color: #6366f1;
+  flex-shrink: 0;
+}
+
+.dark-mode-toggle:hover {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+  border-color: rgba(99, 102, 241, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.dark-mode-toggle:active {
+  transform: translateY(0) rotate(0deg);
+}
+
+.sign-out-btn {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1.25rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.sign-out-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+  background: linear-gradient(135deg, #5558e3 0%, #7c4ee8 100%);
+}
+
+.sign-out-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 16px;
+  }
+  
+  .navbar-links {
+    gap: 0.25rem;
+  }
+  
+  .navbar-link {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.85rem;
+  }
+  
+  .navbar-right {
+    gap: 0.5rem;
+  }
+  
+  .sign-out-btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.85rem;
+  }
 }
