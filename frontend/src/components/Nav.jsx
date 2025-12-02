@@ -46,7 +46,7 @@ const Nav = () => {
                style={{ width: "40px", height: "40px" }}
                />
           </div>
-        {userName}'s Stellar-Search Dashboards 
+        {userName}'s Stellar Search Dashboards 
         </div>
         <ul className="navbar-links">
           <Link to={'/home'} className="nav-buttons">Home</Link>

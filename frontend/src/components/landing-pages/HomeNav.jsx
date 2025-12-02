@@ -33,7 +33,7 @@ const HomeNav = () => {
                 style={{ width: "40px", height: "40px" }}
                 />
           </div>
-              Stellar-Search
+              Stellar Search
          </div>
 
         <ul className="home-navbar-links">
