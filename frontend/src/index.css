@@ -1,22 +1,27 @@
 :root {
-    font-family: 'Outfit', sans-serif;
-    line-height: 1.5;
-    font-weight: 400;
+  font-family: 'Outfit', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
 
-    color-scheme: light dark;
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
 
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-body {
-    margin: 0;
-    min-width: 320px;
-    min-height: 100vh;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  --bg-dark: #0a0e27;
+  --bg-panel: #121629;
+  --bg-glass: rgba(18, 22, 41, 0.95);
+  --primary: #4ECDC4;
+  --primary-dim: rgba(78, 205, 196, 0.1);
+  --primary-border: rgba(78, 205, 196, 0.3);
+  --text-white: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.5);
+  --border-light: rgba(255, 255, 255, 0.1);
+  --cluster-color: #ff0055;
+  --sidebar-width: 320px;
 }
 
 h1,
@@ -25,5 +30,16 @@ h3,
 h4,
 h5,
 h6 {
-    font-family: 'Outfit', sans-serif;
+  font-family: 'Outfit', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow: hidden;
 }

@@ -10,10 +10,13 @@ import uuid
 
 from models import (
     ClusteringRequest, ClusteringOutput, ClusteringStatus,
-    SearchRequest, SearchResult, MessageWithTags
+    SearchRequest, SearchResult, MessageWithTags,
+    SlackFetchRequest, SlackTestRequest, SlackTestResponse, Message
 )
 from cluster_orchestrator import get_orchestrator
+from slack_service import SlackService
 from config import config
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -243,6 +246,90 @@ async def clear_cache():
         return {"status": "success", "message": "Cache cleared"}
     
     return {"status": "success", "message": "Cache was already empty"}
+
+
+@app.post("/slack/test", response_model=SlackTestResponse)
+async def test_slack_connection(request: SlackTestRequest):
+    """
+    Test Slack API connection with provided token
+    
+    Args:
+        request: Slack test request with user token
+        
+    Returns:
+        Connection status and user info
+    """
+    try:
+        slack_service = SlackService(request.user_token)
+        result = slack_service.test_connection()
+        return SlackTestResponse(**result)
+    
+    except Exception as e:
+        logger.error(f"Error testing Slack connection: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/slack/fetch", response_model=list[Message])
+async def fetch_slack_messages(request: SlackFetchRequest):
+    """
+    Fetch messages from Slack workspace
+    
+    Args:
+        request: Slack fetch request with token and options
+        
+    Returns:
+        List of messages in standard format
+    """
+    try:
+        logger.info(f"Fetching Slack messages (public={request.include_public}, "
+                   f"private={request.include_private}, dms={request.include_dms})")
+        
+        slack_service = SlackService(request.user_token)
+        
+        # Test connection first
+        connection_test = slack_service.test_connection()
+        if not connection_test.get('ok'):
+            raise HTTPException(
+                status_code=401,
+                detail=f"Slack authentication failed: {connection_test.get('error')}"
+            )
+        
+        # Fetch messages
+        raw_messages = slack_service.fetch_all_messages(
+            include_public=request.include_public,
+            include_private=request.include_private,
+            include_dms=request.include_dms,
+            include_permalinks=request.include_permalinks
+        )
+        
+        # Convert to Message format
+        formatted_messages = []
+        for msg in raw_messages:
+            if not msg.get('text'):  # Skip empty messages
+                continue
+            
+            try:
+                formatted_msg = Message(
+                    text=msg['text'],
+                    channel=msg.get('channel_name', msg.get('channel_id', 'unknown')),
+                    user=msg.get('user', 'unknown'),
+                    timestamp=datetime.now().isoformat(),  # Use current time as placeholder
+                    message_id=msg.get('message_link', None)
+                )
+                formatted_messages.append(formatted_msg)
+            except Exception as e:
+                logger.warning(f"Failed to format message: {e}")
+                continue
+        
+        logger.info(f"Successfully formatted {len(formatted_messages)} messages")
+        
+        return formatted_messages
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching Slack messages: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":

@@ -97,5 +97,43 @@ export const healthCheck = async () => {
   return response.data;
 };
 
+/**
+ * Test Slack connection
+ * @param {string} userToken - Slack user token
+ * @returns {Promise} Connection test result
+ */
+export const testSlackConnection = async (userToken) => {
+  const response = await api.post('/slack/test', {
+    user_token: userToken,
+  });
+  return response.data;
+};
+
+/**
+ * Fetch messages from Slack
+ * @param {string} userToken - Slack user token
+ * @param {boolean} includePublic - Include public channels
+ * @param {boolean} includePrivate - Include private channels
+ * @param {boolean} includeDms - Include direct messages
+ * @param {boolean} includePermalinks - Include message permalinks
+ * @returns {Promise} List of messages
+ */
+export const fetchSlackMessages = async (
+  userToken,
+  includePublic = true,
+  includePrivate = true,
+  includeDms = false,
+  includePermalinks = false
+) => {
+  const response = await api.post('/slack/fetch', {
+    user_token: userToken,
+    include_public: includePublic,
+    include_private: includePrivate,
+    include_dms: includeDms,
+    include_permalinks: includePermalinks,
+  });
+  return response.data;
+};
+
 export default api;
 

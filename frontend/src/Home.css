@@ -1,0 +1,27 @@
+.app-container {
+  width: 100vw;
+  height: 100vh;
+  background: #0a0e27;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  transition: margin-right 0.3s ease;
+}
+
+.main-content.sidebar-active {
+  margin-right: 320px;
+}
+
+.view-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: #0a0e27;
+}

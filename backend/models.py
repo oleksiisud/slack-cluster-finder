@@ -44,6 +44,8 @@ class ClusterInfo(BaseModel):
     centroid: Optional[List[float]] = Field(None, description="Cluster centroid in embedding space")
     parent_cluster_id: Optional[str] = Field(None, description="Parent cluster for hierarchical structure")
     child_cluster_ids: List[str] = Field(default_factory=list, description="Child clusters")
+    level: int = Field(0, description="Hierarchy level: 0=root, 1=main, 2=sub, 3=leaf(messages)")
+    radius: float = Field(0.0, description="Distance from center for radial layout")
 
 class ClusteringOutput(BaseModel):
     """Complete clustering output"""
@@ -77,3 +79,23 @@ class SearchResult(BaseModel):
     message: MessageWithTags
     similarity_score: float = Field(..., description="Similarity score to query")
     rank: int = Field(..., description="Result rank")
+
+class SlackFetchRequest(BaseModel):
+    """Request model for fetching Slack messages"""
+    user_token: str = Field(..., description="Slack user token")
+    include_public: bool = Field(True, description="Include public channels")
+    include_private: bool = Field(True, description="Include private channels")
+    include_dms: bool = Field(False, description="Include direct messages")
+    include_permalinks: bool = Field(False, description="Include message permalinks (slower)")
+
+class SlackTestRequest(BaseModel):
+    """Request model for testing Slack connection"""
+    user_token: str = Field(..., description="Slack user token")
+
+class SlackTestResponse(BaseModel):
+    """Response model for Slack connection test"""
+    ok: bool
+    user: Optional[str] = None
+    team: Optional[str] = None
+    user_id: Optional[str] = None
+    error: Optional[str] = None
