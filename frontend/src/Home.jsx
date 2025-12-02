@@ -11,6 +11,20 @@ import { getUserChats } from './services/chatService';
 import { useAuth } from './AuthContext';
 import './Home.css';
 
+const MOCK_HOME_DATA = {
+  nodes: [
+    { id: "root", name: "New Chat", type: "add-root", val: 50, x: 0, y: 0 },
+    { id: "ws1", name: "Company Slack", type: "workspace", val: 20, source: "slack" },
+    { id: "ws2", name: "Dev Discord", type: "workspace", val: 15, source: "discord" },
+    { id: "ws3", name: "Support Team", type: "workspace", val: 10, source: "slack" },
+  ],
+  links: [
+    { source: "root", target: "ws1" },
+    { source: "root", target: "ws2" },
+    { source: "root", target: "ws3" },
+  ]
+};
+
 const MOCK_CHAT_DATA = {
   nodes: [
     { id: "c1", name: "Pandas Data Analysis", type: "cluster", val: 30, tags: ["python", "data", "pandas"] },

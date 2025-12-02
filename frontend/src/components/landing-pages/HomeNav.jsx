@@ -59,14 +59,17 @@ const HomeNav = () => {
             <li>
               <Link to={'https://github.com/oleksiisud/slack-cluster-finder'} className="navbar-link"> <FaGithub/> </Link>
             </li>
-            <li>
+            {/* <li>
               <Link to={'/account'} className="navbar-link">Account</Link>
+            </li> */}
+            <li>
+              <Link to ={'/log-in'} className="navbar-link">Get Started</Link>
             </li>
           </ul>
           
-          <button className="dark-mode-toggle" onClick={toggleTheme} aria-label="Toggle theme">
+          {/* <button className="dark-mode-toggle" onClick={toggleTheme} aria-label="Toggle theme">
             {theme === 'theme-dark' ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
+          </button> */}
           
           {session ? (
             <button onClick={handleSignOut} className="sign-out-btn">

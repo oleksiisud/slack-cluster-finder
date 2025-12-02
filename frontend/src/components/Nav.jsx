@@ -62,9 +62,7 @@ const Nav = () => {
             <li>
               <Link to={'/account'} className="navbar-link">Account</Link>
             </li>
-          </ul>
-          
-          <button className="dark-mode-toggle" onClick={toggleTheme} aria-label="Toggle theme">
+            <button className="dark-mode-toggle" onClick={toggleTheme} aria-label="Toggle theme">
             {theme === 'theme-dark' ? <Sun size={20} /> : <Moon size={20} />}
           </button>
           
@@ -77,6 +75,9 @@ const Nav = () => {
               Log In
             </button>
           )}
+          </ul>
+          
+       
         </div>
       </div>
     </nav>

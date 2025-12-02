@@ -6,6 +6,10 @@ Slack is a widely used application, but its search and message filtering are ver
 
 **Stellar Search** fixes this problem by delivering insights from your chat logs through context clustering.
 
+
+![Alt text](front_page.png "Stellar Search")
+
+
 ### Key Features:
 1. **Slack Integration** - Automated Slack bot retrieves messages directly from Slack channels for analysis
 2. **Contextual Search Beyond Keywords** - Uses semantic embeddings to understand message meaning and context, not just keyword matching
@@ -20,6 +24,24 @@ Slack is a widely used application, but its search and message filtering are ver
 [![Supabase][Supabase]][Supabase-url]
 
 ## Getting Started
+
+Before running the frontend locally, make sure you have the following installed:
+
+- **Node.js** (v18 or higher)
+- **npm** (v9 or higher) or **yarn**
+- **Git**
+
+To check your versions:
+```bash
+node -v
+npm -v
+```
+
+Once you clone the repository:
+```bash
+cd frontend 
+npm run dev
+```
 
 ## Team Members:
 
