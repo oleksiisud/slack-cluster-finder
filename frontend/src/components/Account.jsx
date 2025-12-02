@@ -42,8 +42,8 @@ const Account = () => {
         // Dummy for now - fetching user token to associate with dashboards from user_settings table
         const token = await fetchUserToken();
         const { data: dashboardsData, error } = await supabase
-          .from("user_settings")
-          .select("*")
+          .from("user_chats")
+          .select("access_token")
           .eq("user_id", user.id);
 
         if (error) {
