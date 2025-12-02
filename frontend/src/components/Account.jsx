@@ -12,6 +12,10 @@ const Account = () => {
   const userName = user?.user_metadata?.name || user?.user_metadata?.full_name || user?.email ||  "User";
   const userAvatar = user?.user_metadata?.picture || "/default-avatar.png";
   
+  // temp solution, display team ID instead of workspace name
+  const teamId = user?.user_metadata?.custom_claims?.["https://slack.com/team_id"] || "No team ID found";
+
+  // Dummy for now - fetch the users Slack workspace from someowhere, not from user_metadata
   const slackWorkspace =
     user?.user_metadata?.slack_workspace || "No workspace connected";
 
@@ -87,7 +91,7 @@ const Account = () => {
           <img src={userAvatar} alt="avatar" className="avatar" />
           <h1>{userName}</h1>
           <p className="workspace">
-            Connected Slack workspace: <strong>{slackWorkspace}</strong>
+            Connected Slack workspace: <strong>{teamId}</strong>
           </p>
 
           <h2>Your Dashboards</h2>
