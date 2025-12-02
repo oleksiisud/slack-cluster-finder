@@ -25,8 +25,8 @@ const Account = () => {
     const { data, error } = await supabase
     // if we want to store them in this table we can fetch them here
     // if not, we can change the table, or remove this function entirely
-      .from("user_settings")
-      .select("chat_id")
+      .from("user_chats")
+      .select("access_token")
       .eq("user_id", user.id)
       .single();
 
@@ -46,8 +46,8 @@ const Account = () => {
         // Dummy for now - fetching user token to associate with dashboards from user_settings table
         const token = await fetchUserToken();
         const { data: dashboardsData, error } = await supabase
-          .from("user_settings")
-          .select("*")
+          .from("user_chats")
+          .select("clustering_data")
           .eq("user_id", user.id);
 
         if (error) {
