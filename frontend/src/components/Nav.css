@@ -130,6 +130,23 @@
   transform: translateY(0) rotate(0deg);
 }
 
+/* sign out button styles */
+.sign-out-button {
+  color: grey;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background-color: transparent;
+}
+
+.sign-out-button:hover {
+  background: rgba(255,255,255,0.25);
+}
+/* 
 .sign-out-btn {
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: white;
@@ -153,7 +170,7 @@
 .sign-out-btn:active {
   transform: translateY(0);
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
-}
+} */
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
