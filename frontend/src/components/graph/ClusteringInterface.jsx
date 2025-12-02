@@ -1,19 +1,16 @@
+/**
+ * Main interface for clustering chat messages
+ */
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useLocation } from "react-router-dom";
-import ClusterGraph from '../graph/ClusterGraph';
-import SearchBar from '../graph/SearchBar';
-import MessagePanel from '../graph/MessagePanel';
-import ClusterInfo from '../graph/ClusterInfo';
+import ClusterGraph from './ClusterGraph';
+import SearchBar from './SearchBar';
+import MessagePanel from './MessagePanel';
+import ClusterInfo from './ClusterInfo';
 import { clusterMessages } from '../../services/clusteringApi';
 import { loadFromCacheStorage, saveToCacheStorage, clearAllCache } from '../../utils/cacheManager';
-import "./Dashboard.css";
+import './ClusteringInterface.css';
 
-export default function Dashboard() {
-  const { channelId } = useParams();
-  const location = useLocation();
-  const label = location.state?.label || channelId;
-
-  // Clustering state
+const ClusteringInterface = () => {
   const [messages, setMessages] = useState([]);
   const [clusteringData, setClusteringData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -25,7 +22,7 @@ export default function Dashboard() {
   const [autoUpdate, setAutoUpdate] = useState(false);
   const fileInputRef = useRef(null);
 
-  // Load messages from localStorage
+  // Load sample data or from localStorage
   useEffect(() => {
     const savedMessages = localStorage.getItem('uploaded_messages');
     if (savedMessages) {
@@ -83,7 +80,37 @@ export default function Dashboard() {
     }
   };
 
-  // Handle file upload
+  // Handle messages upload
+  const handleMessagesUpload = (uploadedMessages) => {
+    setMessages(uploadedMessages);
+    localStorage.setItem('uploaded_messages', JSON.stringify(uploadedMessages));
+    setClusteringData(null); // Clear existing clustering
+    setSelectedCluster(null);
+    setSelectedMessage(null);
+  };
+
+  // Handle cluster selection
+  const handleClusterClick = (clusterNode) => {
+    setSelectedCluster(clusterNode);
+    setSelectedMessage(null);
+  };
+
+  // Handle message selection
+  const handleMessageClick = (message) => {
+    setSelectedMessage(message);
+  };
+
+  // Handle search
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  };
+
+  // Clear cache
+  const handleClearCache = () => {
+    clearAllCache();
+    alert('Cache cleared successfully!');
+  };
+
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -122,33 +149,7 @@ export default function Dashboard() {
       return;
     }
 
-    setMessages(data);
-    localStorage.setItem('uploaded_messages', JSON.stringify(data));
-    setClusteringData(null);
-    setSelectedCluster(null);
-    setSelectedMessage(null);
-  };
-
-  // Handle cluster selection
-  const handleClusterClick = (clusterNode) => {
-    setSelectedCluster(clusterNode);
-    setSelectedMessage(null);
-  };
-
-  // Handle message selection
-  const handleMessageClick = (message) => {
-    setSelectedMessage(message);
-  };
-
-  // Handle search
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-  };
-
-  // Clear cache
-  const handleClearCache = () => {
-    clearAllCache();
-    alert('Cache cleared successfully!');
+    onUpload(data);
   };
 
   // Auto-clustering on message changes
@@ -159,25 +160,21 @@ export default function Dashboard() {
   }, [messages, autoUpdate]);
 
   return (
-    <div className="Dashboard">
-      <header className="dashboard-header">
-        <h1>{label} Dashboard</h1>
+    <div className="clustering-interface">
+      <header className="clustering-header">
+        <h1>🌌 Chat Message Clustering</h1>
+        <p>AI-Powered Topic Discovery & Visualization</p>
       </header>
 
-      <div className="dashboard-controls">
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept=".json"
-          onChange={handleFileUpload}
-          style={{ display: 'none' }}
-        />
-        <button 
-          onClick={() => fileInputRef.current.click()} 
-          className="btn btn-upload"
-        >
-          📤 Upload Messages
-        </button>
+      <div className="clustering-controls">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json"
+        onChange={handleFileUpload}
+        style={{ display: 'none' }}
+      />
+      <button onClick={() => fileInputRef.current.click()} className="btn btn-primary">Upload Messages</button>
         
         <div className="control-group">
           <button 
@@ -231,9 +228,32 @@ export default function Dashboard() {
         </div>
       )}
 
-      <div className="dashboard-layout">
-        {/* Graph Area */}
+      {clusteringData && (
+        <div className="clustering-stats">
+          <div className="stat-item">
+            <span className="stat-label">Messages:</span>
+            <span className="stat-value">{clusteringData.metadata.total_messages}</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label">Clusters:</span>
+            <span className="stat-value">{clusteringData.metadata.total_clusters}</span>
+          </div>
+          <div className="stat-item">
+            <span className="stat-label">Processing Time:</span>
+            <span className="stat-value">
+              {clusteringData.metadata.processing_time_seconds.toFixed(2)}s
+            </span>
+          </div>
+        </div>
+      )}
+
+      <div className="clustering-main">
         <div className="graph-section">
+          <SearchBar 
+            onSearch={handleSearch}
+            placeholder="Search messages or topics..."
+          />
+          
           <ClusterGraph 
             clusteringData={clusteringData}
             onClusterClick={handleClusterClick}
@@ -243,30 +263,7 @@ export default function Dashboard() {
           />
         </div>
 
-        {/* Filter/Search Panel */}
-        <div className="filter-section">
-            {clusteringData && (
-            <div className="dashboard-stats">
-              <div className="stat-item">
-                <span className="stat-label">Messages:</span>
-                <span className="stat-value">{clusteringData.metadata.total_messages}</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">Clusters:</span>
-                <span className="stat-value">{clusteringData.metadata.total_clusters}</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-label">Processing Time:</span>
-                <span className="stat-value">
-                  {clusteringData.metadata.processing_time_seconds.toFixed(2)}s
-                </span>
-              </div>
-            </div>
-          )}
-          <SearchBar 
-            onSearch={handleSearch}
-            placeholder="Search messages or topics..."
-          />
+        <div className="info-panel">
           {selectedCluster && (
             <ClusterInfo 
               cluster={selectedCluster}
@@ -309,14 +306,11 @@ export default function Dashboard() {
               ))}
             </div>
           )}
-
-          {!selectedCluster && !selectedMessage && !clusteringData && (
-            <div className="no-data-message">
-              <p>📁 Upload messages and click "Cluster Messages" to get started</p>
-            </div>
-          )}
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default ClusteringInterface;
+

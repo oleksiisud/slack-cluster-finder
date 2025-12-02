@@ -1,0 +1,12 @@
+2025-11-14 18:40:56,275 ERROR Failed to send a request to Slack API server: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1077)>
+2025-11-14 18:40:57,624 INFO Going to retry the same request: POST https://slack.com/api/auth.test
+2025-11-14 18:40:57,661 ERROR Failed to send a request to Slack API server: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1077)>
+2025-11-14 18:41:59,214 ERROR Failed to retrieve WSS URL: The request to the Slack API failed. (url: https://slack.com/api/apps.connections.open)
+The server responded with: {'ok': False, 'error': 'not_allowed_token_type'}
+2025-11-14 18:53:41,731 ERROR SLACK_BOT_TOKEN is missing or not a bot token (expected prefix 'xoxb-'). Please set it in .env
+2025-11-14 19:03:55,121 ERROR SLACK_BOT_TOKEN is missing or not a bot token (expected prefix 'xoxb-'). Please set it in .env
+2025-11-14 19:10:21,525 ERROR SLACK_BOT_TOKEN is missing or not a bot token (expected prefix 'xoxb-'). Please set it in .env
+2025-11-14 19:14:45,077 ERROR SLACK_BOT_TOKEN is missing or not a bot token (expected prefix 'xoxb-'). Please set it in .env
+2025-11-14 19:16:03,298 ERROR SLACK_APP_TOKEN is missing or not an app-level token (expected prefix 'xapp-'). Socket Mode requires an app-level token.
+2025-11-14 19:30:41,834 ERROR SLACK_APP_TOKEN is missing or not an app-level token (expected prefix 'xapp-'). Socket Mode requires an app-level token.
+2025-11-14 19:48:38,012 ERROR SLACK_APP_TOKEN is missing or not an app-level token (expected prefix 'xapp-'). Socket Mode requires an app-level token.

@@ -1,0 +1,2 @@
+{"platform": "discord", "guild_id": "G1", "guild_name": "TestGuild", "channel_id": "D1", "channel_name": "general", "message": {"id": "100", "author_id": "U1", "author_name": "alice", "content": "hello discord", "created_at": "2021-05-03T12:00:00"}}
+{"platform": "discord", "guild_id": "G1", "guild_name": "TestGuild", "channel_id": "D1", "channel_name": "general", "message": {"id": "101", "author_id": "U2", "author_name": "bob", "content": "hi alice", "created_at": "2021-05-03T12:01:00"}}

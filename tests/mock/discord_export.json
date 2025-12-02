@@ -1,0 +1,18 @@
+{
+  "guilds": [
+    {
+      "id": "G1",
+      "name": "TestGuild",
+      "channels": [
+        {
+          "id": "D1",
+          "name": "general",
+          "messages": [
+            {"id": "100", "author_id": "U1", "author_name": "alice", "content": "hello discord", "created_at": "2021-05-03T12:00:00"},
+            {"id": "101", "author_id": "U2", "author_name": "bob", "content": "hi alice", "created_at": "2021-05-03T12:01:00"}
+          ]
+        }
+      ]
+    }
+  ]
+}
