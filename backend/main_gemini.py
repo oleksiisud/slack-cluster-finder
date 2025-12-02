@@ -3,11 +3,13 @@ import json
 from typing import List, Dict, Any
 from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import numpy as np
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics.pairwise import cosine_similarity
 import google.generativeai as genai
+from slack_oauth import router as slack_oauth_router
 
 # Setup
 app = FastAPI(
@@ -15,6 +17,19 @@ app = FastAPI(
     description="AI-powered clustering service for chat messages",
     version="0.0.1"
 )
+
+# CORS configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, specify your frontend domain
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include Slack OAuth router
+app.include_router(slack_oauth_router)
+
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 class MessageInput(BaseModel):

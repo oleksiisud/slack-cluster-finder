@@ -1,32 +1,64 @@
 /* ============================================
    THEME COLORS - LIGHT MODE
    ============================================ */
-/* ============================================
-   THEME COLORS - LIGHT MODE
-   ============================================ */
-   .theme-light {
-    --gradient: linear-gradient(135deg, #BCD8FC 0%, #fdcb8a 100%); /* light blue to soft yellow */
+.theme-light {
+    --gradient: linear-gradient(135deg, #BCD8FC 0%, #fdcb8a 100%);
     --dark-text: #1a1a1a;
     --light-text: #6b7280;
     --accent: #DBE7E4;
     --button-border: rgba(253, 254, 255, 0.95);
+    
+    /* Enhanced theme variables */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f3f4f6;
+    --bg-tertiary: #e5e7eb;
+    --bg-glass: rgba(255, 255, 255, 0.95);
+    --text-primary: #1a1a1a;
+    --text-secondary: #6b7280;
+    --text-tertiary: #9ca3af;
+    --border-color: rgba(0, 0, 0, 0.1);
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --primary: #4ECDC4;
+    --primary-dim: rgba(78, 205, 196, 0.2);
+    --primary-border: rgba(78, 205, 196, 0.4);
+    --cluster-color: #ff0055;
+    --success-color: #22c55e;
+    --warning-color: #facc15;
+    --error-color: #ef4444;
 }
 
 /* ============================================
    THEME COLORS - DARK MODE
    ============================================ */
 .theme-dark {
-   --gradient: linear-gradient(135deg, #2f3061 0%, #3d2c65 50%, #5e5285 100%);
+    --gradient: linear-gradient(135deg, #2f3061 0%, #3d2c65 50%, #5e5285 100%);
     --dark-text: #EAE9FC;
     --light-text: #9ca3af;
     --accent: #60a5fa;
     --button-border: rgba(13, 26, 39, 0.95);
+    
+    /* Enhanced theme variables */
+    --bg-primary: #0a0e27;
+    --bg-secondary: #121629;
+    --bg-tertiary: #1a1f3a;
+    --bg-glass: rgba(18, 22, 41, 0.95);
+    --text-primary: #EAE9FC;
+    --text-secondary: #9ca3af;
+    --text-tertiary: rgba(255, 255, 255, 0.5);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --shadow-color: rgba(0, 0, 0, 0.5);
+    --primary: #4ECDC4;
+    --primary-dim: rgba(78, 205, 196, 0.1);
+    --primary-border: rgba(78, 205, 196, 0.3);
+    --cluster-color: #ff0055;
+    --success-color: #22c55e;
+    --warning-color: #facc15;
+    --error-color: #ef4444;
 }
 
-/* 
-  /*--gradient: linear-gradient(135deg, #2158a0 0%, #4d1e8a 100%);  dark blue gradient 
-other options 
-red: (light: #E86D6D), (dark: #921717)
-green: (light: #B0CE69), (dark: #789631)
-blue/purple: (light: #6987CE), (dark: #314F96)
-*/
+/* Apply theme to body */
+body {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background 0.3s ease, color 0.3s ease;
+}

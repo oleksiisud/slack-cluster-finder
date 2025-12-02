@@ -2,7 +2,8 @@
   width: 100%;
   height: 100%;
   position: relative;
-  background: #0a0e27;
+  background: var(--bg-primary);
+  transition: background 0.3s ease;
 }
 
 .graph-svg {
@@ -16,9 +17,9 @@
   top: 20px;
   left: 20px;
   z-index: 10;
-  background: #4ECDC4;
-  color: #0a0e27;
-  border: none;
+  background: var(--primary);
+  color: var(--bg-primary);
+  border: 1px solid var(--primary-border);
   padding: 8px 16px;
   border-radius: 8px;
   cursor: pointer;
@@ -33,7 +34,7 @@
 .btn-back:hover {
   background: #3ab5ad;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
+  box-shadow: 0 4px 12px var(--primary-dim);
 }
 
 .btn-back:active {
@@ -42,14 +43,15 @@
 
 .graph-tooltip {
   position: absolute;
-  background: rgba(10, 14, 39, 0.95);
-  border: 1px solid #4ECDC4;
+  background: var(--bg-glass);
+  border: 1px solid var(--primary-border);
   border-radius: 8px;
   padding: 12px;
   pointer-events: none;
   z-index: 1000;
   max-width: 300px;
   backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .tooltip-card {
@@ -59,7 +61,7 @@
 }
 
 .tooltip-title {
-  color: #4ECDC4;
+  color: var(--primary);
   font-size: 1rem;
   font-weight: 700;
   margin: 0;
@@ -72,16 +74,46 @@
 }
 
 .tag-pill {
-  background: rgba(78, 205, 196, 0.2);
-  color: #4ECDC4;
+  background: var(--primary-dim);
+  color: var(--primary);
   padding: 2px 8px;
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 500;
+  border: 1px solid var(--primary-border);
 }
 
 .tooltip-user {
   font-size: 0.8rem;
-  color: #fff;
-  opacity: 0.7;
+  color: var(--text-secondary);
+  opacity: 0.9;
+}
+
+/* Glow animations */
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.15;
+    r: attr(r);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes search-pulse {
+  0%, 100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.node-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.search-pulse {
+  animation: search-pulse 1s ease-in-out infinite;
 }

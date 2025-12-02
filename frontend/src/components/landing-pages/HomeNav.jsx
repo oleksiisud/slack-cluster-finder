@@ -68,9 +68,13 @@ const HomeNav = () => {
             {theme === 'theme-dark' ? <Sun size={20} /> : <Moon size={20} />}
           </button>
           
-          {session && (
-            <button onClick={signOut} className="sign-out-btn">
+          {session ? (
+            <button onClick={handleSignOut} className="sign-out-btn">
               Sign Out
+            </button>
+          ) : (
+            <button onClick={() => navigate('/log-in')} className="sign-out-btn">
+              Log In
             </button>
           )}
         </div>

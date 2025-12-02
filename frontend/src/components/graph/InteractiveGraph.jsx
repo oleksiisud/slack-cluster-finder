@@ -96,21 +96,33 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
       if (d.type === 'add-root') r = 35;
       if (d.type === 'workspace') r = 20;
 
+      // Get color based on type
+      const nodeColor = d.type === 'add-root' ? "#4ECDC4" : 
+                       (d.type === 'cluster' ? "#ff0055" : "#4ECDC4");
+
+      // Outer glow effect (inspired by MiniCluster)
+      el.append("circle")
+        .attr("r", r + 6)
+        .attr("fill", nodeColor)
+        .attr("opacity", 0.15)
+        .attr("class", "node-glow");
+
       // Pulse animation if search match
       if (isMatch) {
          el.append("circle")
            .attr("r", r + 10)
            .attr("fill", "#FFD700")
-           .attr("opacity", 0.3);
+           .attr("opacity", 0.25)
+           .attr("class", "search-pulse");
       }
 
       const circle = el.append("circle")
         .attr("r", r)
-        .attr("stroke", isMatch ? "#FFD700" : (d.type === 'cluster' ? "#fff" : "#4ECDC4"))
-        .attr("stroke-width", isMatch ? 3 : 1.5)
-        .attr("fill", d.type === 'add-root' ? "rgba(78, 205, 196, 0.1)" : 
-                     (d.type === 'cluster' ? "#ff0055" : "#4ECDC4"))
-        .attr("fill-opacity", d.type === 'add-root' ? 0 : 0.9);
+        .attr("stroke", isMatch ? "#FFD700" : nodeColor)
+        .attr("stroke-width", isMatch ? 3 : 2)
+        .attr("fill", d.type === 'add-root' ? "rgba(78, 205, 196, 0.1)" : nodeColor)
+        .attr("fill-opacity", d.type === 'add-root' ? 0 : 0.9)
+        .style("filter", `drop-shadow(0 0 ${isMatch ? 15 : 10}px ${isMatch ? "#FFD700" : nodeColor})`);
 
       if (d.type === 'add-root') {
         circle.attr("stroke-dasharray", "5,5");

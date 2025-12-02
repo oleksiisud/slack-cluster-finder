@@ -4,6 +4,7 @@
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const GEMINI_API_BASE_URL = import.meta.env.VITE_GEMINI_API_BASE_URL || 'http://localhost:8001';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -11,6 +12,14 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
   timeout: 300000, // 5 minutes for large clustering jobs
+});
+
+const geminiApi = axios.create({
+  baseURL: GEMINI_API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  timeout: 300000,
 });
 
 /**
@@ -131,6 +140,20 @@ export const fetchSlackMessages = async (
     include_private: includePrivate,
     include_dms: includeDms,
     include_permalinks: includePermalinks,
+  });
+  return response.data;
+};
+
+/**
+ * Process clustering using Gemini embeddings
+ * @param {Array} messages - Array of message objects with text, channel, user, timestamp, link
+ * @param {number} sensitivity - Clustering sensitivity (0.0 to 1.0)
+ * @returns {Promise} Graph data with nodes and links
+ */
+export const processClusteringGemini = async (messages, sensitivity = 0.5) => {
+  const response = await geminiApi.post('/process-clustering', {
+    messages,
+    sensitivity,
   });
   return response.data;
 };

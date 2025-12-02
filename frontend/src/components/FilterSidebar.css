@@ -4,9 +4,9 @@
   top: 64px;
   height: calc(100vh - 64px);
   width: 50px;
-  background: #0f1329;
-  border-left: 1px solid rgba(78, 205, 196, 0.2);
-  transition: width 0.3s ease;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border-color);
+  transition: width 0.3s ease, background 0.3s ease;
   display: flex;
   flex-direction: column;
   z-index: 100;
@@ -20,7 +20,7 @@
 .sidebar-toggle {
   background: none;
   border: none;
-  color: #4ECDC4;
+  color: var(--primary);
   cursor: pointer;
   padding: 16px;
   display: flex;
@@ -31,7 +31,7 @@
 
 .sidebar-header {
   padding: 16px;
-  border-bottom: 1px solid rgba(78, 205, 196, 0.2);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -40,7 +40,7 @@
 
 .sidebar-title {
   margin: 0;
-  color: #fff;
+  color: var(--text-primary);
   font-size: 1.1rem;
   font-weight: 600;
 }
@@ -48,7 +48,7 @@
 .btn-icon {
   background: none;
   border: none;
-  color: #4ECDC4;
+  color: var(--primary);
   cursor: pointer;
   padding: 4px;
   display: flex;
@@ -75,7 +75,7 @@
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #4ECDC4;
+  color: var(--primary);
   opacity: 0.5;
   pointer-events: none;
 }
@@ -83,22 +83,22 @@
 .search-input {
   width: 100%;
   padding: 8px 12px 8px 36px;
-  background: rgba(78, 205, 196, 0.1);
-  border: 1px solid rgba(78, 205, 196, 0.3);
+  background: var(--primary-dim);
+  border: 1px solid var(--primary-border);
   border-radius: 8px;
-  color: #fff;
+  color: var(--text-primary);
   font-size: 0.875rem;
   outline: none;
   transition: all 0.2s ease;
 }
 
 .search-input:focus {
-  border-color: #4ECDC4;
-  background: rgba(78, 205, 196, 0.15);
+  border-color: var(--primary);
+  background: var(--primary-dim);
 }
 
 .search-input::placeholder {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-tertiary);
 }
 
 .sidebar-content {
@@ -112,17 +112,17 @@
 }
 
 .sidebar-content::-webkit-scrollbar-track {
-  background: rgba(78, 205, 196, 0.1);
+  background: var(--primary-dim);
   border-radius: 3px;
 }
 
 .sidebar-content::-webkit-scrollbar-thumb {
-  background: rgba(78, 205, 196, 0.3);
+  background: var(--primary-border);
   border-radius: 3px;
 }
 
 .sidebar-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(78, 205, 196, 0.5);
+  background: var(--primary);
 }
 
 .cluster-header-row {
@@ -137,7 +137,7 @@
   font-weight: 600;
   opacity: 0.5;
   text-transform: uppercase;
-  color: #fff;
+  color: var(--text-primary);
   letter-spacing: 0.5px;
 }
 
@@ -147,21 +147,21 @@
 
 .cluster-button {
   width: 100%;
-  background: rgba(78, 205, 196, 0.1);
-  border: 1px solid rgba(78, 205, 196, 0.2);
+  background: var(--primary-dim);
+  border: 1px solid var(--primary-border);
   border-radius: 8px;
   padding: 12px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
-  color: #fff;
+  color: var(--text-primary);
   transition: all 0.2s ease;
 }
 
 .cluster-button:hover {
-  background: rgba(78, 205, 196, 0.15);
-  border-color: rgba(78, 205, 196, 0.4);
+  background: var(--bg-tertiary);
+  border-color: var(--primary);
 }
 
 .cluster-info {
@@ -176,7 +176,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #ff0055;
+  background-color: var(--cluster-color);
   flex-shrink: 0;
 }
 
@@ -195,7 +195,7 @@
 
 .cluster-details {
   padding: 12px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-tertiary);
   border-radius: 0 0 8px 8px;
   margin-top: -4px;
 }
@@ -207,12 +207,13 @@
 }
 
 .tag-pill {
-  background: rgba(78, 205, 196, 0.2);
-  color: #4ECDC4;
+  background: var(--primary-dim);
+  color: var(--primary);
   padding: 2px 8px;
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 500;
+  border: 1px solid var(--primary-border);
 }
 
 .empty-state {
@@ -220,21 +221,21 @@
   padding: 40px 0;
   opacity: 0.3;
   font-size: 0.875rem;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .sidebar-footer {
   padding: 16px;
-  border-top: 1px solid rgba(78, 205, 196, 0.2);
+  border-top: 1px solid var(--border-color);
   display: flex;
   gap: 8px;
 }
 
 .btn-secondary {
   flex: 1;
-  background: rgba(78, 205, 196, 0.2);
-  border: 1px solid #4ECDC4;
-  color: #4ECDC4;
+  background: var(--primary-dim);
+  border: 1px solid var(--primary);
+  color: var(--primary);
   padding: 8px;
   border-radius: 8px;
   cursor: pointer;
@@ -248,14 +249,14 @@
 }
 
 .btn-secondary:hover {
-  background: rgba(78, 205, 196, 0.3);
+  background: var(--bg-tertiary);
 }
 
 .btn-primary-outline {
   flex: 1;
   background: transparent;
-  border: 1px solid rgba(78, 205, 196, 0.5);
-  color: #4ECDC4;
+  border: 1px solid var(--primary-border);
+  color: var(--primary);
   padding: 8px;
   border-radius: 8px;
   cursor: pointer;
@@ -269,6 +270,6 @@
 }
 
 .btn-primary-outline:hover {
-  border-color: #4ECDC4;
-  background: rgba(78, 205, 196, 0.1);
+  border-color: var(--primary);
+  background: var(--primary-dim);
 }
