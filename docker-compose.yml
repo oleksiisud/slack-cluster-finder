@@ -1,0 +1,258 @@
+# Professional Docker Compose Configuration
+# Provides complete infrastructure for production deployment
+
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-clusterbot}
+      POSTGRES_USER: ${POSTGRES_USER:-clusterbot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/pgdata
+      - ./backend/enhanced_schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-clusterbot} -d ${POSTGRES_DB:-clusterbot}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - botnet
+
+  # Redis Cache (Optional)
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis_password}
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - botnet
+
+  # Main Bot Application
+  bot-backend:
+    build:
+      context: .
+      target: production
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - BOT_ENVIRONMENT=${BOT_ENVIRONMENT:-production}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-clusterbot}:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/${POSTGRES_DB:-clusterbot}
+      - REDIS_URL=redis://redis:6379/0
+      
+      # Slack Configuration
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_APP_TOKEN=${SLACK_APP_TOKEN}
+      - SLACK_SIGNING_SECRET=${SLACK_SIGNING_SECRET}
+      
+      # Discord Configuration
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+      
+      # Security
+      - HASH_SALT=${HASH_SALT:-production_salt_change_me}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+      
+      # Analytics
+      - HF_TOKEN=${HF_TOKEN}
+      
+    ports:
+      - "8000:8000"
+      - "9090:9090"  # Metrics port
+    volumes:
+      - ./logs:/app/logs
+      - ./cache:/app/cache
+      - ./config:/app/config
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - botnet
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Slack Bot Service
+  slack-bot:
+    build:
+      context: .
+      target: production
+    restart: unless-stopped
+    environment:
+      - BOT_ENVIRONMENT=${BOT_ENVIRONMENT:-production}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-clusterbot}:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/${POSTGRES_DB:-clusterbot}
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_APP_TOKEN=${SLACK_APP_TOKEN}
+      - SLACK_SIGNING_SECRET=${SLACK_SIGNING_SECRET}
+      - HASH_SALT=${HASH_SALT:-production_salt_change_me}
+    command: ["python", "-m", "slackbot.professional_slackbot"]
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+    depends_on:
+      - postgres
+      - bot-backend
+    networks:
+      - botnet
+
+  # Discord Bot Service
+  discord-bot:
+    build:
+      context: .
+      target: production
+    restart: unless-stopped
+    environment:
+      - BOT_ENVIRONMENT=${BOT_ENVIRONMENT:-production}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-clusterbot}:${POSTGRES_PASSWORD:-secure_password}@postgres:5432/${POSTGRES_DB:-clusterbot}
+      - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN}
+      - HASH_SALT=${HASH_SALT:-production_salt_change_me}
+    command: ["python", "-m", "discordbot.professional_discordbot"]
+    volumes:
+      - ./logs:/app/logs
+      - ./config:/app/config
+    depends_on:
+      - postgres
+      - bot-backend
+    networks:
+      - botnet
+
+  # Frontend Application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - REACT_APP_API_URL=${REACT_APP_API_URL:-http://localhost:8000}
+      - REACT_APP_SUPABASE_URL=${SUPABASE_URL}
+      - REACT_APP_SUPABASE_KEY=${SUPABASE_KEY}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - bot-backend
+    networks:
+      - botnet
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - bot-backend
+      - frontend
+    networks:
+      - botnet
+
+  # Monitoring - Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    restart: unless-stopped
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - botnet
+
+  # Monitoring - Grafana
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    networks:
+      - botnet
+
+  # Log Aggregation - Elasticsearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - botnet
+
+  # Log Processing - Logstash
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.8.0
+    restart: unless-stopped
+    volumes:
+      - ./monitoring/logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - ./logs:/app/logs:ro
+    environment:
+      - "LS_JAVA_OPTS=-Xmx256m -Xms256m"
+    depends_on:
+      - elasticsearch
+    networks:
+      - botnet
+
+  # Log Visualization - Kibana
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.8.0
+    restart: unless-stopped
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - botnet
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
+  elasticsearch_data:
+
+networks:
+  botnet:
+    driver: bridge
