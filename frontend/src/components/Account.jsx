@@ -66,9 +66,9 @@ const Account = () => {
         } else {
           // fake dashboards to show layout, delete before production
           finalDashboards = [
-            { id: "ws1", name: "Company Slack", token: "123abc" },
-            { id: "ws2", name: "Dev Discord", token: "456def" },
-            { id: "ws3", name: "Support Team", token: "789gfi" },
+            // { id: "ws1", name: "Company Slack", token: "123abc" },
+            // { id: "ws2", name: "Dev Discord", token: "456def" },
+            // { id: "ws3", name: "Support Team", token: "789gfi" },
             // { id: 1, name: "Cat Behavior Dashboard", token: token || "abc123", time_left: "2 days" },
             // { id: 2, name: "Model Analytics", token: token || "xyz789", time_left: "5 hours" },
             // { id: 3, name: "User Insights", token: token || "lmn456", time_left: "1 week" },
