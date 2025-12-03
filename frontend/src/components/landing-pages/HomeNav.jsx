@@ -62,9 +62,9 @@ const HomeNav = () => {
             {/* <li>
               <Link to={'/account'} className="navbar-link">Account</Link>
             </li> */}
-            <li>
+            {/* <li>
               <Link to ={'/log-in'} className="navbar-link">Get Started</Link>
-            </li>
+            </li> */}
           </ul>
           
           {/* <button className="dark-mode-toggle" onClick={toggleTheme} aria-label="Toggle theme">
