@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Settings, X, Upload, FileJson, CheckCircle } from 'lucide-react';
 import { initiateSlackAuth, getSlackToken } from '../services/slackAuth';
-import { createChat, saveChatMessages } from '../services/chatService';
+import { createChat, saveChatMessages, saveChatClusteringData } from '../services/chatService';
 import { processClusteringGemini } from '../services/clusteringApi';
 import { useAuth } from '../AuthContext';
 import './SettingsModal.css';
@@ -91,23 +91,32 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated }) => {
       setUploadStatus('Saving messages...');
       await saveChatMessages(newChat.id, validMessages);
 
-      // Run clustering
-      setUploadStatus('Running AI clustering...');
-      setClustering(true);
+      // Run clustering (optional - requires Gemini backend on port 8001)
+      let clusteringResult = null;
       
-      const clusteringResult = await processClusteringGemini(
-        validMessages.map(msg => ({
-          text: msg.text,
-          channel: msg.channel,
-          user: msg.user,
-          timestamp: msg.timestamp,
-          link: msg.link || ''
-        })),
-        0.5 // Default sensitivity
-      );
-
-      // Save clustering data
-      await saveChatMessages(newChat.id, validMessages);
+      try {
+        setUploadStatus('Running AI clustering...');
+        setClustering(true);
+        
+        clusteringResult = await processClusteringGemini(
+          validMessages.map(msg => ({
+            text: msg.text,
+            channel: msg.channel,
+            user: msg.user,
+            timestamp: msg.timestamp,
+            link: msg.link || ''
+          })),
+          0.5 // Default sensitivity
+        );
+        
+        // Save clustering data to database
+        await saveChatClusteringData(newChat.id, clusteringResult);
+        
+      } catch (clusteringError) {
+        console.warn('Clustering service unavailable, continuing without clustering:', clusteringError);
+        setUploadStatus('Note: Clustering service unavailable. Chat created without clustering.');
+        // clusteringResult remains null - will use mock data
+      }
       
       setUploadStatus('✓ Chat created successfully!');
       
