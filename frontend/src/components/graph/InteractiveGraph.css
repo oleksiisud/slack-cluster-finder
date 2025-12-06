@@ -89,6 +89,51 @@
   opacity: 0.9;
 }
 
+.tooltip-message {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--primary-border);
+}
+
+.tooltip-text {
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0 0 8px 0;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.tooltip-link {
+  display: inline-block;
+  font-size: 0.75rem;
+  color: var(--primary);
+  text-decoration: none;
+  margin-top: 4px;
+  transition: opacity 0.2s ease;
+}
+
+.tooltip-link:hover {
+  opacity: 0.7;
+  text-decoration: underline;
+}
+
+.tooltip-info {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--primary-border);
+}
+
+.tooltip-type {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 /* Glow animations */
 @keyframes pulse-glow {
   0%, 100% {

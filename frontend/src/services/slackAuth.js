@@ -5,6 +5,7 @@ import { supabase } from '../supabaseClient';
 
 const SLACK_CLIENT_ID = import.meta.env.VITE_SLACK_CLIENT_ID;
 const SLACK_REDIRECT_URI = import.meta.env.VITE_SLACK_REDIRECT_URI || `${window.location.origin}/slack/callback`;
+console.log("Using redirect URI:", SLACK_REDIRECT_URI);
 
 /**
  * Slack OAuth scopes needed for message access
@@ -108,20 +109,35 @@ export const getSlackToken = async (teamId = null) => {
   
   if (!user) throw new Error('User not authenticated');
   
-  let query = supabase
-    .from('slack_tokens')
-    .select('*')
-    .eq('user_id', user.id);
-  
-  if (teamId) {
-    query = query.eq('team_id', teamId);
+  try {
+    let query = supabase
+      .from('slack_tokens')
+      .select('*')
+      .eq('user_id', user.id);
+    
+    if (teamId) {
+      query = query.eq('team_id', teamId);
+    }
+    
+    const { data, error } = await query.single();
+    
+    // If table doesn't exist or no token found, return null instead of throwing
+    if (error) {
+      // 404 or PGRST116 means no rows found (table might not exist or no token)
+      if (error.code === 'PGRST116' || error.status === 404) {
+        return null;
+      }
+      // For other errors, log but don't throw
+      console.warn('Error fetching Slack token:', error.message);
+      return null;
+    }
+    
+    return data;
+  } catch (err) {
+    // Handle any unexpected errors gracefully
+    console.warn('Error checking Slack token:', err.message);
+    return null;
   }
-  
-  const { data, error } = await query.single();
-  
-  if (error) throw error;
-  
-  return data;
 };
 
 /**

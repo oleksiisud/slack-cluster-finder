@@ -75,3 +75,20 @@
 .dashboard-list::-webkit-scrollbar-track {
   background: #2c2c3e;
 }
+
+
+.delete_dashboard {
+  color: #d1d1ff;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  background-color: transparent;
+}
+
+.delete_dashboard:hover {
+  background: rgba(255,255,255,0.25);
+}

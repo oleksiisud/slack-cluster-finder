@@ -38,27 +38,38 @@ export const getChatById = async (chatId) => {
  * @param {Object} chatData - Chat data
  * @returns {Promise<Object>} Created chat
  */
-export const createChat = async ({ title, source, config = {} }) => {
+export const createChat = async ({ title, source, config = {}, access_token = null }) => {
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) throw new Error('User not authenticated');
 
+  // Build the chat object - only include access_token if provided
+  const chatData = {
+    user_id: user.id,
+    title,
+    source,
+    config,
+    messages: [],
+    clustering_data: {}
+  };
+  
+  // Only add access_token if it's provided (for Slack OAuth flows)
+  // For JSON uploads, this will be null/undefined which is fine
+  if (access_token !== null && access_token !== undefined) {
+    chatData.access_token = access_token;
+  }
+
   const { data, error } = await supabase
     .from('user_chats')
-    .insert([
-      {
-        user_id: user.id,
-        title,
-        source,
-        config,
-        messages: [],
-        clustering_data: {}
-      }
-    ])
+    .insert([chatData])
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    console.error('Error creating chat:', error);
+    throw error;
+  }
+  
   return data;
 };
 
@@ -85,14 +96,29 @@ export const updateChat = async (chatId, updates) => {
  * @param {string} chatId - Chat ID
  * @returns {Promise<void>}
  */
+// export const deleteChat = async (chatId) => {
+//   const { error } = await supabase
+//     .from('user_chats')
+//     .delete()
+//     .eq('id', chatId);
+//     .eq("user_id", user.id);
+
+//   if (error) throw error;
+// };
+
 export const deleteChat = async (chatId) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("User not authenticated");
+
   const { error } = await supabase
-    .from('user_chats')
+    .from("user_chats")
     .delete()
-    .eq('id', chatId);
+    .eq("id", chatId)
+    .eq("user_id", user.id); 
 
   if (error) throw error;
 };
+
 
 /**
  * Save messages to a chat
@@ -119,7 +145,23 @@ export const saveChatMessages = async (chatId, messages) => {
  * @returns {Promise<Object>} Updated chat
  */
 export const saveChatClusteringData = async (chatId, clusteringData) => {
-  return updateChat(chatId, { clustering_data: clusteringData });
+  console.log("saveChatClusteringData called with:", {
+    chatId,
+    hasNodes: !!clusteringData?.nodes,
+    nodeCount: clusteringData?.nodes?.length,
+    hasLinks: !!clusteringData?.links,
+    linkCount: clusteringData?.links?.length
+  });
+  
+  const result = await updateChat(chatId, { clustering_data: clusteringData });
+  
+  console.log("saveChatClusteringData result:", {
+    success: !!result,
+    hasClusteringData: !!result?.clustering_data,
+    clusteringDataType: typeof result?.clustering_data
+  });
+  
+  return result;
 };
 
 /**

@@ -17,9 +17,10 @@ const Login = () => {
 
   const navigate = useNavigate();
   useEffect(() => {
-    if (session) navigate('/home');
-  }, [session, navigate])
-
+    if (session) {
+      navigate('/home');
+    }
+  }, [session, navigate]);
 
   const handleSlackLogin = async () => {
     setLoading(true);
@@ -54,6 +55,84 @@ const Login = () => {
       setLoading(false);
     }
   };
+
+  // const handleSlackLogin = async () => {
+  //   setLoading(true);
+  //   try {
+  //     // Use dynamic redirect to match current URL
+  //     const origin = window.location.origin;
+  //     const redirectTo = `${origin}/slack/callback`;
+
+  //     const { error } = await supabase.auth.signInWithOAuth({
+  //       provider: 'slack_oidc',
+  //       options: { redirectTo },
+  //     });
+
+  //     if (error) throw error;
+  //   } catch (error) {
+  //     alert(error.error_description || error.message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  // useEffect(() => {
+  //   if (session) navigate(`/home`);
+  // }, [session, navigate])
+
+  // console.log("Frontend URL:", `${import.meta.env.VITE_FRONTEND_URL}`);
+
+
+
+  // const handleSlackLogin = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const { error } = await supabase.auth.signInWithOAuth({
+  //       provider: 'slack_oidc',
+  //       options: {
+  //         redirectTo: 'https://casketlike-tia-unravished.ngrok-free.dev/slack/callback',
+  //       }
+  //     });
+  //     if (error) throw error;
+  //   } catch (error) {
+  //     alert(error.error_description || error.message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  
+  // const handleSlackLogin = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const { error } = await supabase.auth.signInWithOAuth({
+  //       provider: 'slack_oidc',
+  //       options: {
+  //         redirectTo: `${window.location.origin}/home`,
+  //       }
+  //     });
+  //     if (error) throw error;
+  //   } catch (error) {
+  //     alert(error.error_description || error.message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  
+  // const handleSubmit = async (event) => {
+  //   event.preventDefault();
+  //   setLoading(true);
+  //   try {
+  //     const { error } = await supabase.auth.signInWithPassword({
+  //       email,
+  //       password,
+  //     });
+  //     if (error) throw error;
+  //     // Navigation will happen via useEffect on auth state change
+  //   } catch (error) {
+  //     alert(error.error_description || error.message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   useEffect(() => {
       keepTheme();
     }, [])
