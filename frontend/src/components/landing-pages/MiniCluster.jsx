@@ -1,6 +1,5 @@
-import 'aframe';
 import React, { useEffect, useState, useRef } from "react";
-import { ForceGraph2D } from "react-force-graph";
+import ForceGraph2D from "react-force-graph-2d";
 
 /* 🎨 Beautiful fake clusters */
 const FAKE_CLUSTERS = [
