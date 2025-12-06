@@ -1,0 +1,29 @@
+.app-container {
+  width: 100vw;
+  height: 100vh;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: background 0.3s ease;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  transition: margin-right 0.3s ease;
+}
+
+.main-content.sidebar-active {
+  margin-right: 320px;
+}
+
+.view-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: var(--bg-primary);
+  transition: background 0.3s ease;
+}

@@ -1,0 +1,20 @@
+{
+  "team": "T_TEST",
+  "channels": [
+    {
+      "id": "C1",
+      "name": "general",
+      "messages": [
+        {"ts": "1620000000.000200", "user": "U1", "text": "Hello everyone"},
+        {"ts": "1620000010.000300", "user": "U2", "text": "Hi!"}
+      ]
+    },
+    {
+      "id": "C2",
+      "name": "random",
+      "messages": [
+        {"ts": "1620000100.000400", "user": "U3", "text": "Random thought"}
+      ]
+    }
+  ]
+}

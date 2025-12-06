@@ -10,3 +10,7 @@ python-dotenv
 httpx
 huggingface-hub
 requests
+google-generativeai
+supabase
+slack-sdk
+discord.py

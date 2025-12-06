@@ -1,0 +1,153 @@
+[
+    {
+      "id": 1,
+      "sender": "Lena",
+      "text": "Morning team! Reminder that our 'Cat Behavior Classifier' demo is in two weeks."
+    },
+    {
+      "id": 2,
+      "sender": "Arjun",
+      "text": "Should we switch the model to use MobileNet instead of ResNet? Might be faster on low-end devices."
+    },
+    {
+      "id": 3,
+      "sender": "Maya",
+      "text": "MobileNet sounds better. The current model takes like 5 seconds per prediction 😭"
+    },
+    {
+      "id": 4,
+      "sender": "Chris",
+      "text": "I can refactor the preprocessing pipeline later tonight."
+    },
+    {
+      "id": 5,
+      "sender": "Jordan",
+      "text": "Also, we STILL need more sample images of orange cats. The dataset is so unbalanced lol."
+    },
+    {
+      "id": 6,
+      "sender": "Alex",
+      "text": "I'll ask my sister to send pics of her cat Mango. He’s basically an orange loaf."
+    },
+    {
+      "id": 7,
+      "sender": "Nia",
+      "text": "Anyone understand the algorithm question for CS201? The recursion part is weird."
+    },
+    {
+      "id": 8,
+      "sender": "Eli",
+      "text": "Which one? The tree traversal one or the dynamic programming one?"
+    },
+    {
+      "id": 9,
+      "sender": "Nia",
+      "text": "The DP one with counting paths. I swear the professor hates us."
+    },
+    {
+      "id": 10,
+      "sender": "Sam",
+      "text": "Oh that one is easy once you draw out the table. I’ll send a picture from my notes."
+    },
+    {
+      "id": 11,
+      "sender": "Lena",
+      "text": "Side note: Does anyone want to meet Saturday to test the prototype? I’m free after 1."
+    },
+    {
+      "id": 12,
+      "sender": "Maya",
+      "text": "I’m down! Also I found a bug where the classifier calls every black cat 'angry'."
+    },
+    {
+      "id": 13,
+      "sender": "Chris",
+      "text": "💀💀💀 not the bias creeping in..."
+    },
+    {
+      "id": 14,
+      "sender": "Jordan",
+      "text": "Tech question—should the cluster graph update in real time or only after running analysis?"
+    },
+    {
+      "id": 15,
+      "sender": "Alex",
+      "text": "Real time would look cooler, but probably too heavy. Maybe updates every 5 seconds?"
+    },
+    {
+      "id": 16,
+      "sender": "Eli",
+      "text": "I vote every 5 sec refresh. Should be lightweight enough."
+    },
+    {
+      "id": 17,
+      "sender": "Sam",
+      "text": "Also what’s the math homework for calc again? I can't find the syllabus."
+    },
+    {
+      "id": 18,
+      "sender": "Maya",
+      "text": "I think it’s problems 12–18 from section 4.6."
+    },
+    {
+      "id": 19,
+      "sender": "Arjun",
+      "text": "Anyone doing anything fun this weekend? I’m hiking if anyone wants to join."
+    },
+    {
+      "id": 20,
+      "sender": "Nia",
+      "text": "I’m staying inside and not touching sunlight 😌"
+    },
+    {
+      "id": 21,
+      "sender": "Jordan",
+      "text": "We should get boba after testing the app Saturday."
+    },
+    {
+      "id": 22,
+      "sender": "Lena",
+      "text": "Yes please. I need caffeine to survive."
+    },
+    {
+      "id": 23,
+      "sender": "Chris",
+      "text": "Throwback to when this project was supposed to be a 'simple cat photo sorter'. Look at us now."
+    },
+    {
+      "id": 24,
+      "sender": "Alex",
+      "text": "Two months later and we’re building the cat singularity."
+    },
+    {
+      "id": 25,
+      "sender": "Eli",
+      "text": "If this thing becomes self-aware that’s YOUR fault."
+    },
+    {
+      "id": 26,
+      "sender": "Sam",
+      "text": "Guys, my cat just walked across my keyboard and the model predicted 'confused loaf'. I love this project."
+    },
+    {
+      "id": 27,
+      "sender": "Maya",
+      "text": "Confused loaf is a valid cat state."
+    },
+    {
+      "id": 28,
+      "sender": "Arjun",
+      "text": "New feature idea: detect 'zoomies'."
+    },
+    {
+      "id": 29,
+      "sender": "Jordan",
+      "text": "Bro that requires *physics*."
+    },
+    {
+      "id": 30,
+      "sender": "Lena",
+      "text": "Okay team, last thing — please push your changes tonight. I want to merge everything tomorrow morning."
+    }
+  ]
+  

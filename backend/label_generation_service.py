@@ -144,25 +144,30 @@ class LabelGenerationService:
     
     def _create_label_prompt(self, messages: List[str]) -> str:
         """Create prompt for label generation"""
-        messages_text = "\n".join([f"- {msg[:100]}" for msg in messages])
+        messages_text = "\n".join([f"- {msg[:150]}" for msg in messages])
         
-        prompt = f"""Summarize the main topic of these chat messages in 3-5 words:
+        prompt = f"""Analyze these chat messages and create a clear, descriptive topic label in 3-6 words.
+The label should capture the main theme or subject of the conversation.
+Be specific and avoid generic terms.
 
+Messages:
 {messages_text}
 
-Topic:"""
+Create a descriptive topic label (3-6 words):"""
         
         return prompt
     
     def _create_tags_prompt(self, messages: List[str], num_tags: int) -> str:
         """Create prompt for tag generation"""
-        messages_text = "\n".join([f"- {msg[:100]}" for msg in messages])
+        messages_text = "\n".join([f"- {msg[:150]}" for msg in messages])
         
-        prompt = f"""Generate {num_tags} topic keywords (comma-separated) for these chat messages:
+        prompt = f"""Analyze these chat messages and generate {num_tags} specific topic keywords.
+Use concrete terms that describe the main subjects discussed.
 
+Messages:
 {messages_text}
 
-Keywords:"""
+Generate {num_tags} keywords (comma-separated):"""
         
         return prompt
     
@@ -216,20 +221,28 @@ Keywords:"""
         for msg in messages:
             words.extend(msg.lower().split())
         
-        # Filter stopwords (basic list)
+        # Expanded stopwords list
         stopwords = {"the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for", 
                     "of", "with", "is", "are", "was", "were", "be", "been", "have", "has", 
-                    "had", "do", "does", "did", "will", "would", "could", "should"}
+                    "had", "do", "does", "did", "will", "would", "could", "should", "i", "you",
+                    "he", "she", "it", "we", "they", "me", "him", "her", "us", "them", "my",
+                    "your", "his", "her", "its", "our", "their", "this", "that", "these", "those",
+                    "can", "can't", "don't", "doesn't", "didn't", "won't", "wouldn't", "shouldn't",
+                    "what", "when", "where", "who", "why", "how", "just", "so", "if", "about"}
         
-        words = [w for w in words if w not in stopwords and len(w) > 2]
+        words = [w for w in words if w not in stopwords and len(w) > 3]
         
         if not words:
             return "General Discussion"
         
-        common_words = Counter(words).most_common(3)
+        # Get top 4 most common words for a more descriptive label
+        common_words = Counter(words).most_common(4)
         label = " ".join([word for word, _ in common_words])
         
-        return label.title() or "General Discussion"
+        # Capitalize properly
+        label = " ".join(word.capitalize() for word in label.split())
+        
+        return label or "General Discussion"
     
     def _fallback_tags(self, messages: List[str], num_tags: int) -> List[str]:
         """Generate fallback tags using simple heuristics"""

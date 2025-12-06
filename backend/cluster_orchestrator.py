@@ -15,6 +15,7 @@ from models import (
 from embedding_service import get_embedding_service
 from clustering_service import get_clustering_service
 from label_generation_service import get_label_service
+from hierarchical_clustering_service import get_hierarchical_service
 from config import config
 
 logging.basicConfig(level=logging.INFO)
@@ -29,6 +30,7 @@ class ClusterOrchestrator:
         self.embedding_service = get_embedding_service()
         self.clustering_service = get_clustering_service()
         self.label_service = get_label_service()
+        self.hierarchical_service = get_hierarchical_service()
         
         # Create cache directory if it doesn't exist
         if config.ENABLE_CACHE:
@@ -75,33 +77,21 @@ class ClusterOrchestrator:
         texts = [msg.text for msg in messages]
         embeddings = self.embedding_service.encode_messages(texts, show_progress=True)
         
-        # Step 3: Cluster messages
-        logger.info("Step 2/4: Clustering messages...")
-        if distance_threshold or min_cluster_size:
-            clustering_service = get_clustering_service()
-            clustering_service.distance_threshold = distance_threshold or config.DISTANCE_THRESHOLD
-            clustering_service.min_cluster_size = min_cluster_size or config.MIN_CLUSTER_SIZE
-        else:
-            clustering_service = self.clustering_service
-        
+        # Step 3: Create hierarchical clusters
+        logger.info("Step 2/4: Creating hierarchical clusters...")
         message_ids = [msg.message_id for msg in messages]
-        cluster_labels, cluster_to_messages, linkage_matrix = clustering_service.cluster_messages(
-            embeddings, message_ids
+        hierarchy = self.hierarchical_service.create_hierarchy(embeddings, message_ids)
+        
+        # Step 4: Generate labels and tags for all levels
+        logger.info("Step 3/4: Generating labels and tags...")
+        cluster_infos = self._generate_hierarchical_cluster_info(
+            messages, hierarchy, embeddings
         )
         
-        # Step 4: Compute cluster centroids
-        logger.info("Step 3/4: Computing cluster centroids...")
-        centroids = clustering_service.compute_cluster_centroids(embeddings, cluster_to_messages)
-        
-        # Step 5: Generate labels and tags
-        logger.info("Step 4/4: Generating labels and tags...")
-        cluster_infos = self._generate_cluster_info(
-            messages, cluster_to_messages, centroids, embeddings
-        )
-        
-        # Step 6: Create output
-        messages_with_tags = self._create_tagged_messages(
-            messages, cluster_labels, cluster_infos
+        # Step 5: Create output
+        logger.info("Step 4/4: Creating output...")
+        messages_with_tags = self._create_hierarchical_tagged_messages(
+            messages, hierarchy, cluster_infos
         )
         
         # Calculate processing time
@@ -148,6 +138,85 @@ class ClusterOrchestrator:
                 msg.message_id = f"msg_{msg_hash}"
         return messages
     
+    def _generate_hierarchical_cluster_info(
+        self,
+        messages: List[Message],
+        hierarchy: Dict,
+        embeddings: np.ndarray
+    ) -> List[ClusterInfo]:
+        """Generate cluster information for hierarchical structure"""
+        cluster_infos = []
+        
+        # Generate info for main clusters (Level 1)
+        for main_id, main_cluster in hierarchy['main_clusters'].items():
+            message_indices = main_cluster['message_indices']
+            representative_texts = [messages[i].text for i in message_indices[:15]]
+            
+            # Generate label and tags
+            label = self.label_service.generate_cluster_label(representative_texts)
+            tags = self.label_service.generate_tags(representative_texts, num_tags=5)
+            
+            cluster_info = ClusterInfo(
+                cluster_id=main_id,
+                label=label,
+                tags=tags,
+                message_ids=[messages[i].message_id for i in message_indices],
+                size=len(message_indices),
+                centroid=main_cluster['centroid'].tolist(),
+                parent_cluster_id=None,
+                child_cluster_ids=main_cluster['child_ids'],
+                level=1,
+                radius=150.0
+            )
+            cluster_infos.append(cluster_info)
+        
+        # Generate info for sub-clusters (Level 2)
+        for sub_cluster in hierarchy['sub_clusters']:
+            message_indices = sub_cluster['message_indices']
+            representative_texts = [messages[i].text for i in message_indices[:10]]
+            
+            # Generate label and tags
+            label = self.label_service.generate_cluster_label(representative_texts)
+            tags = self.label_service.generate_tags(representative_texts, num_tags=3)
+            
+            # Get message IDs for this sub-cluster
+            msg_node_ids = [f"msg_{messages[i].message_id}" for i in message_indices]
+            
+            cluster_info = ClusterInfo(
+                cluster_id=sub_cluster['id'],
+                label=label,
+                tags=tags,
+                message_ids=[messages[i].message_id for i in message_indices],
+                size=len(message_indices),
+                centroid=sub_cluster['centroid'].tolist(),
+                parent_cluster_id=sub_cluster['parent_id'],
+                child_cluster_ids=msg_node_ids,
+                level=2,
+                radius=300.0
+            )
+            cluster_infos.append(cluster_info)
+        
+        # Add message nodes as leaf clusters (Level 3)
+        for msg_node in hierarchy['message_nodes']:
+            msg_idx = msg_node['message_index']
+            msg = messages[msg_idx]
+            
+            cluster_info = ClusterInfo(
+                cluster_id=msg_node['id'],
+                label=msg.text[:50] + "..." if len(msg.text) > 50 else msg.text,
+                tags=[],
+                message_ids=[msg.message_id],
+                size=1,
+                centroid=msg_node['embedding'].tolist(),
+                parent_cluster_id=msg_node['parent_id'],
+                child_cluster_ids=[],
+                level=3,
+                radius=450.0
+            )
+            cluster_infos.append(cluster_info)
+        
+        return cluster_infos
+    
     def _generate_cluster_info(
         self,
         messages: List[Message],
@@ -155,7 +224,7 @@ class ClusterOrchestrator:
         centroids: Dict[int, np.ndarray],
         embeddings: np.ndarray
     ) -> List[ClusterInfo]:
-        """Generate cluster information including labels and tags"""
+        """Generate cluster information including labels and tags (legacy method)"""
         cluster_infos = []
         
         for cluster_id in sorted(cluster_to_messages.keys()):
@@ -186,12 +255,62 @@ class ClusterOrchestrator:
                 size=len(message_indices),
                 centroid=centroids[cluster_id].tolist(),
                 parent_cluster_id=None,
-                child_cluster_ids=[]
+                child_cluster_ids=[],
+                level=0,
+                radius=0.0
             )
             
             cluster_infos.append(cluster_info)
         
         return cluster_infos
+    
+    def _create_hierarchical_tagged_messages(
+        self,
+        messages: List[Message],
+        hierarchy: Dict,
+        cluster_infos: List[ClusterInfo]
+    ) -> List[MessageWithTags]:
+        """Create output messages with tags for hierarchical structure"""
+        # Build mapping from message index to sub-cluster
+        msg_to_sub_cluster = hierarchy['message_to_sub_cluster']
+        
+        # Build cluster ID to tags mapping (use main cluster tags)
+        main_cluster_tags = {
+            info.cluster_id: info.tags
+            for info in cluster_infos
+            if info.level == 1
+        }
+        
+        # Build sub-cluster to main cluster mapping
+        sub_to_main = {}
+        for main_id, main_cluster in hierarchy['main_clusters'].items():
+            for child_id in main_cluster['child_ids']:
+                sub_to_main[child_id] = main_id
+        
+        messages_with_tags = []
+        for i, msg in enumerate(messages):
+            # Get sub-cluster and main cluster
+            sub_cluster_id = msg_to_sub_cluster.get(i)
+            main_cluster_id = sub_to_main.get(sub_cluster_id) if sub_cluster_id else None
+            
+            # Use main cluster tags
+            tags = main_cluster_tags.get(main_cluster_id, [])
+            
+            # Use message node ID as cluster_id
+            msg_node_id = f"msg_{msg.message_id}"
+            
+            tagged_msg = MessageWithTags(
+                text=msg.text,
+                channel=msg.channel,
+                user=msg.user,
+                timestamp=msg.timestamp,
+                message_id=msg.message_id,
+                tags=tags,
+                cluster_id=msg_node_id
+            )
+            messages_with_tags.append(tagged_msg)
+        
+        return messages_with_tags
     
     def _create_tagged_messages(
         self,
@@ -199,7 +318,7 @@ class ClusterOrchestrator:
         cluster_labels: List[int],
         cluster_infos: List[ClusterInfo]
     ) -> List[MessageWithTags]:
-        """Create output messages with tags"""
+        """Create output messages with tags (legacy method)"""
         # Build cluster ID to tags mapping
         cluster_tags = {
             info.cluster_id: info.tags

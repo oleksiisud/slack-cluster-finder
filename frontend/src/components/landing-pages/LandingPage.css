@@ -1,0 +1,352 @@
+/* ============================================
+   MAIN APP CONTAINER STYLES
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Jersey+10&display=swap');
+
+/* ============================================
+      IMPORTED FONT
+      ============================================ */
+
+/* jersey-10-regular font styling for headings */
+.jersey-10-regular {
+  font-family: "Jersey 10", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+body {
+  /* fallback while image loads */
+  /* fallback while image loads */
+  background-color: black;
+  background-image: url('/frontend/src/components/landing-pages/stars_transparent.gif');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.Homepage {
+  padding-top: 150px;
+  /* space for navbar */
+  padding-top: 150px;
+  /* space for navbar */
+  color: white;
+  background-color: transparent !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  /* use min-height instead */
+}
+
+/* Header fade-in on page load */
+.HomepageHeader {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 2rem;
+  text-align: center;
+  margin: 0;
+  transition: opacity 500ms ease, transform 500ms ease;
+  will-change: opacity, transform;
+}
+
+.HomepageHeader--hidden {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.HomepageHeader--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Walkthrough fade/slide */
+.Walkthrough {
+  width: 1000px;
+  height: 500px;
+  border: 1px solid #412b8a;
+  border-radius: 14px;
+  margin-top: 40px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 600ms ease, transform 600ms ease;
+  will-change: opacity, transform;
+    border: 2px solid rgba(138, 100, 255, 0.6);
+  box-shadow:
+    0 0 12px rgba(138, 100, 255, 0.6),
+    0 0 25px rgba(138, 100, 255, 0.3),
+    inset 0 0 10px rgba(138, 100, 255, 0.2);
+
+  transition: 
+    transform 0.45s ease,
+    box-shadow 0.45s ease,
+    opacity 500ms ease;
+}
+
+/* .Walkthrough {
+  width: 1000px;
+  height: 500px;
+  border-radius: 14px;
+
+  /* Neon glow 
+  border: 2px solid rgba(138, 100, 255, 0.6);
+  box-shadow:
+    0 0 12px rgba(138, 100, 255, 0.6),
+    0 0 25px rgba(138, 100, 255, 0.3),
+    inset 0 0 10px rgba(138, 100, 255, 0.2);
+
+  transition: 
+    transform 0.45s ease,
+    box-shadow 0.45s ease,
+    opacity 500ms ease;
+} */
+
+.Walkthrough:hover {
+  transform: scale(1.02);
+  box-shadow:
+    0 0 18px rgba(138, 100, 255, 0.9),
+    0 0 35px rgba(138, 100, 255, 0.5),
+    inset 0 0 18px rgba(138, 100, 255, 0.25);
+}
+
+.Walkthrough--hidden {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.Walkthrough--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* .walkthrough-headers{
+  margin-top: 10px;
+  text-align: center;
+  color: white;
+  font-family: 'Courier New', Courier, monospace;
+} */
+
+/* Headers glow slightly */
+.walkthrough-headers {
+  text-align: center;
+  text-shadow:
+    0 0 6px rgba(255, 255, 255, 0.8),
+    0 0 12px rgba(138, 100, 255, 0.6);
+}
+
+/* .Steps > div {
+  border-radius: 12px;
+  border: 1px solid rgba(138, 100, 255, 0.35);
+
+  background: rgba(18, 18, 30, 0.6);
+  backdrop-filter: blur(8px);
+
+  box-shadow:
+    0 0 6px rgba(138, 100, 255, 0.4),
+    inset 0 0 6px rgba(138, 100, 255, 0.15);
+
+  transition: 
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    background 0.35s ease;
+} */
+
+/* .Steps > div:hover {
+  transform: translateY(-6px);
+  background: rgba(25, 25, 40, 0.72);
+
+  box-shadow:
+    0 0 14px rgba(138, 100, 255, 0.8),
+    inset 0 0 10px rgba(138, 100, 255, 0.25);
+} */
+
+/* .Steps > div {
+  min-height: 100%;      /* ensure full column height 
+} */
+/* make the 3 boxes sit horizontally */
+.Steps {
+  display: flex;
+  width: 90%;
+  /* widgets take up 90% of big box width */
+  height: 70%;
+  /* widgets take up 70% of big box height */
+  gap: 20px;
+}
+
+.messages,
+.gif,
+.cluster {
+  flex: 1;
+  border: 1px solid black;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  justify-content: flex-start;
+}
+
+.messages-window {
+  flex: 1;
+  overflow-y: scroll;
+  padding-right: 10 0px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 80%;
+  /* makes chat narrower */
+  margin: 0 auto;
+}
+
+.message {
+  max-width: 90%;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: white;
+}
+
+.from-them {
+  background: #2a2a2a;
+  align-self: flex-start;
+}
+
+.from-me {
+  background: #3b82f6;
+  align-self: flex-end;
+}
+
+.message_header {
+  display: flex;
+  justify-content: center;
+}
+
+.gif {
+  margin-top: 0;
+  flex: 1;
+  border: 1px solid black;
+  border-radius: 9px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+  padding: 10px;
+  min-height: 250px; 
+}
+
+.gif-image {
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
+}
+
+.AboutInfo {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15rem;
+  padding: 3rem 1rem;
+  
+}
+
+/* .Motive, 
+.Solution{
+  flex: 1 1 400px; /* responsive width
+  max-width: 500px;
+  background: linear-gradient(135deg, #8b5cf6, #6366f1);
+  color: white;
+  text-align: center;
+  padding: 2rem;
+  margin-top: 20rem;
+  border-radius: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  font-family: 'Courier New', Courier, monospace;
+  line-height: 1.6;
+}
+
+.Motive:hover,
+.Solution:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+} */
+
+.Motive, .Solution {
+  flex: 1 1 400px; 
+  position: relative;
+  overflow: hidden;
+  max-width: 500px;
+  background: linear-gradient(135deg, #8b5cf6, #6366f1, #a78bfa);
+  background-size: 400% 400%;
+  animation: gradientShift 12s ease infinite;
+  color: white;
+  text-align: center;
+  padding: 2rem;
+  margin-top: 20rem;
+  border-radius: 7rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+
+  /* flex: 1 1 400px; 
+  max-width: 500px;
+  background: linear-gradient(135deg, #8b5cf6, #6366f1);
+  color: white;
+  text-align: center;
+  padding: 2rem;
+  margin-top: 20rem;
+  border-radius: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  font-family: 'Courier New', Courier, monospace;
+  line-height: 1.6; */
+}
+
+.Motive:hover, .Solution:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 20px 40px rgba(138, 100, 255, 0.5);
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.Motive::before, .Solution::before {
+  content: '';
+  position: absolute;
+  top: -20px; left: -20px;
+  width: 200%; height: 200%;
+  background: radial-gradient(circle, rgba(138,100,255,0.2) 2%, transparent 2%) repeat;
+  background-size: 40px 40px;
+  animation: floatDots 15s linear infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes floatDots {
+  0% { transform: translate(0,0); }
+  100% { transform: translate(-40px,-40px); }
+}
+
+.Motive p,
+.Solution p {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 900px) {
+  .AboutInfo {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .Motive,
+  .Solution {
+    width: 90%;
+    padding: 1.5rem;
+  }
+}
