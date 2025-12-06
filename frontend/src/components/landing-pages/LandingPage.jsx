@@ -15,6 +15,7 @@ const LandingPage = () => {
   const walkthroughRef = useRef(null);
   const headerRef = useRef(null);
 
+
   useEffect(() => {
     // Initialize AOS animations
     AOS.init({

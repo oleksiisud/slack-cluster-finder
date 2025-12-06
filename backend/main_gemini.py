@@ -1,174 +1,192 @@
+# main_gemini.py
 import os
-import json
-from typing import List, Dict, Any
-from datetime import datetime, timedelta
+from typing import List, Dict
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import numpy as np
-from sklearn.cluster import AgglomerativeClustering
-from sklearn.metrics.pairwise import cosine_similarity
+import hdbscan
+import umap
 import google.generativeai as genai
-from slack_oauth import router as slack_oauth_router
 
-# Setup
+# Load env
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    pass
+
 app = FastAPI(
-    title="Chat Message Clustering API",
-    description="AI-powered clustering service for chat messages",
-    version="0.0.1"
+    title="Chat Message Clustering API (Semantic)",
+    version="0.3.0"
 )
 
-# CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify your frontend domain
+    allow_origins=["*"],  # or explicit list
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
-# Include Slack OAuth router
-app.include_router(slack_oauth_router)
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+else:
+    print("[WARNING] GEMINI_API_KEY not set — embeddings will fail")
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# Threshold for small vs large JSON
+SMALL_JSON_LIMIT = 300
 
+# Models
 class MessageInput(BaseModel):
     text: str
-    channel: str
-    user: str
-    timestamp: str
-    link: str
+    channel: str = ""
+    user: str = ""
+    timestamp: str = ""
+    link: str = ""
 
 class ClusterRequest(BaseModel):
     messages: List[MessageInput]
-    sensitivity: float = 0.5  # 0.0 to 1.0 (distance threshold)
+    sensitivity: float = 0.5  # 0=coarse, 1=fine
+
+# --- Utility functions ---
 
 def get_embeddings(texts: List[str]) -> np.ndarray:
-    """
-    Batch fetch embeddings from Gemini.
-    """
-    # In production, batch this in groups of 100 to avoid limits
-    result = genai.embed_content(
-        model="models/text-embedding-004",
-        content=texts,
-        task_type="clustering",
-    )
-    return np.array(result['embedding'])
+    if not texts:
+        return np.zeros((0, 0))
+    try:
+        res = genai.embed_content(
+            model="models/text-embedding-004",
+            content=texts,
+            task_type="clustering"
+        )
+        emb = np.array(res['embedding'])
+        return emb
+    except Exception as e:
+        print("Error embedding:", e)
+        raise
 
 def generate_cluster_label(messages: List[str]) -> str:
-    """
-    Uses Gemini to generate a short 3-5 word title for a group of messages.
-    """
-    prompt = f"Summarize these related chat messages into a specific 3-5 word topic title:\n{messages[:10]}"
-    model = genai.GenerativeModel('gemini-1.5-flash')
-    response = model.generate_content(prompt)
-    return response.text.strip()
-
-@app.post("/process-clustering")
-async def process_clustering(request: ClusterRequest):
-    """
-    Takes raw messages, time-groups them, embeds them, and clusters them.
-    Returns a graph-ready JSON structure.
-    """
-    raw_msgs = request.messages
-    if not raw_msgs:
-        return {"nodes": [], "links": []}
-
-    # 1. Pre-processing: Time Window Grouping
-    # We group messages if they are same channel, same user, < 5 min apart
-    # This reduces the number of nodes the LLM has to process
-    grouped_messages = []
-    current_group = [raw_msgs[0]]
-    
-    for i in range(1, len(raw_msgs)):
-        prev = raw_msgs[i-1]
-        curr = raw_msgs[i]
-        
-        # Parse ISO timestamps
-        t_prev = datetime.fromisoformat(prev.timestamp.replace('Z', '+00:00'))
-        t_curr = datetime.fromisoformat(curr.timestamp.replace('Z', '+00:00'))
-        
-        time_diff = (t_curr - t_prev).total_seconds()
-        
-        if curr.channel == prev.channel and time_diff < 300: # 5 mins
-            current_group.append(curr)
-        else:
-            # Seal the group
-            grouped_messages.append(current_group)
-            current_group = [curr]
-    grouped_messages.append(current_group)
-
-    # 2. Prepare text for embedding (join messages in group)
-    group_texts = [" ".join([m.text for m in g]) for g in grouped_messages]
-    
-    # 3. Get Embeddings
+    if not messages:
+        return "Media / Empty Messages"
     try:
-        embeddings = get_embeddings(group_texts)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Embedding failed: {str(e)}")
+        sample = messages[:20]
+        prompt = f"""Below are chat messages. Summarize the main topic in 3–6 words ONLY:
 
-    # 4. Deterministic Hierarchical Clustering
-    # AgglomerativeClustering is deterministic. 
-    # Distance threshold determines how "tight" the clusters are.
-    clustering = AgglomerativeClustering(
-        n_clusters=None,
-        distance_threshold=1.0 - request.sensitivity, # Convert similarity to distance
-        metric='cosine',
-        linkage='average'
-    )
-    labels = clustering.fit_predict(embeddings)
+Messages:
+{chr(10).join(['- ' + m.replace('\\n',' ')[:300] for m in sample])}
+"""
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        resp = model.generate_content(prompt)
+        title = resp.text.strip().strip('"').strip("'")
+        if len(title) < 2 or title.lower() in {"topic", "discussion", "messages", "chat"}:
+            raise ValueError("Bad title from LLM")
+        return title
+    except Exception:
+        # Fallback: top 3 keywords
+        all_text = " ".join(messages).lower()
+        words = [w for w in all_text.split() if len(w) > 3]
+        freq: Dict[str, int] = {}
+        for w in words:
+            freq[w] = freq.get(w, 0) + 1
+        keywords = sorted(freq.items(), key=lambda kv: kv[1], reverse=True)
+        top = [kw for kw, _ in keywords[:3]]
+        title = " ".join([w.capitalize() for w in top]) or "Discussion"
+        return title
 
-    # 5. Build Graph Structure
-    clusters = {}
-    nodes = []
-    links = []
-
-    # Organize by cluster label
-    for idx, label in enumerate(labels):
-        if label not in clusters:
-            clusters[label] = []
-        clusters[label].append(idx)
-
-    # Process each cluster to create Parent Nodes
-    for label_id, group_indices in clusters.items():
-        # Get texts for this cluster to generate a title
-        cluster_texts = [group_texts[i] for i in group_indices]
-        
-        # AI Label Generation
-        topic_title = generate_cluster_label(cluster_texts)
-        
-        # Create Parent Node (The Topic)
-        parent_id = f"cluster_{label_id}"
+def build_graph(clusters: Dict[int, List[int]], raw_messages: List[MessageInput], texts: List[str]) -> Dict:
+    nodes, links = [], []
+    for lbl, members in clusters.items():
+        member_texts = [texts[i] for i in members if texts[i]]
+        title = generate_cluster_label(member_texts)
+        parent_id = f"cluster_{lbl}"
         nodes.append({
             "id": parent_id,
-            "name": topic_title,
+            "name": title,
             "type": "cluster",
-            "val": len(group_indices) * 2 # Size based on message count
+            "val": len(members)
         })
-
-        # Create Child Nodes (The specific message threads)
-        for idx in group_indices:
-            msg_group = grouped_messages[idx]
-            node_id = f"msg_{idx}"
-            
+        for orig_idx in members:
+            msg = raw_messages[orig_idx]
+            mid = f"msg_{orig_idx}"
             nodes.append({
-                "id": node_id,
-                "name": msg_group[0].text[:50] + "...", # Preview
-                "full_text": "\n".join([m.text for m in msg_group]),
-                "link": msg_group[0].link,
+                "id": mid,
+                "name": (msg.text or "")[:100],
+                "full_text": msg.text or "",
+                "link": msg.link or "",
                 "type": "message",
-                "val": 1,
-                "parent": parent_id
+                "parent": parent_id,
+                "val": 1
             })
-            
-            # Link Child to Parent
-            links.append({
-                "source": parent_id,
-                "target": node_id
-            })
+            links.append({"source": parent_id, "target": mid})
+    return {"nodes": nodes, "links": links, "meta": {"clusters": len(clusters)}}
 
-    return {
-        "nodes": nodes,
-        "links": links,
-        "meta": {"total_clusters": len(clusters)}
-    }
+# --- Small JSON clustering ---
+def cluster_small(messages: List[MessageInput], sensitivity: float):
+    texts = [m.text.strip() if m.text else "" for m in messages]
+    nonempty_idx = [i for i, t in enumerate(texts) if t]
+    if not nonempty_idx:
+        return build_graph({0: list(range(len(messages)))}, messages, texts)
+    
+    embeddings = get_embeddings([texts[i] for i in nonempty_idx])
+    # Use HDBSCAN for smaller sets
+    clusterer = hdbscan.HDBSCAN(min_cluster_size=2, metric='euclidean')
+    labels = clusterer.fit_predict(embeddings)
+    clusters: Dict[int, List[int]] = {}
+    for local_idx, lbl in enumerate(labels):
+        orig_idx = nonempty_idx[local_idx]
+        clusters.setdefault(int(lbl), []).append(orig_idx)
+    # add empty messages
+    empties = [i for i, t in enumerate(texts) if not t]
+    if empties:
+        clusters.setdefault(-1, []).extend(empties)
+    return build_graph(clusters, messages, texts)
+
+# --- Large JSON clustering ---
+def cluster_large(messages: List[MessageInput], sensitivity: float):
+    texts = [m.text.strip() if m.text else "" for m in messages]
+    nonempty_idx = [i for i, t in enumerate(texts) if t]
+    if not nonempty_idx:
+        return build_graph({0: list(range(len(messages)))}, messages, texts)
+    
+    # Embeddings
+    embeddings = get_embeddings([texts[i] for i in nonempty_idx])
+    # UMAP dimensionality reduction
+    reducer = umap.UMAP(n_neighbors=15, min_dist=0.0, n_components=5, metric='cosine')
+    reduced = reducer.fit_transform(embeddings)
+    
+    # HDBSCAN clustering on reduced space
+    clusterer = hdbscan.HDBSCAN(min_cluster_size=5, metric='euclidean')
+    labels = clusterer.fit_predict(reduced)
+    clusters: Dict[int, List[int]] = {}
+    for local_idx, lbl in enumerate(labels):
+        orig_idx = nonempty_idx[local_idx]
+        clusters.setdefault(int(lbl), []).append(orig_idx)
+    # assign empty/media messages
+    empties = [i for i, t in enumerate(texts) if not t]
+    if empties:
+        clusters.setdefault(-1, []).extend(empties)
+    return build_graph(clusters, messages, texts)
+
+# --- Endpoint ---
+@app.post("/process-clustering")
+async def process_clustering(request: ClusterRequest):
+    messages = request.messages or []
+    if not messages:
+        return {"nodes": [], "links": [], "meta": {"clusters": 0}}
+    
+    if not GEMINI_API_KEY:
+        raise HTTPException(status_code=500, detail="GEMINI_API_KEY not configured")
+    
+    if len(messages) <= SMALL_JSON_LIMIT:
+        return cluster_small(messages, request.sensitivity)
+    else:
+        return cluster_large(messages, request.sensitivity)
