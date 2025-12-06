@@ -3,6 +3,10 @@ Configuration settings for the clustering service
 """
 import os
 from typing import Optional
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 class Config:
     """Application configuration"""
@@ -36,6 +40,12 @@ class Config:
     
     # Random seed for deterministic clustering
     RANDOM_SEED = int(os.getenv("RANDOM_SEED", "42"))
+    
+    # Slack OAuth configuration
+    SLACK_CLIENT_ID = os.getenv("SLACK_CLIENT_ID", "")
+    SLACK_CLIENT_SECRET = os.getenv("SLACK_CLIENT_SECRET", "")
+    SLACK_REDIRECT_URI = os.getenv("SLACK_REDIRECT_URI", "http://localhost:5173/slack/callback")
+    SLACK_OAUTH_SCOPES = os.getenv("SLACK_OAUTH_SCOPES", "channels:read,channels:history,groups:read,groups:history,users:read,team:read")
 
 config = Config()
 

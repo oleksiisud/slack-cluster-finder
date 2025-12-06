@@ -3,17 +3,20 @@ FastAPI backend for the clustering service
 """
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from typing import Dict, Optional
 import logging
 import uuid
+import httpx
 
 from models import (
     ClusteringRequest, ClusteringOutput, ClusteringStatus,
-    SearchRequest, SearchResult, MessageWithTags
+    SearchRequest, SearchResult, MessageWithTags,
+    SlackWorkspaceData
 )
 from cluster_orchestrator import get_orchestrator
 from config import config
+from slack_service import get_slack_service
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -229,6 +232,141 @@ async def get_models_info():
             "min_cluster_size": config.MIN_CLUSTER_SIZE
         }
     }
+
+
+# Slack OAuth endpoints
+@app.get("/auth/slack")
+async def slack_oauth_start():
+    """Initiate Slack OAuth flow"""
+    if not config.SLACK_CLIENT_ID:
+        raise HTTPException(
+            status_code=500,
+            detail="Slack OAuth not configured. Set SLACK_CLIENT_ID in environment."
+        )
+    
+    from urllib.parse import urlencode
+    
+    # Build OAuth URL with proper encoding
+    params = {
+        "client_id": config.SLACK_CLIENT_ID,
+        "scope": config.SLACK_OAUTH_SCOPES,
+        "redirect_uri": config.SLACK_REDIRECT_URI
+    }
+    oauth_url = f"https://slack.com/oauth/v2/authorize?{urlencode(params)}"
+    
+    return {"oauth_url": oauth_url}
+
+
+@app.get("/auth/slack/callback")
+async def slack_oauth_callback(code: str, error: Optional[str] = None):
+    """Handle Slack OAuth callback"""
+    if error:
+        raise HTTPException(status_code=400, detail=f"OAuth error: {error}")
+    
+    if not config.SLACK_CLIENT_ID or not config.SLACK_CLIENT_SECRET:
+        raise HTTPException(
+            status_code=500,
+            detail="Slack OAuth not configured"
+        )
+    
+    # Exchange code for access token
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            "https://slack.com/api/oauth.v2.access",
+            data={
+                "client_id": config.SLACK_CLIENT_ID,
+                "client_secret": config.SLACK_CLIENT_SECRET,
+                "code": code,
+                "redirect_uri": config.SLACK_REDIRECT_URI
+            }
+        )
+        data = response.json()
+    
+    if not data.get("ok"):
+        error_msg = f"Failed to exchange code: {data.get('error', 'Unknown error')}"
+        logger.error(f"Slack OAuth error: {error_msg}")
+        logger.error(f"Full Slack response: {data}")
+        logger.error(f"Used redirect_uri: {config.SLACK_REDIRECT_URI}")
+        raise HTTPException(
+            status_code=400,
+            detail=error_msg
+        )
+    
+    # Return token and user info to frontend
+    # In production, store this in database associated with user
+    return {
+        "access_token": data.get("authed_user", {}).get("access_token") or data.get("access_token"),
+        "team_id": data.get("team", {}).get("id"),
+        "team_name": data.get("team", {}).get("name"),
+        "user_id": data.get("authed_user", {}).get("id")
+    }
+
+
+@app.get("/slack/workspaces", response_model=SlackWorkspaceData)
+async def get_slack_workspaces(access_token: str):
+    """Get Slack workspace data including channels and users"""
+    if not access_token:
+        raise HTTPException(
+            status_code=400,
+            detail="access_token query parameter required"
+        )
+    
+    try:
+        slack_service = get_slack_service(access_token)
+        workspace_data = await slack_service.get_workspace_data()
+        return workspace_data
+    except Exception as e:
+        logger.error(f"Error fetching workspace data: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to fetch workspace data: {str(e)}"
+        )
+
+
+@app.post("/slack/extract")
+async def extract_slack_messages(
+    access_token: str,
+    channel_ids: list[str],
+    user_ids: Optional[list[str]] = None
+):
+    """Extract messages from selected Slack channels"""
+    if not access_token:
+        raise HTTPException(
+            status_code=400,
+            detail="access_token required"
+        )
+    
+    if not channel_ids:
+        raise HTTPException(
+            status_code=400,
+            detail="At least one channel_id required"
+        )
+    
+    try:
+        slack_service = get_slack_service(access_token)
+        
+        all_messages = []
+        for channel_id in channel_ids:
+            messages = await slack_service.get_channel_messages(channel_id)
+            
+            # Filter by user if specified
+            if user_ids:
+                messages = [m for m in messages if m.get("user") in user_ids]
+            
+            all_messages.extend(messages)
+        
+        return {
+            "status": "success",
+            "message_count": len(all_messages),
+            "messages": all_messages
+        }
+    
+    except Exception as e:
+        logger.error(f"Error extracting messages: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to extract messages: {str(e)}"
+        )
 
 
 @app.post("/cache/clear")

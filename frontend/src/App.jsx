@@ -15,6 +15,7 @@ function App() {
   const {session} = useAuth();
  
 const channels = [
+  { label: "Connect Slack Workspace", value: "/slack/auth", isSlack: true },
   { label: "Create New Dashboard", value: "/new-dashboard" },
   { label: "Slack Channel - CTP-11", value: "fake-channel1.com" },
   { label: "Discord - CISC_1115", value: "fake-channel2.com" },

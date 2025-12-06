@@ -77,3 +77,49 @@ class SearchResult(BaseModel):
     message: MessageWithTags
     similarity_score: float = Field(..., description="Similarity score to query")
     rank: int = Field(..., description="Result rank")
+
+# Slack OAuth Models
+class SlackOAuthResponse(BaseModel):
+    """Response from Slack OAuth token exchange"""
+    ok: bool
+    access_token: str
+    token_type: str
+    scope: str
+    bot_user_id: Optional[str] = None
+    app_id: str
+    team: Dict[str, Any]
+    authed_user: Dict[str, Any]
+    error: Optional[str] = None
+
+class SlackWorkspace(BaseModel):
+    """Slack workspace/team information"""
+    id: str
+    name: str
+    domain: Optional[str] = None
+    icon: Optional[Dict[str, Any]] = None
+    
+class SlackChannel(BaseModel):
+    """Slack channel information"""
+    id: str
+    name: str
+    is_private: bool = False
+    is_archived: bool = False
+    is_member: bool = False
+    num_members: Optional[int] = None
+    topic: Optional[str] = None
+    purpose: Optional[str] = None
+
+class SlackUser(BaseModel):
+    """Slack user information"""
+    id: str
+    name: str
+    real_name: Optional[str] = None
+    is_bot: bool = False
+    deleted: bool = False
+    profile: Optional[Dict[str, Any]] = None
+
+class SlackWorkspaceData(BaseModel):
+    """Complete workspace data with channels and users"""
+    workspace: SlackWorkspace
+    channels: List[SlackChannel]
+    users: List[SlackUser]

@@ -1,0 +1,70 @@
+/* SlackCallback.css */
+
+.slack-callback {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+}
+
+.loading-container,
+.error-container {
+    max-width: 600px;
+    margin: 100px auto;
+    background: white;
+    border-radius: 16px;
+    padding: 60px 40px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.loading-container .spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-top: 4px solid #4A154B;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 30px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-container h2,
+.error-container h2 {
+    color: #2c3e50;
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+}
+
+.loading-container p,
+.error-container p {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+}
+
+.error-container .error-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+
+.back-button {
+    margin-top: 30px;
+    padding: 14px 28px;
+    background: #4A154B;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.back-button:hover {
+    background: #611f69;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 21, 75, 0.3);
+}

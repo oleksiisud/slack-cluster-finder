@@ -4,7 +4,7 @@ export default function DataCard({ label, value }) {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    if (value === "/new-dashboard") {
+    if (value === "/new-dashboard" || value === "/slack/auth") {
       navigate(value);
     } else {
       const id = value

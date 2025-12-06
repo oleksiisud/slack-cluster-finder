@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Extract Messages - Cosmic Journey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #universe {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        #universe.active {
+            opacity: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+        }
+
+        .extract-button {
+            padding: 20px 48px;
+            background: linear-gradient(135deg, #4A154B 0%, #611f69 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 30px rgba(74, 21, 75, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .extract-button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(74, 21, 75, 0.6);
+        }
+
+        .extract-button:active {
+            transform: translateY(-2px);
+        }
+
+        .extract-button.extracting {
+            pointer-events: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .button-text {
+            position: relative;
+            z-index: 2;
+        }
+
+        .cosmic-flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 70%);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+            transition: opacity 0.4s ease;
+        }
+
+        .title {
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 30px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.6);
+            font-size: 1.1rem;
+            margin-bottom: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div id="universe"></div>
+    <div class="cosmic-flash" id="flash"></div>
+    
+    <div class="container">
+        <h1 class="title">🌌 AstralSearch</h1>
+        <p class="subtitle">Collapse your messages into cosmic clusters</p>
+        <button class="extract-button" id="extractButton">
+            <span class="button-text">Extract Messages</span>
+        </button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script>
+        let scene, camera, renderer, particles;
+        let isAnimating = false;
+
+        function init() {
+            scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera(
+                75,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+            camera.position.z = 5;
+
+            renderer = new THREE.WebGLRenderer({ 
+                alpha: true,
+                antialias: true 
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById("universe").appendChild(renderer.domElement);
+
+            // Create particle geometry
+            const count = 12000;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(count * 3);
+            const colors = new Float32Array(count * 3);
+
+            for (let i = 0; i < count; i++) {
+                // Spread particles in a sphere
+                const i3 = i * 3;
+                const radius = Math.random() * 8 + 2;
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.random() * Math.PI;
+
+                positions[i3] = radius * Math.sin(phi) * Math.cos(theta);
+                positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+                positions[i3 + 2] = radius * Math.cos(phi);
+
+                // Color variation (purple to blue to white)
+                const colorChoice = Math.random();
+                if (colorChoice < 0.3) {
+                    colors[i3] = 0.4 + Math.random() * 0.3;     // R
+                    colors[i3 + 1] = 0.1 + Math.random() * 0.2; // G
+                    colors[i3 + 2] = 0.6 + Math.random() * 0.4; // B
+                } else if (colorChoice < 0.6) {
+                    colors[i3] = 0.6 + Math.random() * 0.4;
+                    colors[i3 + 1] = 0.4 + Math.random() * 0.3;
+                    colors[i3 + 2] = 0.8 + Math.random() * 0.2;
+                } else {
+                    colors[i3] = 0.8 + Math.random() * 0.2;
+                    colors[i3 + 1] = 0.8 + Math.random() * 0.2;
+                    colors[i3 + 2] = 0.9 + Math.random() * 0.1;
+                }
+            }
+
+            geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 0.05,
+                transparent: true,
+                opacity: 0.8,
+                vertexColors: true,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+
+            particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+
+            // Show universe
+            document.getElementById("universe").classList.add("active");
+
+            animate();
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (!isAnimating) {
+                // Slow idle swirl
+                particles.rotation.y += 0.0005;
+                particles.rotation.x += 0.0002;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        function beginCollapse() {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const button = document.getElementById("extractButton");
+            button.classList.add("extracting");
+            button.querySelector(".button-text").textContent = "Collapsing...";
+
+            // Swirl faster
+            gsap.to(particles.rotation, {
+                y: "+=6",
+                x: "+=3",
+                duration: 2.5,
+                ease: "power2.in"
+            });
+
+            // Camera zoom in
+            gsap.to(camera.position, {
+                z: 2,
+                duration: 2.5,
+                ease: "power2.in"
+            });
+
+            // Moving particles toward the center
+            const pos = particles.geometry.attributes.position;
+            const count = pos.count;
+            const originalPositions = pos.array.slice();
+
+            for (let i = 0; i < count; i++) {
+                const delay = Math.random() * 0.5;
+                
+                gsap.to(pos.array, {
+                    [i * 3 + 0]: (Math.random() - 0.5) * 0.2, // slight random at center
+                    [i * 3 + 1]: (Math.random() - 0.5) * 0.2,
+                    [i * 3 + 2]: (Math.random() - 0.5) * 0.2,
+                    delay: delay,
+                    duration: 2,
+                    ease: "power3.in"
+                });
+            }
+
+            // Update loop
+            const updateInterval = setInterval(() => {
+                pos.needsUpdate = true;
+            }, 16);
+
+            // After collapse → supernova
+            setTimeout(() => {
+                clearInterval(updateInterval);
+                supernova();
+            }, 2500);
+        }
+
+        function supernova() {
+            const button = document.getElementById("extractButton");
+            button.querySelector(".button-text").textContent = "Igniting...";
+
+            // Brighten particles
+            gsap.to(particles.material, {
+                opacity: 1,
+                size: 0.15,
+                duration: 0.3
+            });
+
+            // Flash
+            const flash = document.getElementById("flash");
+            setTimeout(() => {
+                flash.style.opacity = 1;
+            }, 300);
+
+            // Fade out
+            setTimeout(() => {
+                gsap.to(document.body, {
+                    opacity: 0,
+                    duration: 0.5,
+                    onComplete: () => {
+                        // Redirect or show success
+                        alert("🌟 Messages extracted! Traveling through the cosmos to your clusters...");
+                        window.location.reload(); // Replace with: window.location.href = "/cluster"
+                    }
+                });
+            }, 800);
+        }
+
+        // Handle resize
+        window.addEventListener("resize", () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Button click
+        document.getElementById("extractButton").addEventListener("click", () => {
+            beginCollapse();
+        });
+
+        // Initialize
+        init();
+    </script>
+</body>
+</html>

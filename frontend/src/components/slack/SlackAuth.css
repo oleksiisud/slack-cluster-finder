@@ -1,0 +1,141 @@
+/* SlackAuth.css */
+
+.slack-auth-container {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.slack-auth-card {
+    background: white;
+    border-radius: 20px;
+    padding: 50px 40px;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.slack-icon {
+    margin-bottom: 30px;
+}
+
+.slack-auth-card h1 {
+    color: #2c3e50;
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.description {
+    color: #7f8c8d;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.error-message {
+    background: #fee;
+    border: 1px solid #fcc;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 20px;
+    color: #c33;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.slack-connect-button {
+    width: 100%;
+    padding: 16px 24px;
+    background: #4A154B;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.slack-connect-button:hover:not(:disabled) {
+    background: #611f69;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(74, 21, 75, 0.4);
+}
+
+.slack-connect-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.button-spinner {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.info-box {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.info-box h3 {
+    color: #2c3e50;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+}
+
+.info-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.info-box li {
+    color: #555;
+    padding: 6px 0;
+    font-size: 0.95rem;
+}
+
+.privacy-note {
+    color: #7f8c8d;
+    font-size: 0.85rem;
+    line-height: 1.5;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .slack-auth-card {
+        padding: 40px 25px;
+    }
+
+    .slack-auth-card h1 {
+        font-size: 1.6rem;
+    }
+
+    .description {
+        font-size: 0.95rem;
+    }
+}

@@ -12,6 +12,8 @@ import Account from './components/Account.jsx'
 import DataCollection from './components/DataCollection.jsx';
 import Dashboard from './components/data/Dashboard.jsx';
 import ProtectedRoute from './ProtectedRoute.jsx';
+import SlackAuth from './components/slack/SlackAuth.jsx';
+import SlackCallback from './components/slack/SlackCallback.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -26,6 +28,8 @@ createRoot(document.getElementById('root')).render(
           <Route path="/account" element = {<Account />} />
           <Route path ="/new-dashboard" element = {<DataCollection/>} />
           <Route path="/dashboard/:channelId" element={<Dashboard />} />
+          <Route path="/slack/auth" element={<SlackAuth />} />
+          <Route path="/slack/callback" element={<SlackCallback />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
