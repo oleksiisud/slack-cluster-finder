@@ -216,6 +216,51 @@
   border: 1px solid var(--primary-border);
 }
 
+.cluster-messages {
+  margin-top: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.messages-header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.message-item {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.message-item:hover {
+  border-color: var(--primary);
+  background: var(--primary-dim);
+}
+
+.message-user {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.message-text {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .empty-state {
   text-align: center;
   padding: 40px 0;

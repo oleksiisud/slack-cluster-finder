@@ -1,131 +1,103 @@
-/**
- * Home page with D3 force graph visualization
- * Shows center node (+) for creating new chats and other nodes for existing chats
- */
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import InteractiveGraph from './components/graph/InteractiveGraph';
-import FilterSidebar from './components/FilterSidebar';
-import SettingsModal from './components/SettingsModal';
-import Nav from './components/Nav';
-import { getUserChats } from './services/chatService';
-import { useAuth } from './AuthContext';
+import FilterSidebar from './components/graph/FilterSidebar';
+import SettingsModal from './components/graph/SettingsModal';
+import EmptyState from './components/graph/EmptyState';
+import { getUserChats, getChatById } from './services/chatService';
+import { transformClusteringToGraph } from './utils/graphTransform';
 import './Home.css';
 
-const MOCK_HOME_DATA = {
-  nodes: [
-    { id: "root", name: "New Chat", type: "add-root", val: 50, x: 0, y: 0 },
-    { id: "ws1", name: "Company Slack", type: "workspace", val: 20, source: "slack" },
-    { id: "ws2", name: "Dev Discord", type: "workspace", val: 15, source: "discord" },
-    { id: "ws3", name: "Support Team", type: "workspace", val: 10, source: "slack" },
-  ],
-  links: [
-    { source: "root", target: "ws1" },
-    { source: "root", target: "ws2" },
-    { source: "root", target: "ws3" },
-  ]
-};
-
-const MOCK_CHAT_DATA = {
-  nodes: [
-    { id: "c1", name: "Pandas Data Analysis", type: "cluster", val: 30, tags: ["python", "data", "pandas"] },
-    { id: "c2", name: "React State Logic", type: "cluster", val: 20, tags: ["javascript", "react", "hooks"] },
-    { id: "c3", name: "Deployment Issues", type: "cluster", val: 15, tags: ["devops", "aws", "docker"] },
-    { id: "m1", name: "How do I merge dataframes?", type: "message", user: "alice", timestamp: "2023-11-14T10:00:00Z", parent: "c1" },
-    { id: "m2", name: "Use pd.merge()", type: "message", user: "bob", timestamp: "2023-11-14T10:05:00Z", parent: "c1" },
-    { id: "m3", name: "useEffect dependency loop", type: "message", user: "charlie", timestamp: "2023-11-15T09:00:00Z", parent: "c2" },
-  ],
-  links: [
-    { source: "c1", target: "m1" },
-    { source: "c1", target: "m2" },
-    { source: "c2", target: "m3" },
-    { source: "c1", target: "c2", value: 1 }
-  ]
-};
-
 function Home() {
-  const { session } = useAuth();
   const [view, setView] = useState('home');
   const [activeChat, setActiveChat] = useState(null);
   const [activeChatData, setActiveChatData] = useState(null);
   const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [isSettingsOpen, setSettingsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [userChats, setUserChats] = useState([]);
-  const [homeData, setHomeData] = useState({
-    nodes: [{ id: "root", name: "New Chat", type: "add-root", val: 50, x: 0, y: 0 }],
-    links: []
-  });
+  const [homeData, setHomeData] = useState({ nodes: [], links: [] });
+  const [loading, setLoading] = useState(true);
+  const [editingChat, setEditingChat] = useState(null);
+  
+  // AI State
+  const [aiState, setAiState] = useState({ clusterId: null, type: null, loading: false, content: null });
 
   useEffect(() => {
-    if (session) {
-      loadUserChats();
-    }
-  }, [session]);
+    loadUserChats();
+  }, []);
 
   const loadUserChats = async () => {
     try {
+      setLoading(true);
       const chats = await getUserChats();
-      setUserChats(chats);
       
-      // Build home graph data
+      // Transform chats to graph nodes
       const nodes = [
-        { id: "root", name: "New Chat", type: "add-root", val: 50, x: 0, y: 0 }
-      ];
-      
-      const links = [];
-      
-      chats.forEach((chat, index) => {
-        nodes.push({
+        { id: "root", name: "New Chat", type: "add-root", val: 50, x: 0, y: 0 },
+        ...chats.map(chat => ({
           id: chat.id,
-          name: chat.title,
+          name: chat.title || chat.source,
           type: "workspace",
           val: 20,
           source: chat.source,
-          chatData: chat
-        });
-        
-        links.push({
-          source: "root",
-          target: chat.id
-        });
-      });
-      
+          chatData: chat // Store full chat object
+        }))
+      ];
+
+      const links = chats.map(chat => ({ source: "root", target: chat.id }));
+
       setHomeData({ nodes, links });
     } catch (error) {
-      console.error('Error loading chats:', error);
+      console.error("Failed to load chats:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleChatCreated = async (newChat, clusteringData) => {
-    // Reload chats to include the new one
-    await loadUserChats();
-    
-    // Switch to the new chat
-    setActiveChat({
-      id: newChat.id,
-      name: newChat.title,
-      type: "workspace",
-      source: newChat.source,
-      chatData: newChat
-    });
-    
-    setActiveChatData(clusteringData || MOCK_CHAT_DATA);
-    setView('dashboard');
+  const handleAiAction = async (type, clusterId) => {
+    setAiState({ clusterId, type, loading: true, content: null });
+    // Simulate AI delay - replace with real API call later
+    setTimeout(() => {
+      setAiState({ 
+        clusterId, 
+        type, 
+        loading: false, 
+        content: "AI Analysis: This cluster represents discussions about..." 
+      });
+    }, 1500);
   };
 
-  const handleNodeClick = (node) => {
+  const handleNodeClick = async (node, event) => {
     if (!node) return;
+    
+    console.log('Node clicked:', { type: node.type, id: node.id, view });
+    
     if (view === 'home') {
       if (node.type === 'add-root') {
+        setEditingChat(null);
         setSettingsOpen(true);
-      } else if (node.type === 'workspace') { 
-        setActiveChat(node);
-        // Use clustering data if available, otherwise use mock data
-        setActiveChatData(node.chatData?.clustering_data || MOCK_CHAT_DATA);
-        setView('dashboard'); 
+      } else if (node.type === 'workspace') {
+        // Load full chat data if needed
+        let chatData = node.chatData;
+        if (!chatData.clustering_data || !chatData.messages) {
+           // Fetch full if we only had summary
+           try {
+             const fullChat = await getChatById(node.id);
+             chatData = fullChat;
+           } catch(e) { console.error(e); }
+        }
+
+        console.log('Loading workspace chat:', { 
+          hasClusteringData: !!chatData.clustering_data, 
+          hasMessages: !!chatData.messages 
+        });
+
+        setActiveChat({ id: node.id, name: node.name, source: node.source, chatData });
+        // Only set clustering data if it exists, otherwise null (EmptyState will be shown in render)
+        setActiveChatData(chatData.clustering_data || null);
+        setView('dashboard');
       }
-    } else {
-      if (node.type === 'cluster') setSidebarOpen(true);
+    } else if (node.type === 'cluster') {
+      setSidebarOpen(true);
     }
   };
 
@@ -134,18 +106,30 @@ function Home() {
     setActiveChat(null);
     setActiveChatData(null);
     setSearchQuery('');
+    loadUserChats(); // Refresh in case of changes
   };
 
   return (
     <div className="app-container">
       <div className={`main-content ${view === 'dashboard' && isSidebarOpen ? 'sidebar-active' : ''}`}>
-        {view === 'home' ? (
-          <InteractiveGraph data={homeData} onNodeClick={handleNodeClick} isHome={true} />
-        ) : (
+        {loading ? (
+           <div className="loading-screen">Loading your universe...</div>
+        ) : view === 'home' ? (
           <InteractiveGraph 
-            data={activeChatData || MOCK_CHAT_DATA} 
+            data={homeData} 
+            onNodeClick={handleNodeClick} 
+            isHome={true} 
+          />
+        ) : activeChatData ? (
+          <InteractiveGraph 
+            data={activeChatData} 
             onNodeClick={handleNodeClick} 
             searchQuery={searchQuery}
+            onBackToHome={handleBackToHome}
+          />
+        ) : (
+          <EmptyState 
+            activeChat={activeChat}
             onBackToHome={handleBackToHome}
           />
         )}
@@ -155,16 +139,37 @@ function Home() {
         <FilterSidebar 
           isOpen={isSidebarOpen} 
           toggle={() => setSidebarOpen(!isSidebarOpen)} 
-          onSettingsClick={() => setSettingsOpen(true)}
+          onSettingsClick={() => { setEditingChat(activeChat?.chatData); setSettingsOpen(true); }}
           activeChat={activeChat}
+          chatData={activeChatData}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
+          onAiAction={handleAiAction}
+          aiState={aiState}
         />
       )}
       <SettingsModal 
         isOpen={isSettingsOpen} 
         onClose={() => setSettingsOpen(false)}
-        onChatCreated={handleChatCreated}
+        existingChat={editingChat}
+        onChatCreated={(chat, clusterResult) => { 
+          loadUserChats(); 
+          // If clustering was successful, switch to dashboard view
+          if (chat && clusterResult) {
+            const graphData = transformClusteringToGraph(clusterResult);
+            if (graphData) {
+              setActiveChat({ 
+                id: chat.id, 
+                name: chat.title, 
+                source: chat.source, 
+                chatData: { ...chat, clustering_data: graphData } 
+              });
+              setActiveChatData(graphData);
+              setView('dashboard');
+            }
+          }
+        }}
+        onChatDeleted={() => { handleBackToHome(); setSettingsOpen(false); }}
       />
     </div>
   );
