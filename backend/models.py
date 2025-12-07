@@ -99,3 +99,20 @@ class SlackTestResponse(BaseModel):
     team: Optional[str] = None
     user_id: Optional[str] = None
     error: Optional[str] = None
+
+class DiscordTestRequest(BaseModel):
+    """Request model for testing Discord connection"""
+    user_token: str = Field(..., description="Discord user token")
+
+class DiscordTestResponse(BaseModel):
+    """Response model for Discord connection test"""
+    ok: bool
+    username: Optional[str] = None
+    user_id: Optional[str] = None
+    error: Optional[str] = None
+
+class DiscordFetchRequest(BaseModel):
+    """Request model for fetching Discord messages"""
+    user_token: str = Field(..., description="Discord user token")
+    guild_ids: Optional[List[str]] = Field(None, description="Specific guild IDs to fetch (if None, fetch all)")
+    message_limit: int = Field(1000, description="Max messages per channel")
