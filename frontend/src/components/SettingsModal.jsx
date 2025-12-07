@@ -143,7 +143,7 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, activeChat, activeChatD
 
         <div className="modal-body">
 
-          {/* ✅ Cluster Statistics Section (added from File A) */}
+          {/* Cluster Statistics Section */}
           {activeChat && activeChatData && activeChatData.nodes && (
             <div className="form-group">
               <label className="form-label">Cluster Statistics</label>
@@ -199,7 +199,6 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, activeChat, activeChatD
               )}
             </div>
           )}
-          {/* END Cluster Statistics */}
 
           {/* JSON Upload */}
           <div className="form-group">
