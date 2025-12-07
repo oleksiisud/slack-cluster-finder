@@ -15,19 +15,7 @@ export default defineConfig({
       '4149daca23eb.ngrok-free.app'
     ]
   },
-  plugins: [react()],
-  optimizeDeps: {
-    exclude: [
-      "react-force-graph-vr",
-      "react-force-graph-ar",
-      "aframe"
-    ]
-  },
-  build: {
-    rollupOptions: {
-      external: ["react-force-graph-vr", "react-force-graph-ar", "aframe"]
-    }
-  }
+  plugins: [react()]
 });
 
 
