@@ -17,6 +17,8 @@ from cluster_orchestrator import get_orchestrator
 from slack_service import SlackService
 from config import config
 from datetime import datetime
+from dotenv import load_dotenv
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,7 +27,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Chat Message Clustering API",
     description="AI-powered clustering service for chat messages",
-    version="1.0.0"
+    version="0.2.0"
 )
 
 # Add CORS middleware
@@ -41,6 +43,21 @@ app.add_middleware(
 jobs: Dict[str, ClusteringStatus] = {}
 results: Dict[str, ClusteringOutput] = {}
 
+@app.on_event("startup")
+async def startup_event():
+    """Warm up services on startup"""
+    logger.info("Warming up Gemini services...")
+    try:
+        # Initialize services
+        orchestrator = get_orchestrator()
+        # Quick test to warm up API connection
+        test_embedding = orchestrator.embedding_service.encode_messages(
+            ["test message"],
+            show_progress=False
+        )
+        logger.info("Services ready!")
+    except Exception as e:
+        logger.warning(f"Warmup failed: {e}")
 
 @app.get("/")
 async def root():
