@@ -1,3 +1,4 @@
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -168,6 +169,16 @@
   background-color: #00ff00;
   flex-shrink: 0;
   box-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
+}
+
+.status-dot.connected {
+  background-color: var(--success-color);
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+}
+
+.status-dot.disconnected {
+  background-color: var(--text-tertiary);
+  box-shadow: none;
 }
 
 .integration-title {
@@ -346,16 +357,7 @@ code {
   font-weight: 500;
 }
 
-.status-dot.connected {
-  background-color: var(--success-color);
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
-}
-
-.status-dot.disconnected {
-  background-color: var(--text-tertiary);
-  box-shadow: none;
-}
-
+/* Footer Buttons */
 .modal-footer {
   padding: 20px;
   border-top: 1px solid var(--border-color);
@@ -401,4 +403,150 @@ code {
 
 .btn-save:active {
   transform: translateY(0);
+}
+
+/* ==========================================
+   ADDED FROM FILE A — CLUSTER STATISTICS
+=========================================== */
+.cluster-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+  padding: 16px;
+  background: var(--primary-dim);
+  border: 1px solid var(--primary-border);
+  border-radius: 8px;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cluster-list {
+  margin-top: 12px;
+}
+
+.cluster-topics {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.cluster-topics::-webkit-scrollbar {
+  width: 4px;
+}
+
+.cluster-topics::-webkit-scrollbar-track {
+  background: var(--primary-dim);
+  border-radius: 2px;
+}
+
+.cluster-topics::-webkit-scrollbar-thumb {
+  background: var(--primary-border);
+  border-radius: 2px;
+}
+
+.cluster-topic-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--primary-border);
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.cluster-topic-name {
+  color: var(--text-primary);
+  font-weight: 500;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cluster-topic-count {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+/* ==========================================
+   ADDED FROM FILE A — API STATUS INDICATORS
+=========================================== */
+.api-status-warning {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.warning-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.warning-content {
+  flex: 1;
+}
+
+.warning-title {
+  font-weight: 600;
+  color: var(--error-color);
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+.warning-message {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.warning-detail {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  opacity: 0.8;
+  font-family: monospace;
+}
+
+.api-status-success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+  color: var(--success-color);
+}
+
+.success-icon {
+  font-weight: 700;
+  color: var(--success-color);
 }
