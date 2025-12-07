@@ -12,7 +12,7 @@ import httpx
 from models import (
     ClusteringRequest, ClusteringOutput, ClusteringStatus,
     SearchRequest, SearchResult, MessageWithTags,
-    SlackWorkspaceData
+    SlackWorkspaceData, SlackExtractRequest
 )
 from cluster_orchestrator import get_orchestrator
 from config import config
@@ -324,34 +324,30 @@ async def get_slack_workspaces(access_token: str):
 
 
 @app.post("/slack/extract")
-async def extract_slack_messages(
-    access_token: str,
-    channel_ids: list[str],
-    user_ids: Optional[list[str]] = None
-):
+async def extract_slack_messages(request: SlackExtractRequest):
     """Extract messages from selected Slack channels"""
-    if not access_token:
+    if not request.access_token:
         raise HTTPException(
             status_code=400,
             detail="access_token required"
         )
     
-    if not channel_ids:
+    if not request.channel_ids:
         raise HTTPException(
             status_code=400,
             detail="At least one channel_id required"
         )
     
     try:
-        slack_service = get_slack_service(access_token)
+        slack_service = get_slack_service(request.access_token)
         
         all_messages = []
-        for channel_id in channel_ids:
+        for channel_id in request.channel_ids:
             messages = await slack_service.get_channel_messages(channel_id)
             
             # Filter by user if specified
-            if user_ids:
-                messages = [m for m in messages if m.get("user") in user_ids]
+            if request.user_ids:
+                messages = [m for m in messages if m.get("user") in request.user_ids]
             
             all_messages.extend(messages)
         

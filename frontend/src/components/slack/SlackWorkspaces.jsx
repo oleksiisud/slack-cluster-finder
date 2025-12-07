@@ -106,35 +106,51 @@ const SlackWorkspaces = ({ accessToken, onExtractComplete }) => {
             return;
         }
 
-        try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
-            const response = await fetch(`${apiUrl}/slack/extract`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    access_token: accessToken,
-                    channel_ids: Array.from(selectedChannels),
-                    user_ids: Array.from(selectedUsers),
-                }),
-            });
+        // Get selected channel and user objects
+        const selectedChannelObjects = workspaceData.channels.filter(c => selectedChannels.has(c.id));
+        const selectedUserObjects = activeUsers.filter(u => selectedUsers.has(u.id));
+        
+        // Create confirmation message
+        const confirmMessage = `Would extract messages from:\n\n📁 ${selectedChannels.size} channels:\n${selectedChannelObjects.map(c => '  • ' + c.name).join('\n')}\n\n👥 ${selectedUsers.size} users:\n${selectedUserObjects.map(u => '  • ' + (u.real_name || u.name)).join('\n')}\n\n(Backend integration needed)`;
+        
+        // Show confirmation alert
+        alert(confirmMessage);
+        
+        // Log to console
+        console.log('Extracting messages from channels:', selectedChannelObjects);
+        console.log('Extracting messages from users:', selectedUserObjects);
+        console.log('Access Token:', accessToken);
 
-            if (!response.ok) {
-                throw new Error('Failed to extract messages');
-            }
+        // TODO: Backend integration
+        // try {
+        //     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+        //     const response = await fetch(`${apiUrl}/slack/extract`, {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify({
+        //             access_token: accessToken,
+        //             channel_ids: Array.from(selectedChannels),
+        //             user_ids: Array.from(selectedUsers),
+        //         }),
+        //     });
 
-            const result = await response.json();
-            
-            if (onExtractComplete) {
-                onExtractComplete(result);
-            } else {
-                alert(`Successfully extracted ${result.message_count} messages!`);
-            }
-        } catch (err) {
-            console.error('Error extracting messages:', err);
-            alert(`Error: ${err.message}`);
-        }
+        //     if (!response.ok) {
+        //         throw new Error('Failed to extract messages');
+        //     }
+
+        //     const result = await response.json();
+        //     
+        //     if (onExtractComplete) {
+        //         onExtractComplete(result);
+        //     } else {
+        //         alert(`Successfully extracted ${result.message_count} messages!`);
+        //     }
+        // } catch (err) {
+        //     console.error('Error extracting messages:', err);
+        //     alert(`Error: ${err.message}`);
+        // }
     };
 
     if (loading) {

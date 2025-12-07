@@ -123,3 +123,9 @@ class SlackWorkspaceData(BaseModel):
     workspace: SlackWorkspace
     channels: List[SlackChannel]
     users: List[SlackUser]
+
+class SlackExtractRequest(BaseModel):
+    """Request to extract messages from Slack"""
+    access_token: str = Field(..., description="Slack OAuth access token")
+    channel_ids: List[str] = Field(..., description="List of channel IDs to extract from")
+    user_ids: Optional[List[str]] = Field(None, description="Optional list of user IDs to filter messages")

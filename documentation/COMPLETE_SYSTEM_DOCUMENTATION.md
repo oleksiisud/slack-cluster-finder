@@ -340,8 +340,7 @@ npm install
 #### 2. Configure Slack App
 
 1. Go to https://api.slack.com/apps
-2. Click "Create New App" → "From scratch"
-3. Name: "AstralSearch Dev"
+3. Name: "AstralSearch"
 4. Select workspace
 5. Go to "OAuth & Permissions"
 6. Add scopes (see OAuth section above)
