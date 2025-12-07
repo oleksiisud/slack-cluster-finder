@@ -7,3 +7,8 @@ __pycache__/
 node_modules.env
 .vercel
 .env*.local
+
+# SSL Certificates (local development)
+*.pem
+*.key
+*.crt

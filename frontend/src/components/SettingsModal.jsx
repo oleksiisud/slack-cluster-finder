@@ -4,6 +4,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Settings, X, Upload, FileJson, CheckCircle } from 'lucide-react';
 import { initiateSlackAuth, getSlackToken } from '../services/slackAuth';
+import { initiateDiscordAuth, getDiscordToken } from '../services/discordAuth';
 import { createChat, saveChatMessages, saveChatClusteringData } from '../services/chatService';
 import { processClusteringGemini } from '../services/clusteringApi';
 import { useAuth } from '../AuthContext';
@@ -15,6 +16,7 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated }) => {
   const [includeDMs, setIncludeDMs] = useState(false);
   const [enableSemanticSearch, setEnableSemanticSearch] = useState(true);
   const [slackConnected, setSlackConnected] = useState(false);
+  const [discordConnected, setDiscordConnected] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState('');
   const [clustering, setClustering] = useState(false);
@@ -23,6 +25,7 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated }) => {
   useEffect(() => {
     if (isOpen && session) {
       checkSlackConnection();
+      checkDiscordConnection();
     }
   }, [isOpen, session]);
 
@@ -35,8 +38,21 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated }) => {
     }
   };
 
+  const checkDiscordConnection = async () => {
+    try {
+      const token = await getDiscordToken();
+      setDiscordConnected(!!token);
+    } catch (error) {
+      setDiscordConnected(false);
+    }
+  };
+
   const handleSlackConnect = () => {
     initiateSlackAuth();
+  };
+
+  const handleDiscordConnect = () => {
+    initiateDiscordAuth();
   };
 
   const handleFileUpload = async (event) => {
@@ -234,9 +250,39 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated }) => {
                 {slackConnected ? 'Re-sync' : 'Connect'}
               </button>
             </div>
+          {!session && (
+            <p className="form-hint error-text">
+              Please sign in to connect Slack
+            </p>
+          )}
+          </div>
+
+          {/* Discord Integration */}
+          <div className="form-group">
+            <label className="form-label">Connect Discord</label>
+            <div className="integration-card">
+              <div className="integration-info">
+                <div className={`status-dot ${discordConnected ? 'connected' : 'disconnected'}`}></div>
+                <div>
+                  <div className="integration-title">
+                    {discordConnected ? 'Discord Connected' : 'Discord Not Connected'}
+                  </div>
+                  <div className="integration-subtitle">
+                    {discordConnected ? 'Ready to import messages' : 'Connect to import messages from Discord'}
+                  </div>
+                </div>
+              </div>
+              <button 
+                className="btn-resync"
+                onClick={handleDiscordConnect}
+                disabled={!session}
+              >
+                {discordConnected ? 'Reconnect' : 'Connect'}
+              </button>
+            </div>
             {!session && (
               <p className="form-hint error-text">
-                Please sign in to connect Slack
+                Please sign in to connect Discord
               </p>
             )}
           </div>
