@@ -8,15 +8,19 @@ from typing import Dict, Optional
 import logging
 import uuid
 
-from models import (
+from .models import (
     ClusteringRequest, ClusteringOutput, ClusteringStatus,
     SearchRequest, SearchResult, MessageWithTags,
-    SlackFetchRequest, SlackTestRequest, SlackTestResponse, Message
+    SlackFetchRequest, SlackTestRequest, SlackTestResponse, 
+    DiscordFetchRequest, DiscordTestRequest, DiscordTestResponse,
+    Message
 )
-from cluster_orchestrator import get_orchestrator
-from slack_service import SlackService
-from slack_oauth import router as slack_oauth_router
-from config import config
+from .cluster_orchestrator import get_orchestrator
+from .slack_service import SlackService
+from .discord_service import DiscordService
+from .config import config
+from .slack_oauth import router as slack_oauth_router
+from .discord_oauth import router as discord_oauth_router
 from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
@@ -38,8 +42,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
+# Include OAuth routers
 app.include_router(slack_oauth_router)
+app.include_router(discord_oauth_router)
 
 # Job storage (in production, use Redis or database)
 jobs: Dict[str, ClusteringStatus] = {}

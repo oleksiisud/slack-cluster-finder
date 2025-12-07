@@ -32,7 +32,10 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
   };
 
   useEffect(() => {
-    if (!data || !svgRef.current) return;
+    // Validate data structure
+    if (!data || !svgRef.current || !data.nodes || !Array.isArray(data.nodes)) return;
+    if (data.nodes.length === 0) return; // No nodes to display
+    
     const { width, height } = dimensions;
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
