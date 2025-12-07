@@ -8,6 +8,8 @@ import DataCollection from './components/DataCollection.jsx';
 import Homepage from './components/landing-pages/LandingPage.jsx';
 import Nav from './components/Nav.jsx';
 import HomeNav from './components/landing-pages/HomeNav.jsx';
+import SlackCallback from './components/SlackCallback.jsx';
+import DiscordCallback from './components/DiscordCallback.jsx';
 import { StrictMode } from 'react'
 import Home from './Home'
 import Login from './components/landing-pages/Login'
@@ -34,6 +36,8 @@ const Root = () => {
         <Route path="/sign-up" element={<Signup />} />
         <Route path="/account" element={<Account />} />
         <Route path="/new-dashboard" element={<DataCollection />} />
+        <Route path="/slack/callback" element={<SlackCallback />} />
+        <Route path="/discord/callback" element={<DiscordCallback />} />
         {/* <Route path="/dashboard/:channelId" element={<Dashboard />} /> */}
       </Routes>
     </>

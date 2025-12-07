@@ -1,8 +1,8 @@
 .app-sidebar {
   position: fixed;
   right: 0;
-  top: 64px;
-  height: calc(100vh - 64px);
+  top: 72px;
+  height: calc(100vh - 72px);
   width: 50px;
   background: var(--bg-secondary);
   border-left: 1px solid var(--border-color);

@@ -1,5 +1,5 @@
 import stars from './landing-pages-assets/stars.gif';
-import FakeMessages from '../data/fakeMessages.jsx';
+import FakeMessages from '../data/FakeMessages.jsx';
 import MiniCluster from './MiniCluster.jsx';
 import { useRef, useEffect } from 'react';
 import 'aos/dist/aos.css';

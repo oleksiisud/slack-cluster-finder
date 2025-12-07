@@ -18,6 +18,7 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, activeChat, activeChatD
   const [includeDMs, setIncludeDMs] = useState(false);
   const [enableSemanticSearch, setEnableSemanticSearch] = useState(true);
   const [slackConnected, setSlackConnected] = useState(false);
+  const [discordConnected, setDiscordConnected] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState('');
   const [clustering, setClustering] = useState(false);
@@ -58,6 +59,9 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, activeChat, activeChatD
 
   const handleSlackConnect = () => initiateSlackAuth();
 
+  const handleSlackConnect = () => initiateSlackAuth();
+  const handleDiscordConnect = () => initiateDiscordAuth();
+
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -83,7 +87,6 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, activeChat, activeChatD
 
       setUploadStatus(`Found ${validMessages.length} valid messages. Creating chat...`);
 
-      // Create a new chat
       const chatTitle = file.name.replace('.json', '');
       const newChat = await createChat({
         title: chatTitle,
@@ -359,7 +362,7 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, activeChat, activeChatD
             {!session && <p className="form-hint error-text">Please sign in to connect Slack</p>}
           </div>
 
-          {/* Options */}
+          {/* Checkboxes */}
           <div className="checkbox-group">
             <label className="checkbox-label">
               <input type="checkbox" checked={includeDMs} onChange={e => setIncludeDMs(e.target.checked)} />
@@ -370,12 +373,14 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, activeChat, activeChatD
               Enable Semantic Search (Beta)
             </label>
           </div>
+
         </div>
 
         <div className="modal-footer">
           <button onClick={onClose} className="btn-cancel">Cancel</button>
           <button onClick={handleSave} className="btn-save">Done</button>
         </div>
+
       </div>
     </div>
   );

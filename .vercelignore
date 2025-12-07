@@ -1,0 +1,15 @@
+backend/
+discordbot/
+slackbot/
+notebooks/
+tests/
+tools/
+logs/
+scripts/
+*.py
+__pycache__/
+*.pyc
+.pytest_cache/
+venv/
+env/
+.env.local
