@@ -3,6 +3,11 @@
  */
 import axios from 'axios';
 
+
+console.log("API_BASE_URL =", import.meta.env.VITE_API_BASE_URL);
+console.log("GEMINI_API_BASE_URL =", import.meta.env.VITE_GEMINI_API_BASE_URL);
+
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 const GEMINI_API_BASE_URL = import.meta.env.VITE_GEMINI_API_BASE_URL || 'http://localhost:8001';
 
@@ -21,6 +26,45 @@ const geminiApi = axios.create({
   },
   timeout: 300000,
 });
+
+/**
+ * Check if the Gemini API backend is available
+ * @returns {Promise<boolean>} True if backend is running
+ */
+export const checkGeminiApiHealth = async () => {
+  try {
+    console.log(`Checking Gemini API health at ${GEMINI_API_BASE_URL}/health`);
+    const response = await geminiApi.get('/health', { timeout: 5000 });
+    console.log('Health check response:', response.data);
+    return response.status === 200;
+  } catch (error) {
+    console.warn('Gemini API health check failed:', error.message);
+    if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+      console.error(`Cannot connect to ${GEMINI_API_BASE_URL}. Is the server running?`);
+    }
+    return false;
+  }
+};
+
+/**
+ * Check Gemini API key status and quota
+ * @returns {Promise<Object>} API status information
+ */
+export const checkGeminiApiStatus = async () => {
+  try {
+    console.log(`Checking Gemini API status at ${GEMINI_API_BASE_URL}/api-status`);
+    const response = await geminiApi.get('/api-status', { timeout: 10000 });
+    console.log('API status response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Gemini API status check failed:', error);
+    return {
+      status: 'error',
+      message: error.message || 'Failed to check API status',
+      test_successful: false
+    };
+  }
+};
 
 /**
  * Cluster messages
@@ -151,11 +195,24 @@ export const fetchSlackMessages = async (
  * @returns {Promise} Graph data with nodes and links
  */
 export const processClusteringGemini = async (messages, sensitivity = 0.5) => {
-  const response = await geminiApi.post('/process-clustering', {
-    messages,
-    sensitivity,
-  });
-  return response.data;
+  try {
+    console.log(`Calling Gemini API at ${GEMINI_API_BASE_URL}/process-clustering`);
+    console.log(`Sending ${messages.length} messages`);
+    
+    const response = await geminiApi.post('/process-clustering', {
+      messages,
+      sensitivity,
+    });
+    
+    console.log('Gemini API response received:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Gemini API error:', error);
+    if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
+      throw new Error(`Cannot connect to clustering service at ${GEMINI_API_BASE_URL}. Please make sure the backend server is running.`);
+    }
+    throw error;
+  }
 };
 
 export default api;

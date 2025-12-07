@@ -4,14 +4,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { Settings, X, Upload, FileJson } from 'lucide-react';
 import { initiateSlackAuth, getSlackToken } from '../services/slackAuth';
-import { initiateDiscordAuth, getDiscordToken } from '../services/discordAuth';
 import { createChat, saveChatMessages, saveChatClusteringData } from '../services/chatService';
-import { processClusteringGemini } from '../services/clusteringApi';
+import { processClusteringGemini, checkGeminiApiStatus } from '../services/clusteringApi';
+import { fetchSlackMessages } from '../services/clusteringApi';
 import { useAuth } from '../AuthContext';
 import './SettingsModal.css';
 
 const SettingsModal = ({ isOpen, onClose, onChatCreated, activeChat, activeChatData }) => {
   const { session } = useAuth();
+  const fileInputRef = useRef(null);
+
   const [timeFilter, setTimeFilter] = useState('3 Months');
   const [includeDMs, setIncludeDMs] = useState(false);
   const [enableSemanticSearch, setEnableSemanticSearch] = useState(true);
@@ -20,32 +22,42 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, activeChat, activeChatD
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState('');
   const [clustering, setClustering] = useState(false);
-  const fileInputRef = useRef(null);
+  const [apiStatus, setApiStatus] = useState(null);
+  const [slackToken, setSlackToken] = useState('');
+  const [channelId, setChannelId] = useState('');
+  const [fetchingMessages, setFetchingMessages] = useState(false);
 
   useEffect(() => {
     if (isOpen && session) {
       checkSlackConnection();
-      checkDiscordConnection();
+      checkApiStatus();
     }
   }, [isOpen, session]);
+
+  const checkApiStatus = async () => {
+    try {
+      const status = await checkGeminiApiStatus();
+      setApiStatus(status);
+      if (status.is_quota_error) {
+        console.warn('⚠️ Gemini API quota/rate limit detected');
+      }
+    } catch (error) {
+      console.error('Failed to check API status:', error);
+      setApiStatus({ status: 'unknown', message: 'Could not check API status' });
+    }
+  };
 
   const checkSlackConnection = async () => {
     try {
       const token = await getSlackToken();
       setSlackConnected(!!token);
     } catch (error) {
+      console.warn('Could not check Slack connection:', error.message);
       setSlackConnected(false);
     }
   };
 
-  const checkDiscordConnection = async () => {
-    try {
-      const token = await getDiscordToken();
-      setDiscordConnected(!!token);
-    } catch (error) {
-      setDiscordConnected(false);
-    }
-  };
+  const handleSlackConnect = () => initiateSlackAuth();
 
   const handleSlackConnect = () => initiateSlackAuth();
   const handleDiscordConnect = () => initiateDiscordAuth();
@@ -62,7 +74,6 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, activeChat, activeChatD
       const jsonData = JSON.parse(text);
 
       let messages = [];
-
       if (Array.isArray(jsonData)) messages = jsonData;
       else if (jsonData.messages && Array.isArray(jsonData.messages)) messages = jsonData.messages;
       else throw new Error('Invalid JSON format. Expected an array of messages.');
@@ -72,9 +83,7 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, activeChat, activeChatD
         requiredFields.every(field => msg.hasOwnProperty(field))
       );
 
-      if (validMessages.length === 0) {
-        throw new Error('No valid messages found. Each message must have: text, channel, user, timestamp');
-      }
+      if (validMessages.length === 0) throw new Error('No valid messages found.');
 
       setUploadStatus(`Found ${validMessages.length} valid messages. Creating chat...`);
 
@@ -88,32 +97,49 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, activeChat, activeChatD
       setUploadStatus('Saving messages...');
       await saveChatMessages(newChat.id, validMessages);
 
-      let clusteringResult = null;
+      // Run AI clustering
+      setUploadStatus('Running AI clustering...');
+      setClustering(true);
 
+      let clusteringResult;
       try {
-        setUploadStatus('Running AI clustering...');
-        setClustering(true);
-
         clusteringResult = await processClusteringGemini(
           validMessages.map(msg => ({
             text: msg.text,
             channel: msg.channel,
             user: msg.user,
             timestamp: msg.timestamp,
-            link: msg.link || ''
+            link: msg.permalink || ''
           })),
-          0.5
+          0.5 // sensitivity; backend can auto-adjust
         );
-
-        await saveChatClusteringData(newChat.id, clusteringResult);
       } catch (error) {
-        console.warn('Clustering failed:', error);
-        setUploadStatus('Note: Clustering unavailable. Chat created without clustering.');
+        if (error.response?.status === 429 || 
+            error.message?.toLowerCase().includes('quota') ||
+            error.message?.toLowerCase().includes('rate limit')) {
+          setUploadStatus(`Error: Gemini API quota/rate limit exceeded. ${error.message}`);
+          setClustering(false);
+          setUploading(false);
+          await checkApiStatus();
+          return;
+        }
+        throw error;
       }
 
+      // Backend now returns optimal clusters + messages
+      const graphData = clusteringResult;
+
+      setUploadStatus('Saving clustering data...');
+      console.log("=== Saving Clustering Data ===");
+      console.log("Chat ID:", newChat.id);
+      console.log("Nodes count:", graphData.nodes.length);
+      console.log("Links count:", graphData.links.length);
+
+      const saveResult = await saveChatClusteringData(newChat.id, graphData);
+      console.log("Save result:", saveResult?.clustering_data);
       setUploadStatus('✓ Chat created successfully!');
 
-      if (onChatCreated) onChatCreated(newChat, clusteringResult);
+      if (onChatCreated) onChatCreated(newChat, graphData);
 
       setTimeout(() => {
         onClose();
@@ -121,11 +147,60 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, activeChat, activeChatD
         setUploading(false);
         setClustering(false);
       }, 1500);
+
+    } catch (err) {
+      console.error(err);
+      setUploadStatus(`Error: ${err.message}`);
+      setUploading(false);
+      setClustering(false);
+    }
+  };
+
+  const handleFetchAndCluster = async () => {
+    if (!slackToken || !channelId) {
+      setUploadStatus('Error: Slack token and channel ID are required.');
+      return;
+    }
+
+    setFetchingMessages(true);
+    setUploadStatus('Fetching messages from Slack...');
+
+    try {
+      const messages = await fetchSlackMessages(slackToken, channelId);
+      if (!messages || messages.length === 0) {
+        throw new Error('No messages found in the specified channel.');
+      }
+
+      setUploadStatus('Saving messages to Supabase...');
+      const savedChat = await saveMessagesToSupabase(messages, { slackToken, channelId });
+
+      setUploadStatus('Running AI clustering...');
+      const clusteringResult = await processClusteringGemini(
+        messages.map(msg => ({
+          text: msg.text,
+          channel: msg.channel,
+          user: msg.user,
+          timestamp: msg.timestamp,
+          link: msg.permalink || ''
+        })),
+        0.5
+      );
+
+      setUploadStatus('Saving clustering data...');
+      await saveChatClusteringData(savedChat.id, clusteringResult);
+
+      setUploadStatus('✓ Chat created successfully!');
+      if (onChatCreated) onChatCreated(savedChat, clusteringResult);
+
+      setTimeout(() => {
+        onClose();
+        setUploadStatus('');
+        setFetchingMessages(false);
+      }, 1500);
     } catch (error) {
       console.error(error);
       setUploadStatus(`Error: ${error.message}`);
-      setUploading(false);
-      setClustering(false);
+      setFetchingMessages(false);
     }
   };
 
@@ -137,54 +212,68 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, activeChat, activeChatD
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
-          <h2 className="modal-title"><Settings className="highlight" size={20} /> New Chat</h2>
+          <h2 className="modal-title"><Settings className="highlight" size={20} /> {activeChat ? 'Chat Settings' : 'New Chat'}</h2>
           <button onClick={onClose} className="btn-icon-close"><X size={20} /></button>
         </div>
 
         <div className="modal-body">
+          {/* API Status Warning */}
+          {apiStatus && apiStatus.is_quota_error && (
+            <div className="form-group">
+              <div className="api-status-warning">
+                <div className="warning-icon">⚠️</div>
+                <div className="warning-content">
+                  <div className="warning-title">Gemini API Quota Exceeded</div>
+                  <div className="warning-message">
+                    The API key has hit its rate limit or quota. Clustering may fail.
+                    {apiStatus.error && <div className="warning-detail">Error: {apiStatus.error}</div>}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
-          {/* Cluster Statistics Section */}
+          {apiStatus && apiStatus.status === 'healthy' && (
+            <div className="form-group">
+              <div className="api-status-success">
+                <div className="success-icon">✓</div>
+                <div className="success-message">Gemini API is working correctly</div>
+              </div>
+            </div>
+          )}
+
+          {/* Cluster Statistics for Existing Chat */}
           {activeChat && activeChatData && activeChatData.nodes && (
             <div className="form-group">
               <label className="form-label">Cluster Statistics</label>
-
               <div className="cluster-stats">
                 <div className="stat-item">
-                  <div className="stat-value">
-                    {activeChatData.nodes.filter(n => n.type === 'cluster').length}
-                  </div>
+                  <div className="stat-value">{activeChatData.nodes.filter(n => n.type === 'cluster').length}</div>
                   <div className="stat-label">Clusters</div>
                 </div>
-
                 <div className="stat-item">
-                  <div className="stat-value">
-                    {activeChatData.nodes.filter(n => n.type === 'message').length}
-                  </div>
+                  <div className="stat-value">{activeChatData.nodes.filter(n => n.type === 'message').length}</div>
                   <div className="stat-label">Messages</div>
                 </div>
-
                 <div className="stat-item">
                   <div className="stat-value">{activeChatData.links?.length || 0}</div>
                   <div className="stat-label">Connections</div>
                 </div>
               </div>
 
-              {/* Cluster Topics List */}
               {activeChatData.nodes.filter(n => n.type === 'cluster').length > 0 && (
                 <div className="cluster-list">
-                  <p className="form-hint" style={{ marginTop: 12, marginBottom: 8 }}>Cluster Topics:</p>
-
+                  <p className="form-hint" style={{ marginTop: '12px', marginBottom: '8px' }}>Cluster Topics:</p>
                   <ul className="cluster-topics">
                     {activeChatData.nodes
                       .filter(n => n.type === 'cluster')
-                      .slice(0, 10)
+                      .slice(0, 10) // show first 10 clusters only
                       .map((cluster, idx) => {
                         const clusterId = cluster.id || `cluster-${idx}`;
                         const messageCount = activeChatData.links?.filter(l => {
-                          const id = typeof l.source === 'object' ? l.source.id : l.source;
-                          return id === clusterId;
+                          const sourceId = typeof l.source === 'object' ? l.source.id : l.source;
+                          return sourceId === clusterId;
                         }).length || 0;
-
                         return (
                           <li key={clusterId} className="cluster-topic-item">
                             <span className="cluster-topic-name">{cluster.name || `Cluster ${idx + 1}`}</span>
@@ -219,14 +308,43 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, activeChat, activeChatD
               {clustering && <div className="clustering-spinner"><div className="spinner"></div><span>AI is analyzing your messages...</span></div>}
             </div>
             <p className="form-hint">
-              Format: <code>[{'{'}text, channel, user, timestamp, link{'}'}, ...]</code>
+              <p>Format: <code>[{'{'}text, channel, user, timestamp, permalink{'}'}, ...]</code></p>
+              <p>Note: Larger files may take larger to process</p>
             </p>
             {!session && <p className="form-hint error-text">Please sign in to upload files</p>}
           </div>
 
-          <div className="divider"><span>OR</span></div>
-
           {/* Slack Integration */}
+          <div className="form-group">
+            <label className="form-label">Slack Token</label>
+            <input
+              type="text"
+              value={slackToken}
+              onChange={e => setSlackToken(e.target.value)}
+              placeholder="Enter your Slack token"
+              disabled={fetchingMessages}
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Channel ID</label>
+            <input
+              type="text"
+              value={channelId}
+              onChange={e => setChannelId(e.target.value)}
+              placeholder="Enter the Slack channel ID"
+              disabled={fetchingMessages}
+            />
+          </div>
+          <div className="form-group">
+            <button
+              onClick={handleFetchAndCluster}
+              className="btn-fetch"
+              disabled={fetchingMessages || !session}
+            >
+              {fetchingMessages ? 'Fetching...' : 'Fetch and Cluster Messages'}
+            </button>
+          </div>
+
           <div className="form-group">
             <label className="form-label">Connect Slack</label>
             <div className="integration-card">
@@ -242,40 +360,6 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, activeChat, activeChatD
               </button>
             </div>
             {!session && <p className="form-hint error-text">Please sign in to connect Slack</p>}
-          </div>
-
-          {/* Discord Integration */}
-          <div className="form-group">
-            <label className="form-label">Connect Discord</label>
-            <div className="integration-card">
-              <div className="integration-info">
-                <div className={`status-dot ${discordConnected ? 'connected' : 'disconnected'}`}></div>
-                <div>
-                  <div className="integration-title">{discordConnected ? 'Discord Connected' : 'Discord Not Connected'}</div>
-                  <div className="integration-subtitle">{discordConnected ? 'Ready to import messages' : 'Connect to import messages from Discord'}</div>
-                </div>
-              </div>
-              <button className="btn-resync" onClick={handleDiscordConnect} disabled={!session}>
-                {discordConnected ? 'Reconnect' : 'Connect'}
-              </button>
-            </div>
-            {!session && <p className="form-hint error-text">Please sign in to connect Discord</p>}
-          </div>
-
-          {/* Time Filter */}
-          <div className="form-group">
-            <label className="form-label">Time Filter</label>
-            <div className="filter-options">
-              {['1 Month', '3 Months', 'All Time'].map((opt) => (
-                <button
-                  key={opt}
-                  className={`filter-btn ${timeFilter === opt ? 'active' : 'inactive'}`}
-                  onClick={() => setTimeFilter(opt)}
-                >
-                  {opt}
-                </button>
-              ))}
-            </div>
           </div>
 
           {/* Checkboxes */}

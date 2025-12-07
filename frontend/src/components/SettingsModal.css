@@ -405,9 +405,7 @@ code {
   transform: translateY(0);
 }
 
-/* ==========================================
-   ADDED FROM FILE A — CLUSTER STATISTICS
-=========================================== */
+/* Cluster Statistics */
 .cluster-stats {
   display: flex;
   gap: 16px;
@@ -491,9 +489,7 @@ code {
   white-space: nowrap;
 }
 
-/* ==========================================
-   ADDED FROM FILE A — API STATUS INDICATORS
-=========================================== */
+/* API Status Indicators */
 .api-status-warning {
   display: flex;
   gap: 12px;

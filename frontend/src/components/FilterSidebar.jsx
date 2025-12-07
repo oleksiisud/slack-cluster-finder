@@ -19,12 +19,44 @@ const MOCK_CHAT_DATA = {
   ]
 };
 
-const FilterSidebar = ({ isOpen, toggle, onSettingsClick, activeChat, searchQuery, setSearchQuery }) => {
+const FilterSidebar = ({ isOpen, toggle, onSettingsClick, activeChat, activeChatData, searchQuery, setSearchQuery }) => {
   const [expandedClusters, setExpandedClusters] = useState({});
+  const [selectedCluster, setSelectedCluster] = useState(null);
 
   const toggleCluster = (id) => {
     setExpandedClusters(prev => ({ ...prev, [id]: !prev[id] }));
+    setSelectedCluster(prev => prev === id ? null : id);
   };
+  
+  // Get clusters and messages from actual data
+  const clusters = activeChatData?.nodes?.filter(n => n.type === 'cluster') || [];
+  const messages = activeChatData?.nodes?.filter(n => n.type === 'message') || [];
+  const links = activeChatData?.links || [];
+  
+  // Get messages for a specific cluster
+  const getClusterMessages = (clusterId) => {
+    return links
+      .filter(link => {
+        const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+        return sourceId === clusterId;
+      })
+      .map(link => {
+        const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+        return messages.find(m => m.id === targetId);
+      })
+      .filter(Boolean);
+  };
+  
+  // Filter clusters and messages based on search query
+  const filteredClusters = searchQuery 
+    ? clusters.filter(cluster => 
+        cluster.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        getClusterMessages(cluster.id).some(msg => 
+          msg.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          msg.full_text?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      )
+    : clusters;
 
   return (
     <div className={`app-sidebar ${isOpen ? 'open' : ''}`}>
@@ -58,37 +90,87 @@ const FilterSidebar = ({ isOpen, toggle, onSettingsClick, activeChat, searchQuer
 
           <div className="sidebar-content">
             <div className="cluster-header-row">
-              <span className="cluster-label">Top Clusters</span>
+              <span className="cluster-label">Clusters ({filteredClusters.length})</span>
             </div>
 
-            {activeChat ? (
-              MOCK_CHAT_DATA.nodes.filter(n => n.type === 'cluster').map(cluster => (
-                <div key={cluster.id} className="cluster-item">
-                  <button 
-                    onClick={() => toggleCluster(cluster.id)}
-                    className="cluster-button"
-                  >
-                    <div className="cluster-info">
-                      <div className="cluster-dot"></div>
-                      <span className="cluster-name">{cluster.name}</span>
-                    </div>
-                    {expandedClusters[cluster.id] ? 
-                      <ChevronDown size={14} className="cluster-icon" /> : 
-                      <ChevronRight size={14} className="cluster-icon" />
-                    }
-                  </button>
+            {activeChat && filteredClusters.length > 0 ? (
+              <div className="clusters-list">
+                {filteredClusters.map(cluster => {
+                  const clusterMessages = getClusterMessages(cluster.id);
+                  const isExpanded = expandedClusters[cluster.id];
                   
-                  {expandedClusters[cluster.id] && (
-                    <div className="cluster-details">
-                      <div className="cluster-tags">
-                        {cluster.tags.map((t, i) => (
-                          <span key={i} className="tag-pill">#{t}</span>
-                        ))}
-                      </div>
+                  return (
+                    <div key={cluster.id} className="cluster-item">
+                      <button 
+                        onClick={() => toggleCluster(cluster.id)}
+                        className="cluster-button"
+                      >
+                        <div className="cluster-info">
+                          <div className="cluster-dot"></div>
+                          <span className="cluster-name">{cluster.name || `Cluster ${cluster.id}`}</span>
+                          <span className="cluster-count">({clusterMessages.length})</span>
+                        </div>
+                        {isExpanded ? 
+                          <ChevronDown size={14} className="cluster-icon" /> : 
+                          <ChevronRight size={14} className="cluster-icon" />
+                        }
+                      </button>
+                      
+                      {isExpanded && (
+                        <div className="cluster-details">
+                          <div className="cluster-messages">
+                            {clusterMessages.length > 0 ? (
+                              clusterMessages.map((msg, idx) => {
+                                const matchesSearch = searchQuery && (
+                                  msg.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                  msg.full_text?.toLowerCase().includes(searchQuery.toLowerCase())
+                                );
+                                
+                                return (
+                                  <div 
+                                    key={msg.id || idx} 
+                                    className={`message-item ${matchesSearch ? 'highlighted' : ''}`}
+                                  >
+                                    <div className="message-header">
+                                      {msg.user && (
+                                        <span className="message-user">{msg.user}</span>
+                                      )}
+                                      {msg.timestamp && (
+                                        <span className="message-time">
+                                          {new Date(msg.timestamp).toLocaleDateString()}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="message-text">
+                                      {msg.full_text || msg.name || 'No message text'}
+                                    </div>
+                                    {msg.link && (
+                                      <a 
+                                        href={msg.link} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="message-link"
+                                      >
+                                        View original →
+                                      </a>
+                                    )}
+                                  </div>
+                                );
+                              })
+                            ) : (
+                              <div className="empty-messages">No messages in this cluster</div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              ))
+                  );
+                })}
+              </div>
+            ) : activeChat ? (
+              <div className="empty-state">
+                No clusters found{searchQuery ? ' matching your search' : ''}
+              </div>
             ) : (
               <div className="empty-state">
                 Select a chat to view clusters

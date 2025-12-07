@@ -19,6 +19,4 @@ export default defineConfig({
       '4149daca23eb.ngrok-free.app'
     ]
   }
-})
-
-
+});
