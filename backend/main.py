@@ -15,6 +15,7 @@ from models import (
 )
 from cluster_orchestrator import get_orchestrator
 from slack_service import SlackService
+from slack_oauth import router as slack_oauth_router
 from config import config
 from datetime import datetime
 
@@ -36,6 +37,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include routers
+app.include_router(slack_oauth_router)
 
 # Job storage (in production, use Redis or database)
 jobs: Dict[str, ClusteringStatus] = {}

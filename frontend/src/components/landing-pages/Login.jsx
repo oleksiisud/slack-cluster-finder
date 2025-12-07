@@ -24,10 +24,11 @@ const Login = () => {
   const handleSlackLogin = async () => {
     setLoading(true);
     try {
+      const appOrigin = import.meta.env.VITE_APP_URL || window.location.origin;
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'slack_oidc',
         options: {
-          redirectTo: `${window.location.origin}/home`,
+          redirectTo: `${appOrigin}/home`,
         }
       });
       if (error) throw error;

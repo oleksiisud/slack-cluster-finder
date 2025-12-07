@@ -41,11 +41,12 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signUp = async (email, password) => {
+    const appOrigin = import.meta.env.VITE_APP_URL || window.location.origin;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${window.location.origin}/home`,
+        emailRedirectTo: `${appOrigin}/home`,
       }
     });
     if (error) throw error;

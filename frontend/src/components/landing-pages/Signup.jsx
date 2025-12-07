@@ -41,11 +41,12 @@ const Signup = () => {
 
     setLoading(true);
     try {
+      const appOrigin = import.meta.env.VITE_APP_URL || window.location.origin;
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/home`,
+          emailRedirectTo: `${appOrigin}/home`,
         }
       });
       
