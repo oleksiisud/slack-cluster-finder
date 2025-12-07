@@ -39,6 +39,11 @@ class Config:
     
     # Random seed for deterministic clustering
     RANDOM_SEED = int(os.getenv("RANDOM_SEED", "42"))
+    
+    # Discord OAuth Configuration
+    DISCORD_CLIENT_ID = os.getenv("DISCORD_CLIENT_ID", "")
+    DISCORD_CLIENT_SECRET = os.getenv("DISCORD_CLIENT_SECRET", "")
+    DISCORD_REDIRECT_URI = os.getenv("DISCORD_REDIRECT_URI", "http://localhost:5173/discord/callback")
 
 config = Config()
 

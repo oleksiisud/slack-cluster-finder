@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Nav from "./Nav.jsx";
 import { useAuth } from "../AuthContext.jsx";
 import { supabase } from "../supabaseClient.js";
+import { deleteChat } from "../services/chatService";
 import "./Account.css";
 
 const Account = () => {
@@ -15,9 +16,21 @@ const Account = () => {
   // temp solution, display team ID instead of workspace name
   const teamId = user?.user_metadata?.custom_claims?.["https://slack.com/team_id"] || "No team ID found";
 
+
+  // Give user the option to delete a dashboard
+  const handleDelete = async (chatId) => {
+    const confirmed = window.confirm("Are you sure you want to delete this dashboard?");
+      if (!confirmed) return;
+    try {
+      await deleteChat(chatId);
+      setDashboards((prev) => prev.filter((d) => d.id !== chatId));
+    } catch (err) {
+      console.error("Error deleting chat:", err);
+    }
+  };
   // Dummy for now - fetch the users Slack workspace from someowhere, not from user_metadata
-  const slackWorkspace =
-    user?.user_metadata?.slack_workspace || "No workspace connected";
+  // const slackWorkspace =
+  //   user?.user_metadata?.slack_workspace || "No workspace connected";
 
   // Dummy for now - fetch user's Slack token from user_settings table in Supabase
   const fetchUserToken = async () => {
@@ -26,7 +39,7 @@ const Account = () => {
     // if we want to store them in this table we can fetch them here
     // if not, we can change the table, or remove this function entirely
       .from("user_chats")
-      .select("access_token")
+      .select("id")
       .eq("user_id", user.id)
       .single();
 
@@ -43,11 +56,11 @@ const Account = () => {
       if (!user) return;
       setLoading(true);
       try {
-        // Dummy for now - fetching user token to associate with dashboards from user_settings table
+        // Dummy for now - fetching dashboards from user_settings table
         const token = await fetchUserToken();
         const { data: dashboardsData, error } = await supabase
           .from("user_chats")
-          .select("clustering_data")
+          .select("title, created_at, id, source")
           .eq("user_id", user.id);
 
         if (error) {
@@ -58,10 +71,14 @@ const Account = () => {
         if (dashboardsData && dashboardsData.length > 0) {
           finalDashboards = dashboardsData.map((d) => ({
             ...d,
-            token: token || d.token,
+            title: d.title || "Untitled Dashboard",
+            creation: d.created_at ? new Date(d.created_at).toLocaleDateString() : "N/A",
+            type: d.source || "N/A",
+            // token: token || d.token,
             // when the token will expire, we can calculate time left here or store them somewhere
             // if we dont want this information, we can remove it
-            time_left: d.time_left || "N/A",
+            // time_left: d.time_left || "N/A",
+            
           }));
         } else {
           // fake dashboards to show layout, delete before production
@@ -105,9 +122,13 @@ const Account = () => {
             <div className="dashboard-list">
               {dashboards.map((dash) => (
                 <div key={dash.id} className="dashboard-card">
-                  <h3>{dash.name}</h3>
-                  {dash.token && <p>Token: {dash.token}</p>}
+                  <h3>{dash.title}</h3>
+                  <p>Type: {dash.type}</p>
+                  {/* {dash.user_id && <p>Token: {dash.user_id}</p>} */}
+                  <p>Created at: {dash.creation}</p>
                   {/* <p>Time left: {dash.time_left}</p> */}
+
+                  <button className="delete_dashboard" onClick={() => handleDelete(dash.id)}>Remove Dashboard</button>
                 </div>
               ))}
             </div>

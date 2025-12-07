@@ -4,6 +4,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Settings, X, Upload, FileJson, Trash2 } from 'lucide-react';
 import { initiateSlackAuth, getSlackToken } from '../../services/slackAuth';
+import { initiateDiscordAuth, getDiscordToken } from '../../services/discordAuth';
 import { createChat, saveChatMessages, saveChatClusteringData, deleteChat, updateChat } from '../../services/chatService';
 import { clusterMessages, fetchSlackMessages } from '../../services/clusteringApi';
 import { useAuth } from '../../AuthContext';
@@ -19,10 +20,14 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, existingChat = null, on
   });
   const [status, setStatus] = useState({ loading: false, message: '', error: null });
   const [slackConnected, setSlackConnected] = useState(false);
+  const [discordConnected, setDiscordConnected] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
-    if (isOpen && session) checkSlackConnection();
+    if (isOpen && session) {
+      checkSlackConnection();
+      checkDiscordConnection();
+    }
     if (existingChat) {
       setFormData({
         title: existingChat.chatData?.title || existingChat.name || '',
@@ -40,6 +45,13 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, existingChat = null, on
       const token = await getSlackToken();
       setSlackConnected(!!token);
     } catch { setSlackConnected(false); }
+  };
+
+  const checkDiscordConnection = async () => {
+    try {
+      const token = await getDiscordToken();
+      setDiscordConnected(!!token);
+    } catch { setDiscordConnected(false); }
   };
 
   const processChatData = async (title, source, messages) => {
@@ -165,6 +177,14 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, existingChat = null, on
                 <div>
                   <h3>Slack Import</h3>
                   <p>{slackConnected ? 'Ready to sync' : 'Connect to import'}</p>
+                </div>
+              </div>
+              
+              <div className="option-card" onClick={() => initiateDiscordAuth()}>
+                <div className={`status-dot ${discordConnected ? 'connected' : ''}`} />
+                <div>
+                  <h3>Discord Import</h3>
+                  <p>{discordConnected ? 'Ready to sync' : 'Connect to import'}</p>
                 </div>
               </div>
               

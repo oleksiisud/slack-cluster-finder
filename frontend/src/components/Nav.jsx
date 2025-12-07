@@ -48,7 +48,7 @@ const Nav = () => {
               style={{ width: "40px", height: "40px" }}
             />
           </div>
-          Stellar Search
+           {userName}'s Stellar Search Dashboards
         </div>
         
         <div className="navbar-right">

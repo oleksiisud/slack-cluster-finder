@@ -1,24 +1,24 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import fs from 'fs'
 
 // https://vite.dev/config/
 export default defineConfig({
-  server: {
-    port: process.env.PORT,
-  },
   plugins: [react()],
-  optimizeDeps: {
-    exclude: [
-      "react-force-graph-vr",
-      "react-force-graph-ar",
-      "aframe"
+  server: {
+    port: process.env.PORT || 5173,
+    // Only enable HTTPS in local development if cert files exist
+    ...(fs.existsSync('./localhost-key.pem') && fs.existsSync('./localhost.pem') ? {
+      https: {
+        key: fs.readFileSync('./localhost-key.pem'),
+        cert: fs.readFileSync('./localhost.pem'),
+      }
+    } : {}),
+    allowedHosts: process.env.ALLOWED_HOSTS ? process.env.ALLOWED_HOSTS.split(',') : [
+      '0071328835d1.ngrok-free.app',
+      '4149daca23eb.ngrok-free.app'
     ]
-  },
-  build: {
-    rollupOptions: {
-      external: ["react-force-graph-vr", "react-force-graph-ar", "aframe"]
-    }
   }
-});
+})
 
 

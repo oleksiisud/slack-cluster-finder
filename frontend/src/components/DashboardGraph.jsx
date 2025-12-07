@@ -1,6 +1,5 @@
-import 'aframe';
 import React, { useEffect, useRef, useState } from "react";
-import {ForceGraph2D} from "react-force-graph";
+import ForceGraph2D from "react-force-graph-2d";
 
 export default function DashboardGraph({ onNodeClick }) {
     const fgRef = useRef();

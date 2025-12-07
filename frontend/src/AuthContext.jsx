@@ -31,6 +31,28 @@ export const AuthProvider = ({ children }) => {
     return () => subscription.unsubscribe();
   }, []);
 
+  const signIn = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) throw error;
+    return data;
+  };
+
+  const signUp = async (email, password) => {
+    const appOrigin = import.meta.env.VITE_APP_URL || window.location.origin;
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${appOrigin}/home`,
+      }
+    });
+    if (error) throw error;
+    return data;
+  };
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
@@ -38,7 +60,10 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     session,
+    user: session?.user || null,
     loading,
+    signIn,
+    signUp,
     signOut,
   };
 
