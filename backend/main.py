@@ -8,19 +8,19 @@ from typing import Dict, Optional
 import logging
 import uuid
 
-from .models import (
+from models import (
     ClusteringRequest, ClusteringOutput, ClusteringStatus,
     SearchRequest, SearchResult, MessageWithTags,
     SlackFetchRequest, SlackTestRequest, SlackTestResponse, 
     DiscordFetchRequest, DiscordTestRequest, DiscordTestResponse,
     Message
 )
-from .cluster_orchestrator import get_orchestrator
-from .slack_service import SlackService
-from .discord_service import DiscordService
-from .config import config
-from .slack_oauth import router as slack_oauth_router
-from .discord_oauth import router as discord_oauth_router
+from cluster_orchestrator import get_orchestrator
+from slack_service import SlackService
+from discord_service import DiscordService
+from config import config
+from slack_oauth import router as slack_oauth_router
+from discord_oauth import router as discord_oauth_router
 from datetime import datetime
 from dotenv import load_dotenv
 load_dotenv()
