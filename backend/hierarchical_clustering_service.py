@@ -2,7 +2,7 @@
 Hierarchical clustering service for creating multi-level cluster structure
 """
 import numpy as np
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
 from sklearn.cluster import AgglomerativeClustering
 import logging
 
@@ -15,6 +15,7 @@ class HierarchicalClusteringService:
     
     def __init__(
         self,
+        max_clusters: int = 15,
         main_cluster_threshold: float = 1.2,  # Lower = fewer main clusters
         sub_cluster_threshold: float = 0.6,   # For splitting main clusters
         min_main_cluster_size: int = 5,
@@ -25,199 +26,185 @@ class HierarchicalClusteringService:
         Initialize hierarchical clustering service
         
         Args:
+            max_clusters: Maximum number of main clusters to create
             main_cluster_threshold: Distance threshold for main clusters
             sub_cluster_threshold: Distance threshold for sub-clusters
             min_main_cluster_size: Minimum messages in main cluster
             min_sub_cluster_size: Minimum messages in sub-cluster
             max_messages_per_sub_cluster: Max messages before splitting into sub-clusters
         """
+        self.max_clusters = max_clusters
         self.main_cluster_threshold = main_cluster_threshold
         self.sub_cluster_threshold = sub_cluster_threshold
         self.min_main_cluster_size = min_main_cluster_size
         self.min_sub_cluster_size = min_sub_cluster_size
         self.max_messages_per_sub_cluster = max_messages_per_sub_cluster
         
-        logger.info(f"Hierarchical clustering initialized with main_threshold={main_cluster_threshold}, "
-                   f"sub_threshold={sub_cluster_threshold}")
+        logger.info(f"Hierarchical clustering initialized with max_clusters={max_clusters}, "
+                   f"main_threshold={main_cluster_threshold}, sub_threshold={sub_cluster_threshold}")
     
     def create_hierarchy(
         self,
         embeddings: np.ndarray,
-        message_ids: List[str]
+        message_ids: List[str],
+        messages: Optional[List] = None
     ) -> Dict[str, any]:
         """
         Create hierarchical cluster structure
         
+        NEW APPROACH:
+        Level 1: Conversations (grouped by channel + timestamp)
+        Level 2: Topic clusters (semantic similarity of conversations)
+        
         Returns:
             Dict with:
-                - main_clusters: List of main cluster info
-                - sub_clusters: List of sub-cluster info
-                - message_clusters: List of individual message info
+                - main_clusters: List of topic cluster info (Level 2)
+                - sub_clusters: List of conversation info (Level 1)
                 - hierarchy_map: Mapping of parent-child relationships
         """
         n_messages = len(embeddings)
         logger.info(f"Creating hierarchy for {n_messages} messages")
         
-        # Step 1: Create main clusters (Level 1)
-        main_clusters, main_labels = self._create_main_clusters(embeddings, message_ids)
-        logger.info(f"Created {len(main_clusters)} main clusters")
+        # Step 1: Group messages into conversations FIRST (Level 1)
+        if messages:
+            conversation_groups = self._group_by_conversation(
+                list(range(n_messages)), messages
+            )
+        else:
+            # Fallback: treat each message as its own conversation
+            conversation_groups = {i: [i] for i in range(n_messages)}
         
-        # Step 2: Create sub-clusters within each main cluster (Level 2)
-        sub_clusters = []
-        message_to_sub_cluster = {}
+        logger.info(f"Grouped {n_messages} messages into {len(conversation_groups)} conversations")
         
-        for main_id, main_cluster in main_clusters.items():
-            main_msg_indices = main_cluster['message_indices']
+        # Step 2: Create conversation objects (Level 1)
+        conversations = []
+        conversation_embeddings = []
+        message_to_conversation = {}
+        
+        for conv_id, msg_indices in conversation_groups.items():
+            conv_id_str = f"conv_{conv_id}"
             
-            # If main cluster is small enough, don't split into sub-clusters
-            if len(main_msg_indices) <= self.max_messages_per_sub_cluster:
-                # Create single sub-cluster
-                sub_id = f"{main_id}_sub_0"
-                sub_cluster = {
-                    'id': sub_id,
-                    'parent_id': main_id,
-                    'message_indices': main_msg_indices,
-                    'message_ids': [message_ids[i] for i in main_msg_indices],
-                    'centroid': main_cluster['centroid'],
-                    'level': 2,
-                    'radius': 300.0  # Fixed radius for sub-clusters
-                }
-                sub_clusters.append(sub_cluster)
-                main_cluster['child_ids'] = [sub_id]
-                
-                # Map messages to sub-cluster
-                for idx in main_msg_indices:
-                    message_to_sub_cluster[idx] = sub_id
-            else:
-                # Split into sub-clusters
-                main_embeddings = embeddings[main_msg_indices]
-                sub_cluster_labels = self._cluster_level(
-                    main_embeddings,
-                    self.sub_cluster_threshold,
-                    self.min_sub_cluster_size
-                )
-                
-                # Group messages by sub-cluster
-                sub_cluster_groups = {}
-                for local_idx, sub_label in enumerate(sub_cluster_labels):
-                    global_idx = main_msg_indices[local_idx]
-                    if sub_label not in sub_cluster_groups:
-                        sub_cluster_groups[sub_label] = []
-                    sub_cluster_groups[sub_label].append(global_idx)
-                
-                # Create sub-cluster objects
-                child_ids = []
-                for sub_label, sub_msg_indices in sub_cluster_groups.items():
-                    sub_id = f"{main_id}_sub_{sub_label}"
-                    
-                    # Calculate centroid
-                    sub_embeddings = embeddings[sub_msg_indices]
-                    centroid = np.mean(sub_embeddings, axis=0)
-                    centroid = centroid / np.linalg.norm(centroid)
-                    
-                    sub_cluster = {
-                        'id': sub_id,
-                        'parent_id': main_id,
-                        'message_indices': sub_msg_indices,
-                        'message_ids': [message_ids[i] for i in sub_msg_indices],
-                        'centroid': centroid,
-                        'level': 2,
-                        'radius': 300.0
-                    }
-                    sub_clusters.append(sub_cluster)
-                    child_ids.append(sub_id)
-                    
-                    # Map messages to sub-cluster
-                    for idx in sub_msg_indices:
-                        message_to_sub_cluster[idx] = sub_id
-                
-                main_cluster['child_ids'] = child_ids
-                
-                logger.info(f"Split {main_id} into {len(child_ids)} sub-clusters")
+            # Calculate conversation centroid (average of message embeddings)
+            conv_emb = np.mean(embeddings[msg_indices], axis=0)
+            conv_emb = conv_emb / np.linalg.norm(conv_emb)
+            
+            conversations.append({
+                'id': conv_id_str,
+                'message_indices': msg_indices,
+                'message_ids': [message_ids[i] for i in msg_indices],
+                'centroid': conv_emb,
+                'level': 1
+            })
+            
+            conversation_embeddings.append(conv_emb)
+            
+            # Map messages to conversation
+            for idx in msg_indices:
+                message_to_conversation[idx] = conv_id_str
         
-        # Step 3: Create message nodes (Level 3)
-        message_nodes = []
-        for i, msg_id in enumerate(message_ids):
-            sub_cluster_id = message_to_sub_cluster.get(i)
-            if sub_cluster_id:
-                message_nodes.append({
-                    'id': f"msg_{msg_id}",
-                    'message_id': msg_id,
-                    'message_index': i,
-                    'parent_id': sub_cluster_id,
-                    'embedding': embeddings[i],
-                    'level': 3,
-                    'radius': 450.0  # Fixed radius for messages
-                })
+        # Step 3: Cluster conversations by topic (Level 2)
+        conversation_embeddings = np.array(conversation_embeddings)
         
-        logger.info(f"Created {len(sub_clusters)} sub-clusters and {len(message_nodes)} message nodes")
+        # Cluster conversations by semantic similarity
+        if len(conversations) > 1:
+            topic_labels = self._create_topic_clusters(conversation_embeddings, len(conversations))
+        else:
+            topic_labels = np.array([0])
+        
+        logger.info(f"Clustered {len(conversations)} conversations into {len(np.unique(topic_labels))} topic clusters")
+        
+        # Step 4: Group conversations by topic
+        topic_clusters = {}
+        for conv_idx, topic_id in enumerate(topic_labels):
+            topic_id_str = f"topic_{topic_id}"
+            if topic_id_str not in topic_clusters:
+                topic_clusters[topic_id_str] = []
+            topic_clusters[topic_id_str].append(conv_idx)
+        
+        # Create topic cluster objects
+        main_clusters = {}
+        for topic_id_str, conv_indices in topic_clusters.items():
+            # Get all message indices for this topic
+            all_msg_indices = []
+            child_conv_ids = []
+            for conv_idx in conv_indices:
+                conv = conversations[conv_idx]
+                all_msg_indices.extend(conv['message_indices'])
+                child_conv_ids.append(conv['id'])
+                # Update conversation parent
+                conversations[conv_idx]['parent_id'] = topic_id_str
+            
+            # Calculate topic centroid
+            topic_emb = np.mean(embeddings[all_msg_indices], axis=0)
+            topic_emb = topic_emb / np.linalg.norm(topic_emb)
+            
+            main_clusters[topic_id_str] = {
+                'id': topic_id_str,
+                'parent_id': None,
+                'message_indices': all_msg_indices,
+                'message_ids': [message_ids[i] for i in all_msg_indices],
+                'centroid': topic_emb,
+                'child_ids': child_conv_ids,
+                'level': 2,
+                'radius': 150.0
+            }
+        
+        logger.info(f"Created {len(main_clusters)} topic clusters containing {len(conversations)} conversations")
         
         return {
-            'main_clusters': main_clusters,
-            'sub_clusters': sub_clusters,
-            'message_nodes': message_nodes,
-            'main_labels': main_labels,
-            'message_to_sub_cluster': message_to_sub_cluster
+            'main_clusters': main_clusters,  # Topic clusters (Level 2)
+            'sub_clusters': conversations,    # Conversations (Level 1)
+            'message_to_sub_cluster': message_to_conversation
         }
     
-    def _create_main_clusters(
+    def _create_topic_clusters(
         self,
-        embeddings: np.ndarray,
-        message_ids: List[str]
-    ) -> Tuple[Dict, List[int]]:
-        """Create top-level main clusters"""
+        conversation_embeddings: np.ndarray,
+        n_conversations: int
+    ) -> np.ndarray:
+        """
+        Cluster conversations by topic using semantic similarity.
+        Returns cluster labels for each conversation as numpy array.
+        
+        Note: main_cluster_threshold (default 1.2) controls topic granularity.
+        Lower values = fewer, broader topics; higher values = more, specific topics.
+        """
+        if n_conversations < 2:
+            return np.array([0])
+        
+        # First, try with threshold-based clustering
         labels = self._cluster_level(
-            embeddings,
+            conversation_embeddings,
             self.main_cluster_threshold,
             self.min_main_cluster_size
         )
         
-        # Group messages by cluster
-        cluster_groups = {}
-        for idx, label in enumerate(labels):
-            if label not in cluster_groups:
-                cluster_groups[label] = []
-            cluster_groups[label].append(idx)
+        n_clusters = len(np.unique(labels))
         
-        # Create cluster objects
-        clusters = {}
-        for cluster_id, message_indices in cluster_groups.items():
-            # Calculate centroid
-            cluster_embeddings = embeddings[message_indices]
-            centroid = np.mean(cluster_embeddings, axis=0)
-            centroid = centroid / np.linalg.norm(centroid)
-            
-            main_id = f"main_{cluster_id}"
-            clusters[main_id] = {
-                'id': main_id,
-                'parent_id': None,
-                'message_indices': message_indices,
-                'message_ids': [message_ids[i] for i in message_indices],
-                'centroid': centroid,
-                'child_ids': [],
-                'level': 1,
-                'radius': 150.0  # Fixed radius for main clusters
-            }
+        # If we have too many clusters, use n_clusters parameter instead
+        if n_clusters > self.max_clusters:
+            logger.info(f"Threshold produced {n_clusters} topic clusters, limiting to {self.max_clusters}")
+            clustering = AgglomerativeClustering(
+                n_clusters=self.max_clusters,
+                linkage='ward'
+            )
+            labels = clustering.fit_predict(conversation_embeddings)
         
-        return clusters, labels
+        return labels
     
     def _cluster_level(
         self,
         embeddings: np.ndarray,
         threshold: float,
         min_size: int
-    ) -> List[int]:
+    ) -> np.ndarray:
         """Cluster at a specific level using distance threshold"""
         n = len(embeddings)
         
         if n < 2:
-            return [0] * n
+            return np.array([0] * n)
         
-        # Compute distance matrix
-        distances = 1 - np.dot(embeddings, embeddings.T)
-        np.fill_diagonal(distances, 0)
-        
-        # Use agglomerative clustering
+        # Use agglomerative clustering directly on embeddings
         clustering = AgglomerativeClustering(
             n_clusters=None,
             distance_threshold=threshold,
@@ -225,20 +212,16 @@ class HierarchicalClusteringService:
             metric='euclidean'
         )
         
-        # Convert to appropriate format for ward linkage
-        from scipy.spatial.distance import squareform
-        condensed_distances = squareform(distances, checks=False)
-        
         try:
             labels = clustering.fit_predict(embeddings)
         except Exception as e:
             logger.warning(f"Clustering failed: {e}, using single cluster")
-            return [0] * n
+            return np.array([0] * n)
         
         # Filter small clusters
         labels = self._filter_small_clusters(labels, min_size, n)
         
-        return labels.tolist()
+        return labels
     
     def _filter_small_clusters(
         self,
@@ -274,6 +257,72 @@ class HierarchicalClusteringService:
         final_labels = np.array([label_map[l] for l in new_labels])
         
         return final_labels
+    
+    def _group_by_conversation(
+        self,
+        message_indices: List[int],
+        messages: List
+    ) -> Dict[int, List[int]]:
+        """
+        Group messages into conversations based on channel and timestamp proximity.
+        This prevents standalone responses/greetings from being separated.
+        """
+        from datetime import datetime
+        
+        # Sort messages by channel and timestamp
+        msg_data = []
+        for idx in message_indices:
+            msg = messages[idx]
+            try:
+                # Parse timestamp
+                if hasattr(msg, 'timestamp') and msg.timestamp:
+                    ts = datetime.fromisoformat(msg.timestamp.replace('Z', '+00:00'))
+                else:
+                    ts = datetime.now()
+            except:
+                ts = datetime.now()
+            
+            channel = getattr(msg, 'channel', 'unknown')
+            msg_data.append({
+                'idx': idx,
+                'channel': channel,
+                'timestamp': ts,
+                'text': getattr(msg, 'text', '')
+            })
+        
+        # Sort by channel, then timestamp
+        msg_data.sort(key=lambda x: (x['channel'], x['timestamp']))
+        
+        # Group into conversations (same channel, within time window)
+        conversations = []
+        current_conv = []
+        current_channel = None
+        last_timestamp = None
+        time_gap_threshold = 3600  # 1 hour in seconds
+        
+        for msg in msg_data:
+            # Start new conversation if channel changes or time gap is too large
+            if (current_channel != msg['channel'] or 
+                (last_timestamp and (msg['timestamp'] - last_timestamp).total_seconds() > time_gap_threshold)):
+                if current_conv:
+                    conversations.append(current_conv)
+                current_conv = [msg['idx']]
+                current_channel = msg['channel']
+            else:
+                current_conv.append(msg['idx'])
+            
+            last_timestamp = msg['timestamp']
+        
+        # Add last conversation
+        if current_conv:
+            conversations.append(current_conv)
+        
+        # Convert to dict format
+        conversation_groups = {i: conv for i, conv in enumerate(conversations)}
+        
+        logger.info(f"Grouped {len(message_indices)} messages into {len(conversations)} conversations")
+        
+        return conversation_groups
 
 
 # Global instance
@@ -284,6 +333,9 @@ def get_hierarchical_service() -> HierarchicalClusteringService:
     """Get or create the global hierarchical clustering service"""
     global _hierarchical_service
     if _hierarchical_service is None:
-        _hierarchical_service = HierarchicalClusteringService()
+        from config import config
+        _hierarchical_service = HierarchicalClusteringService(
+            max_clusters=config.MAX_CLUSTERS
+        )
     return _hierarchical_service
 

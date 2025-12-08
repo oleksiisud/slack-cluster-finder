@@ -14,7 +14,8 @@ from models import (
 )
 from embedding_service import get_embedding_service
 from clustering_service import get_clustering_service
-from label_generation_service import get_label_service
+#from label_generation_service import get_label_service
+from gemini_label_service import get_label_service
 from hierarchical_clustering_service import get_hierarchical_service
 from config import config
 
@@ -80,7 +81,7 @@ class ClusterOrchestrator:
         # Step 3: Create hierarchical clusters
         logger.info("Step 2/4: Creating hierarchical clusters...")
         message_ids = [msg.message_id for msg in messages]
-        hierarchy = self.hierarchical_service.create_hierarchy(embeddings, message_ids)
+        hierarchy = self.hierarchical_service.create_hierarchy(embeddings, message_ids, messages)
         
         # Step 4: Generate labels and tags for all levels
         logger.info("Step 3/4: Generating labels and tags...")
@@ -108,8 +109,8 @@ class ClusterOrchestrator:
                 "llm_model": self.label_service.model_name
             },
             "clustering_params": {
-                "distance_threshold": clustering_service.distance_threshold,
-                "min_cluster_size": clustering_service.min_cluster_size
+                "distance_threshold": self.clustering_service.distance_threshold,
+                "min_cluster_size": self.clustering_service.min_cluster_size
             }
         }
         
@@ -144,74 +145,78 @@ class ClusterOrchestrator:
         hierarchy: Dict,
         embeddings: np.ndarray
     ) -> List[ClusterInfo]:
-        """Generate cluster information for hierarchical structure"""
+        """
+        Generate cluster information for hierarchical structure
+        
+        NEW STRUCTURE:
+        Level 1: Conversations (grouped by channel + time)
+        Level 2: Topic clusters (semantic similarity of conversations)
+        """
         cluster_infos = []
         
-        # Generate info for main clusters (Level 1)
-        for main_id, main_cluster in hierarchy['main_clusters'].items():
-            message_indices = main_cluster['message_indices']
-            representative_texts = [messages[i].text for i in message_indices[:15]]
+        # Generate info for TOPIC CLUSTERS (Level 2 - main_clusters)
+        for topic_id, topic_cluster in hierarchy['main_clusters'].items():
+            message_indices = topic_cluster['message_indices']
             
-            # Generate label and tags
+            # Use MORE messages for better topic labels (up to 30)
+            representative_texts = [messages[i].text for i in message_indices[:30]]
+            
+            # Generate topic label and tags
             label = self.label_service.generate_cluster_label(representative_texts)
             tags = self.label_service.generate_tags(representative_texts, num_tags=5)
             
             cluster_info = ClusterInfo(
-                cluster_id=main_id,
+                cluster_id=topic_id,
                 label=label,
                 tags=tags,
                 message_ids=[messages[i].message_id for i in message_indices],
                 size=len(message_indices),
-                centroid=main_cluster['centroid'].tolist(),
+                centroid=topic_cluster['centroid'].tolist(),
                 parent_cluster_id=None,
-                child_cluster_ids=main_cluster['child_ids'],
-                level=1,
+                child_cluster_ids=topic_cluster['child_ids'],
+                level=2,  # Topics are Level 2
                 radius=150.0
             )
             cluster_infos.append(cluster_info)
         
-        # Generate info for sub-clusters (Level 2)
-        for sub_cluster in hierarchy['sub_clusters']:
-            message_indices = sub_cluster['message_indices']
-            representative_texts = [messages[i].text for i in message_indices[:10]]
+        # Generate info for CONVERSATIONS (Level 1 - sub_clusters)
+        for conversation in hierarchy['sub_clusters']:
+            message_indices = conversation['message_indices']
             
-            # Generate label and tags
-            label = self.label_service.generate_cluster_label(representative_texts)
-            tags = self.label_service.generate_tags(representative_texts, num_tags=3)
+            # Use ALL messages in the conversation for context
+            conversation_texts = [messages[i].text for i in message_indices]
             
-            # Get message IDs for this sub-cluster
-            msg_node_ids = [f"msg_{messages[i].message_id}" for i in message_indices]
+            # Generate conversation label (shorter, more specific)
+            if len(conversation_texts) <= 3:
+                # For short conversations, use the first message as label
+                first_msg = conversation_texts[0]
+                if len(first_msg) > 60:
+                    truncated = first_msg[:60]
+                    # Try to break at word boundary
+                    last_space = truncated.rfind(' ')
+                    if last_space > 0:
+                        truncated = truncated[:last_space]
+                    label = truncated.strip() + "..."
+                else:
+                    label = first_msg
+            else:
+                # For longer conversations, generate a summary label
+                label = self.label_service.generate_cluster_label(conversation_texts[:10])
+            
+            # Get channel info (store in metadata, not in label)
+            channel = messages[message_indices[0]].channel if message_indices else "unknown"
             
             cluster_info = ClusterInfo(
-                cluster_id=sub_cluster['id'],
+                cluster_id=conversation['id'],
                 label=label,
-                tags=tags,
+                tags=[channel] if channel and channel != "unknown" else [],  # Store channel as a tag instead
                 message_ids=[messages[i].message_id for i in message_indices],
                 size=len(message_indices),
-                centroid=sub_cluster['centroid'].tolist(),
-                parent_cluster_id=sub_cluster['parent_id'],
-                child_cluster_ids=msg_node_ids,
-                level=2,
-                radius=300.0
-            )
-            cluster_infos.append(cluster_info)
-        
-        # Add message nodes as leaf clusters (Level 3)
-        for msg_node in hierarchy['message_nodes']:
-            msg_idx = msg_node['message_index']
-            msg = messages[msg_idx]
-            
-            cluster_info = ClusterInfo(
-                cluster_id=msg_node['id'],
-                label=msg.text[:50] + "..." if len(msg.text) > 50 else msg.text,
-                tags=[],
-                message_ids=[msg.message_id],
-                size=1,
-                centroid=msg_node['embedding'].tolist(),
-                parent_cluster_id=msg_node['parent_id'],
+                centroid=conversation['centroid'].tolist(),
+                parent_cluster_id=conversation.get('parent_id'),
                 child_cluster_ids=[],
-                level=3,
-                radius=450.0
+                level=1,  # Conversations are Level 1
+                radius=300.0
             )
             cluster_infos.append(cluster_info)
         
@@ -296,9 +301,7 @@ class ClusterOrchestrator:
             # Use main cluster tags
             tags = main_cluster_tags.get(main_cluster_id, [])
             
-            # Use message node ID as cluster_id
-            msg_node_id = f"msg_{msg.message_id}"
-            
+            # Messages belong to their sub-cluster (not individual message nodes)
             tagged_msg = MessageWithTags(
                 text=msg.text,
                 channel=msg.channel,
@@ -306,7 +309,7 @@ class ClusterOrchestrator:
                 timestamp=msg.timestamp,
                 message_id=msg.message_id,
                 tags=tags,
-                cluster_id=msg_node_id
+                cluster_id=sub_cluster_id  # Point to sub-cluster instead
             )
             messages_with_tags.append(tagged_msg)
         

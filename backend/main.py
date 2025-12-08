@@ -22,6 +22,8 @@ from config import config
 from slack_oauth import router as slack_oauth_router
 from discord_oauth import router as discord_oauth_router
 from datetime import datetime
+from dotenv import load_dotenv
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -30,7 +32,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Chat Message Clustering API",
     description="AI-powered clustering service for chat messages",
-    version="1.0.0"
+    version="0.2.0"
 )
 
 # Add CORS middleware
@@ -50,6 +52,26 @@ app.include_router(discord_oauth_router)
 jobs: Dict[str, ClusteringStatus] = {}
 results: Dict[str, ClusteringOutput] = {}
 
+@app.on_event("startup")
+async def startup_event():
+    """Warm up services on startup"""
+    logger.info("Warming up Gemini services...")
+    try:
+        # Initialize services
+        orchestrator = get_orchestrator()
+        # Quick test to warm up API connection
+        test_embedding = orchestrator.embedding_service.encode_messages(
+            ["test message"],
+            show_progress=False
+        )
+        # Validate the embedding result
+        if test_embedding is None or len(test_embedding) == 0:
+            raise ValueError("Embedding service returned empty result")
+        logger.info("Services ready!")
+    except (ValueError, RuntimeError, ConnectionError) as e:
+        logger.warning(f"Warmup failed ({type(e).__name__}): {e}")
+    except Exception as e:
+        logger.warning(f"Warmup failed with unexpected error ({type(e).__name__}): {e}")
 
 @app.get("/")
 async def root():
