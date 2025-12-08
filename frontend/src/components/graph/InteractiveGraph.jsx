@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import { ArrowLeft } from 'lucide-react';
 import './InteractiveGraph.css';
 
-const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '', onBackToHome }) => {
+const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '', onBackToHome, onRecenter }) => {
   const svgRef = useRef(null);
   const wrapperRef = useRef(null);
   const zoomRef = useRef(null);
@@ -322,6 +322,11 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
         .call(zoomRef.current.transform, initialTransformRef.current);
       setSelectedNode(null);
       setShowRecenterButton(false);
+      
+      // Notify parent that recenter happened
+      if (onRecenter) {
+        onRecenter();
+      }
     }
   };
 

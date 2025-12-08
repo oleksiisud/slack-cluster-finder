@@ -8,19 +8,19 @@ from typing import Dict, Optional
 import logging
 import uuid
 
-from .models import (
+from models import (
     ClusteringRequest, ClusteringOutput, ClusteringStatus,
     SearchRequest, SearchResult, MessageWithTags,
     SlackFetchRequest, SlackTestRequest, SlackTestResponse, 
     DiscordFetchRequest, DiscordTestRequest, DiscordTestResponse,
     Message
 )
-from .cluster_orchestrator import get_orchestrator
-from .slack_service import SlackService
-from .discord_service import DiscordService
-from .config import config
-from .slack_oauth import router as slack_oauth_router
-from .discord_oauth import router as discord_oauth_router
+from cluster_orchestrator import get_orchestrator
+from slack_service import SlackService
+from discord_service import DiscordService
+from config import config
+from slack_oauth import router as slack_oauth_router
+from discord_oauth import router as discord_oauth_router
 from datetime import datetime
 from dotenv import load_dotenv
 load_dotenv()
@@ -231,12 +231,47 @@ async def search_messages(request: SearchRequest):
         List of search results
     """
     try:
-        # This endpoint requires messages to be provided or stored
-        # For now, return error - in production, integrate with database
-        raise HTTPException(
-            status_code=501,
-            detail="Search endpoint requires integration with message storage"
+        orchestrator = get_orchestrator()
+        
+        # If messages are provided in request (not ideal but works for small batches)
+        # In a real app, we'd use a job_id or session_id to retrieve stored messages
+        if not request.messages_with_tags:
+             # Try to load from last job or cache if possible, but here we'll assume
+             # the frontend needs to pass the context or we implement storage.
+             # For this fix, let's look for a generic solution.
+             # If the frontend IS passing messages_with_tags, we use them.
+             # If not, we can't search.
+             pass
+
+        if not request.messages_with_tags:
+             # Fallback: check if we have a recent result in memory (simple stateful approach)
+             # This is a hack for the demo; in prod use a DB
+             if results:
+                 last_job_id = list(results.keys())[-1]
+                 request.messages_with_tags = results[last_job_id].messages
+             else:
+                raise HTTPException(
+                    status_code=400, 
+                    detail="No context provided for search. Please run clustering first."
+                )
+
+        results_tuples = orchestrator.search_messages(
+            query=request.query,
+            messages_with_tags=request.messages_with_tags,
+            filter_tags=request.filter_tags,
+            filter_clusters=request.filter_clusters
         )
+        
+        # Convert tuples to SearchResult objects
+        search_results = [
+            SearchResult(
+                message=msg,
+                score=score
+            )
+            for msg, score in results_tuples
+        ]
+        
+        return search_results
     
     except HTTPException:
         raise

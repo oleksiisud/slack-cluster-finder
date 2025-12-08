@@ -186,13 +186,15 @@ class ClusterOrchestrator:
             # Use ALL messages in the conversation for context
             conversation_texts = [messages[i].text for i in message_indices]
             
-            # Generate conversation label (shorter, more specific)
-            if len(conversation_texts) <= 3:
-                # For short conversations, use the first message as label
+            # Always try to use LLM for better labels if we have enough content
+            # Only fall back to simple truncation for extremely short/empty convos
+            total_chars = sum(len(t) for t in conversation_texts)
+            
+            if total_chars < 50:
+                # Very short conversation: use first message
                 first_msg = conversation_texts[0]
                 if len(first_msg) > 60:
                     truncated = first_msg[:60]
-                    # Try to break at word boundary
                     last_space = truncated.rfind(' ')
                     if last_space > 0:
                         truncated = truncated[:last_space]
@@ -200,8 +202,13 @@ class ClusterOrchestrator:
                 else:
                     label = first_msg
             else:
-                # For longer conversations, generate a summary label
-                label = self.label_service.generate_cluster_label(conversation_texts[:10])
+                # Use Gemini for proper labeling of the conversation
+                # This fixes the issue of "I'll Have Let's" type labels
+                label = self.label_service.generate_cluster_label(
+                    conversation_texts, 
+                    max_messages=10, # Fewer messages needed for single conversation
+                    max_length=40    # Shorter labels for leaf nodes
+                )
             
             # Get channel info (store in metadata, not in label)
             channel = messages[message_indices[0]].channel if message_indices else "unknown"

@@ -1,9 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChevronRight, ChevronDown, Search, Settings, RefreshCw } from 'lucide-react';
 import './FilterSidebar.css';
 
-const FilterSidebar = ({ isOpen, toggle, onSettingsClick, activeChat, chatData, searchQuery, setSearchQuery }) => {
+const FilterSidebar = ({ isOpen, toggle, onSettingsClick, activeChat, chatData, searchQuery, setSearchQuery, focusedClusterId }) => {
   const [expandedClusters, setExpandedClusters] = useState({});
+  const clusterRefs = useRef({});
+
+  // Automatically expand the focused cluster when it changes and scroll to it
+  useEffect(() => {
+    if (focusedClusterId) {
+      setExpandedClusters(prev => ({ ...prev, [focusedClusterId]: true }));
+      
+      // Scroll to the focused cluster after a short delay to allow expansion animation
+      setTimeout(() => {
+        if (clusterRefs.current[focusedClusterId]) {
+          clusterRefs.current[focusedClusterId].scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest'
+          });
+        }
+      }, 100);
+    }
+  }, [focusedClusterId]);
 
   const toggleCluster = (id) => {
     setExpandedClusters(prev => ({ ...prev, [id]: !prev[id] }));
@@ -47,7 +65,11 @@ const FilterSidebar = ({ isOpen, toggle, onSettingsClick, activeChat, chatData, 
             {activeChat && chatData?.nodes ? (
               chatData.nodes.filter(n => n.type === 'cluster').length > 0 ? (
                 chatData.nodes.filter(n => n.type === 'cluster').map(cluster => (
-                  <div key={cluster.id} className="cluster-item">
+                  <div 
+                    key={cluster.id} 
+                    className="cluster-item"
+                    ref={el => clusterRefs.current[cluster.id] = el}
+                  >
                     <button 
                       onClick={() => toggleCluster(cluster.id)}
                       className="cluster-button"

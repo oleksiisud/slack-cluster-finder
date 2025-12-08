@@ -107,7 +107,11 @@ class HierarchicalClusteringService:
         
         # Cluster conversations by semantic similarity
         if len(conversations) > 1:
-            topic_labels = self._create_topic_clusters(conversation_embeddings, len(conversations))
+            topic_labels = self._create_topic_clusters(
+                conversation_embeddings, 
+                len(conversations),
+                n_messages
+            )
         else:
             topic_labels = np.array([0])
         
@@ -160,37 +164,45 @@ class HierarchicalClusteringService:
     def _create_topic_clusters(
         self,
         conversation_embeddings: np.ndarray,
-        n_conversations: int
+        n_conversations: int,
+        n_messages: int
     ) -> np.ndarray:
         """
         Cluster conversations by topic using semantic similarity.
         Returns cluster labels for each conversation as numpy array.
         
-        Note: main_cluster_threshold (default 1.2) controls topic granularity.
-        Lower values = fewer, broader topics; higher values = more, specific topics.
+        Uses dynamic cluster counting: ~5% of total messages, capped by max_clusters.
         """
         if n_conversations < 2:
             return np.array([0])
         
-        # First, try with threshold-based clustering
-        labels = self._cluster_level(
-            conversation_embeddings,
-            self.main_cluster_threshold,
-            self.min_main_cluster_size
-        )
+        # Calculate target number of clusters based on message count (5% rule)
+        # Example: 100 messages -> 5 clusters
+        target_n_clusters = int(n_messages * 0.05)
         
-        n_clusters = len(np.unique(labels))
+        # Ensure reasonable bounds
+        # At least 2 clusters (if we have enough conversations)
+        # At most max_clusters
+        # At most n_conversations (can't have more clusters than items)
+        target_n_clusters = max(2, target_n_clusters)
+        target_n_clusters = min(target_n_clusters, self.max_clusters)
+        target_n_clusters = min(target_n_clusters, n_conversations)
         
-        # If we have too many clusters, use n_clusters parameter instead
-        if n_clusters > self.max_clusters:
-            logger.info(f"Threshold produced {n_clusters} topic clusters, limiting to {self.max_clusters}")
+        logger.info(f"Clustering {n_conversations} conversations into {target_n_clusters} topics "
+                   f"(based on {n_messages} messages)")
+        
+        try:
             clustering = AgglomerativeClustering(
-                n_clusters=self.max_clusters,
-                linkage='ward'
+                n_clusters=target_n_clusters,
+                linkage='ward',
+                metric='euclidean'
             )
             labels = clustering.fit_predict(conversation_embeddings)
-        
-        return labels
+            return labels
+        except Exception as e:
+            logger.error(f"Topic clustering failed: {e}")
+            # Fallback to single cluster
+            return np.zeros(n_conversations, dtype=int)
     
     def _cluster_level(
         self,
