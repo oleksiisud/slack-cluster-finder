@@ -115,8 +115,12 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, existingChat = null, on
       if (!messages.length || !messages[0].text) throw new Error('Invalid JSON format');
       
       await processChatData(file.name.replace('.json', ''), 'json_upload', messages);
+      // Clear file input so same file can be selected again
+      event.target.value = '';
     } catch (error) {
       setStatus({ loading: false, message: '', error: 'Invalid JSON file' });
+      // Clear file input on error as well
+      event.target.value = '';
     }
   };
 

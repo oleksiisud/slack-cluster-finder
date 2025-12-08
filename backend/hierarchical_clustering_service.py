@@ -2,7 +2,7 @@
 Hierarchical clustering service for creating multi-level cluster structure
 """
 import numpy as np
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
 from sklearn.cluster import AgglomerativeClustering
 import logging
 
@@ -165,6 +165,9 @@ class HierarchicalClusteringService:
         """
         Cluster conversations by topic using semantic similarity.
         Returns cluster labels for each conversation as numpy array.
+        
+        Note: main_cluster_threshold (default 1.2) controls topic granularity.
+        Lower values = fewer, broader topics; higher values = more, specific topics.
         """
         if n_conversations < 2:
             return np.array([0])
@@ -201,11 +204,7 @@ class HierarchicalClusteringService:
         if n < 2:
             return np.array([0] * n)
         
-        # Compute distance matrix
-        distances = 1 - np.dot(embeddings, embeddings.T)
-        np.fill_diagonal(distances, 0)
-        
-        # Use agglomerative clustering
+        # Use agglomerative clustering directly on embeddings
         clustering = AgglomerativeClustering(
             n_clusters=None,
             distance_threshold=threshold,
