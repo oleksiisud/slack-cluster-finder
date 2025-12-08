@@ -6,6 +6,8 @@ import './InteractiveGraph.css';
 const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '', onBackToHome }) => {
   const svgRef = useRef(null);
   const wrapperRef = useRef(null);
+  const zoomRef = useRef(null);
+  const svgD3Ref = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [selectedNode, setSelectedNode] = useState(null);
   const [tooltipData, setTooltipData] = useState(null);
@@ -114,6 +116,15 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
         .on("drag", dragged)
         .on("end", dragended));
 
+    // Color palette for clusters
+    const clusterColors = ["#ff0055", "#00d9ff", "#ff6b35", "#6a4c93", "#1dd1a1", "#feca57", "#5f27cd", "#ff9ff3", "#54a0ff", "#48dbfb"];
+    
+    // Precompute cluster index map for O(1) lookups
+    const clusterIndexMap = new Map();
+    data.nodes.filter(n => n.type === 'cluster').forEach((cluster, idx) => {
+      clusterIndexMap.set(cluster.id, idx);
+    });
+
     // Circle Styles
     node.each(function(d) {
       const el = d3.select(this);
@@ -124,19 +135,17 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
       if (d.type === 'add-root') r = 35;
       if (d.type === 'workspace') r = 20;
       if (d.type === 'message') r = 4; // Small dots for messages
-    
-      // Color palette for clusters
-      const clusterColors = ["#ff0055", "#00d9ff", "#ff6b35", "#6a4c93", "#1dd1a1", "#feca57", "#5f27cd", "#ff9ff3", "#54a0ff", "#48dbfb"];
       
       // Get color based on type
       let nodeColor = "#4ECDC4";
       if (d.type === 'cluster') {
-        nodeColor = clusterColors[data.nodes.filter(n => n.type === 'cluster').indexOf(d) % clusterColors.length];
+        const clusterIdx = clusterIndexMap.get(d.id) ?? 0;
+        nodeColor = clusterColors[clusterIdx % clusterColors.length];
       } else if (d.type === 'message') {
         // Messages inherit parent cluster color but more subtle
-        const parentCluster = data.nodes.find(n => n.id === d.parent);
-        if (parentCluster) {
-          nodeColor = clusterColors[data.nodes.filter(n => n.type === 'cluster').indexOf(parentCluster) % clusterColors.length];
+        const clusterIdx = clusterIndexMap.get(d.parent);
+        if (clusterIdx !== undefined) {
+          nodeColor = clusterColors[clusterIdx % clusterColors.length];
         }
       }
 
@@ -249,9 +258,9 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
     }
     initialTransformRef.current = initialTransform;
     
-    // Store zoom behavior for recenter function
-    wrapperRef.current.zoomBehavior = zoom;
-    wrapperRef.current.svg = svg;
+    // Store zoom behavior and svg for recenter function
+    zoomRef.current = zoom;
+    svgD3Ref.current = svg;
 
     // Click on empty space - do nothing (don't zoom or reset)
     svg.on("click", (event) => {
@@ -272,11 +281,11 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
       const y = -d.y * scale + height / 2;
       
       // Use the zoom behavior to zoom in (this will trigger recenter button)
-      if (wrapperRef.current?.svg && wrapperRef.current?.zoomBehavior) {
+      if (svgD3Ref.current && zoomRef.current) {
         const transform = d3.zoomIdentity.translate(x, y).scale(scale);
-        wrapperRef.current.svg.transition()
+        svgD3Ref.current.transition()
           .duration(750)
-          .call(wrapperRef.current.zoomBehavior.transform, transform);
+          .call(zoomRef.current.transform, transform);
       }
       
       if (onNodeClick) onNodeClick(d, event);
@@ -307,12 +316,10 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
   };
   
   const handleRecenter = () => {
-    if (wrapperRef.current?.svg && wrapperRef.current?.zoomBehavior && initialTransformRef.current) {
-      const svg = wrapperRef.current.svg;
-      const zoom = wrapperRef.current.zoomBehavior;
-      svg.transition()
+    if (svgD3Ref.current && zoomRef.current && initialTransformRef.current) {
+      svgD3Ref.current.transition()
         .duration(750)
-        .call(zoom.transform, initialTransformRef.current);
+        .call(zoomRef.current.transform, initialTransformRef.current);
       setSelectedNode(null);
       setShowRecenterButton(false);
     }

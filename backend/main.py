@@ -64,9 +64,14 @@ async def startup_event():
             ["test message"],
             show_progress=False
         )
+        # Validate the embedding result
+        if test_embedding is None or len(test_embedding) == 0:
+            raise ValueError("Embedding service returned empty result")
         logger.info("Services ready!")
+    except (ValueError, RuntimeError, ConnectionError) as e:
+        logger.warning(f"Warmup failed ({type(e).__name__}): {e}")
     except Exception as e:
-        logger.warning(f"Warmup failed: {e}")
+        logger.warning(f"Warmup failed with unexpected error ({type(e).__name__}): {e}")
 
 @app.get("/")
 async def root():

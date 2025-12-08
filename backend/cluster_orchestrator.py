@@ -189,7 +189,16 @@ class ClusterOrchestrator:
             # Generate conversation label (shorter, more specific)
             if len(conversation_texts) <= 3:
                 # For short conversations, use the first message as label
-                label = conversation_texts[0][:60] + "..." if len(conversation_texts[0]) > 60 else conversation_texts[0]
+                first_msg = conversation_texts[0]
+                if len(first_msg) > 60:
+                    truncated = first_msg[:60]
+                    # Try to break at word boundary
+                    last_space = truncated.rfind(' ')
+                    if last_space > 0:
+                        truncated = truncated[:last_space]
+                    label = truncated.strip() + "..."
+                else:
+                    label = first_msg
             else:
                 # For longer conversations, generate a summary label
                 label = self.label_service.generate_cluster_label(conversation_texts[:10])

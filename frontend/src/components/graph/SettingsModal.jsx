@@ -31,9 +31,9 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, existingChat = null, on
     if (existingChat) {
       setFormData({
         title: existingChat.chatData?.title || existingChat.name || '',
-        timeFilter: existingChat.chatData?.config?.timeFilter || '3 Months',
-        includeDMs: existingChat.chatData?.config?.includeDMs || false,
-        enableSemanticSearch: existingChat.chatData?.config?.enableSemanticSearch || true
+        timeFilter: existingChat.chatData?.config?.timeFilter ?? '3 Months',
+        includeDMs: existingChat.chatData?.config?.includeDMs ?? false,
+        enableSemanticSearch: existingChat.chatData?.config?.enableSemanticSearch ?? true
       });
     } else {
       setFormData({ title: '', timeFilter: '3 Months', includeDMs: false, enableSemanticSearch: true });
@@ -44,14 +44,20 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, existingChat = null, on
     try {
       const token = await getSlackToken();
       setSlackConnected(!!token);
-    } catch { setSlackConnected(false); }
+    } catch (e) {
+      console.error('Failed to check Slack connection:', e);
+      setSlackConnected(false);
+    }
   };
 
   const checkDiscordConnection = async () => {
     try {
       const token = await getDiscordToken();
       setDiscordConnected(!!token);
-    } catch { setDiscordConnected(false); }
+    } catch (e) {
+      console.error('Failed to check Discord connection:', e);
+      setDiscordConnected(false);
+    }
   };
 
   const processChatData = async (title, source, messages) => {

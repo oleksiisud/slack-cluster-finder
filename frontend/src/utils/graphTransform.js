@@ -25,6 +25,19 @@ export const transformClusteringToGraph = (clusteringData) => {
   const links = [];
   const clusterIdToNode = new Map();
   
+  // Precompute message lookup by cluster_id for O(1) access
+  const messagesByCluster = new Map();
+  if (clusteringData.messages && Array.isArray(clusteringData.messages)) {
+    clusteringData.messages.forEach(msg => {
+      if (msg.cluster_id) {
+        if (!messagesByCluster.has(msg.cluster_id)) {
+          messagesByCluster.set(msg.cluster_id, []);
+        }
+        messagesByCluster.get(msg.cluster_id).push(msg);
+      }
+    });
+  }
+  
   // Create cluster nodes (Level 1 and Level 2)
   clusteringData.clusters.forEach(cluster => {
     const node = {
@@ -36,8 +49,7 @@ export const transformClusteringToGraph = (clusteringData) => {
       level: cluster.level || 1,
       radius: cluster.radius || 120,
       // Store messages for this cluster for later access
-      messages: clusteringData.messages ? 
-        clusteringData.messages.filter(m => m.cluster_id === cluster.cluster_id) : []
+      messages: messagesByCluster.get(cluster.cluster_id) || []
     };
     
     nodes.push(node);
@@ -57,7 +69,7 @@ export const transformClusteringToGraph = (clusteringData) => {
     clusteringData.messages.forEach(message => {
       // Only create message nodes for Level 1 conversation clusters
       const parentCluster = clusterIdToNode.get(message.cluster_id);
-      if (parentCluster && parentCluster.level === 1) {
+      if (parentCluster && parentCluster.level === 1 && message.message_id) {
         const messageNode = {
           id: message.message_id,
           name: message.text?.substring(0, 100) || 'Message',
@@ -74,13 +86,11 @@ export const transformClusteringToGraph = (clusteringData) => {
         
         nodes.push(messageNode);
         
-        // Link message to its conversation cluster
-        if (message.cluster_id) {
-          links.push({
-            source: message.cluster_id,
-            target: messageNode.id
-          });
-        }
+        // Link message to its conversation cluster (cluster_id is already validated above)
+        links.push({
+          source: message.cluster_id,
+          target: messageNode.id
+        });
       }
     });
   }

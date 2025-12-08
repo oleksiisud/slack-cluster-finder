@@ -7,24 +7,27 @@ import time
 from functools import wraps
 from typing import List
 import logging
+import threading
 
 logger = logging.getLogger(__name__)
 
 def rate_limit(max_per_minute=15):
-    """Simple rate limiter for Gemini free tier"""
+    """Thread-safe rate limiter for Gemini free tier"""
     min_interval = 60.0 / max_per_minute
     last_called = [0.0]
+    lock = threading.Lock()
     
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
-            elapsed = time.time() - last_called[0]
-            left_to_wait = min_interval - elapsed
-            if left_to_wait > 0:
-                time.sleep(left_to_wait)
-            ret = func(*args, **kwargs)
-            last_called[0] = time.time()
-            return ret
+            with lock:
+                elapsed = time.monotonic() - last_called[0]
+                left_to_wait = min_interval - elapsed
+                if left_to_wait > 0:
+                    time.sleep(left_to_wait)
+                last_called[0] = time.monotonic()
+            # Execute function outside the lock to avoid blocking other calls
+            return func(*args, **kwargs)
         return wrapper
     return decorator
 
@@ -77,7 +80,7 @@ Topic label (3-6 words):"""
             return label
             
         except Exception as e:
-            logger.error(f"Label generation failed: {e}")
+            logger.exception(f"Label generation failed")
             return self._fallback_label(selected)
     
     @rate_limit(max_per_minute=15)
@@ -116,7 +119,7 @@ Keywords:"""
             return [self._clean_tag(tag) for tag in tags if tag][:num_tags]
             
         except Exception as e:
-            logger.error(f"Tag generation failed: {e}")
+            logger.exception(f"Tag generation failed")
             return self._fallback_tags(selected, num_tags)
     
     def _clean_label(self, label: str) -> str:
@@ -161,6 +164,16 @@ Keywords:"""
         return [word for word, _ in common]
 
 
+# Module-level singleton
+_label_service = None
+_service_lock = threading.Lock()
+
 def get_label_service():
-    """Factory function"""
-    return GeminiLabelService()
+    """Get or create singleton label service instance"""
+    global _label_service
+    if _label_service is None:
+        with _service_lock:
+            # Double-check locking pattern
+            if _label_service is None:
+                _label_service = GeminiLabelService()
+    return _label_service

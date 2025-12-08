@@ -6,7 +6,7 @@ import './EmptyState.css';
 
 const EmptyState = ({ activeChat, onBackToHome }) => {
   return (
-    <div className="empty-state">
+    <div className="graph-empty-state">
       {onBackToHome && (
         <button onClick={onBackToHome} className="empty-state-back-btn">
           <ArrowLeft size={16} /> Home
