@@ -255,9 +255,8 @@ async def get_job_result(job_id: str):
             detail=f"Job not completed. Current status: {job_data["status"]}"
         )
     
-    if job_id not in results:
-        raise HTTPException(status_code=404, detail="Result not found")
-    
+    # if job_id not in results:
+    #    raise HTTPException(status_code=404, detail="Result not found")
     # return results[job_id]
     result_data = storage.get_result(job_id)
     if not result_data:
