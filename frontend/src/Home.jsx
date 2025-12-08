@@ -180,6 +180,11 @@ function Home() {
           onAiAction={handleAiAction}
           aiState={aiState}
           focusedClusterId={focusedClusterId}
+          stats={{
+            messages: activeChatData?.nodes?.filter(n => n.type === 'message').length || 0,
+            clusters: activeChatData?.nodes?.filter(n => n.type === 'cluster').length || 0,
+            processingTime: activeChat?.chatData?.clustering_data?.metadata?.processing_time_seconds || 0
+          }}
         />
       )}
       <SettingsModal 

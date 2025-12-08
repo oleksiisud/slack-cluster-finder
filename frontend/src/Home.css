@@ -13,11 +13,6 @@
   display: flex;
   position: relative;
   overflow: hidden;
-  transition: margin-right 0.3s ease;
-}
-
-.main-content.sidebar-active {
-  margin-right: 320px;
 }
 
 .view-container {
@@ -43,6 +38,16 @@
   animation: fadeInUp 0.5s ease;
   pointer-events: none;
   z-index: 10;
+}
+
+.loading-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 1.2rem;
+  color: var(--text-secondary);
 }
 
 @keyframes fadeInUp {
