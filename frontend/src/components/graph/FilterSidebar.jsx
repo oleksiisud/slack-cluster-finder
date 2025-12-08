@@ -78,9 +78,22 @@ const FilterSidebar = ({ isOpen, toggle, onSettingsClick, activeChat, chatData, 
 
       {isOpen && (
         <>
-          <div 
+          <div
             className="sidebar-resize-handle"
             onMouseDown={() => setIsResizing(true)}
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Resize sidebar"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                setSidebarWidth(prev => Math.max(280, prev - 10));
+              } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                setSidebarWidth(prev => Math.min(600, prev + 10));
+              }
+            }}
           />
           <div className="sidebar-header">
             <h3 className="sidebar-title">Filters & Data</h3>
