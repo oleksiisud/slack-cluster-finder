@@ -47,7 +47,7 @@ class HierarchicalClusteringService:
         self,
         embeddings: np.ndarray,
         message_ids: List[str],
-        messages: List = None
+        messages: Optional[List] = None
     ) -> Dict[str, any]:
         """
         Create hierarchical cluster structure

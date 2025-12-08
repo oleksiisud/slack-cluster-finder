@@ -90,7 +90,7 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, existingChat = null, on
             if (onChatCreated) onChatCreated(chat, null);
         }
       } else if (existingChat) {
-         if (onChatCreated) onChatCreated(); // Just updated settings
+         if (onChatCreated) onChatCreated(chat, null); // Just updated settings
       }
 
       setStatus({ loading: false, message: 'Success!', error: null });
