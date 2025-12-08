@@ -192,7 +192,14 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
 
     node.on("click", (event, d) => {
       event.stopPropagation();
-      handleNodeFocus(d, event);
+      
+      // Only zoom in on cluster nodes in dashboard view
+      if (d.type === 'cluster' && !isHome) {
+        handleNodeFocus(d, event);
+      } else {
+        // For all other nodes (workspace, add-root, messages), just trigger the click handler
+        if (onNodeClick) onNodeClick(d, event);
+      }
     });
 
     // Add right-click context menu for workspace nodes
@@ -246,7 +253,11 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
     wrapperRef.current.zoomBehavior = zoom;
     wrapperRef.current.svg = svg;
 
-    svg.on("click", () => resetZoom());
+    // Click on empty space - do nothing (don't zoom or reset)
+    svg.on("click", (event) => {
+      // Only clear selection, don't zoom
+      setSelectedNode(null);
+    });
 
     simulation.on("tick", () => {
       link.attr("x1", d => d.source.x).attr("y1", d => d.source.y)
@@ -259,17 +270,17 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
       const scale = 2; 
       const x = -d.x * scale + width / 2;
       const y = -d.y * scale + height / 2;
-      g.transition().duration(750).attr("transform", `translate(${x},${y}) scale(${scale})`);
+      
+      // Use the zoom behavior to zoom in (this will trigger recenter button)
+      if (wrapperRef.current?.svg && wrapperRef.current?.zoomBehavior) {
+        const transform = d3.zoomIdentity.translate(x, y).scale(scale);
+        wrapperRef.current.svg.transition()
+          .duration(750)
+          .call(wrapperRef.current.zoomBehavior.transform, transform);
+      }
+      
       if (onNodeClick) onNodeClick(d, event);
     }
-
-    function resetZoom() {
-      setSelectedNode(null);
-      g.transition().duration(750).attr("transform", "translate(0,0) scale(1)");
-      if (onNodeClick && !isHome) onNodeClick(null);
-    }
-
-    wrapperRef.current.resetZoom = resetZoom;
 
     // --- Drag with Elastic Snap-Back ---
     function dragstarted(event, d) {
@@ -289,9 +300,8 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
   }, [data, dimensions, searchQuery]);
 
   const handleBackClick = () => {
-    if (selectedNode) {
-      wrapperRef.current?.resetZoom();
-    } else if (onBackToHome) {
+    // Back button only goes to home, doesn't handle zoom
+    if (onBackToHome) {
       onBackToHome();
     }
   };
@@ -303,6 +313,7 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
       svg.transition()
         .duration(750)
         .call(zoom.transform, initialTransformRef.current);
+      setSelectedNode(null);
       setShowRecenterButton(false);
     }
   };

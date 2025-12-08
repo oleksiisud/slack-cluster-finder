@@ -88,12 +88,32 @@ function Home() {
 
         console.log('Loading workspace chat:', { 
           hasClusteringData: !!chatData.clustering_data, 
-          hasMessages: !!chatData.messages 
+          hasMessages: !!chatData.messages,
+          clusteringDataType: typeof chatData.clustering_data
+        });
+
+        // Transform clustering data if it exists
+        let graphData = null;
+        if (chatData.clustering_data) {
+          // Check if it's already in graph format or needs transformation
+          if (chatData.clustering_data.nodes && chatData.clustering_data.links) {
+            graphData = chatData.clustering_data;
+          } else if (chatData.clustering_data.clusters) {
+            // Transform from API format to graph format
+            graphData = transformClusteringToGraph(chatData.clustering_data);
+          } else {
+            console.warn('Unknown clustering data format:', chatData.clustering_data);
+          }
+        }
+
+        console.log('Transformed graph data:', { 
+          hasGraphData: !!graphData,
+          nodeCount: graphData?.nodes?.length,
+          linkCount: graphData?.links?.length
         });
 
         setActiveChat({ id: node.id, name: node.name, source: node.source, chatData });
-        // Only set clustering data if it exists, otherwise null (EmptyState will be shown in render)
-        setActiveChatData(chatData.clustering_data || null);
+        setActiveChatData(graphData);
         setView('dashboard');
       }
     } else if (node.type === 'cluster') {
