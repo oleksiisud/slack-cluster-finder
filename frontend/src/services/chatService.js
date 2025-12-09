@@ -119,7 +119,27 @@ export const saveChatMessages = async (chatId, messages) => {
  * @returns {Promise<Object>} Updated chat
  */
 export const saveChatClusteringData = async (chatId, clusteringData) => {
-  return updateChat(chatId, { clustering_data: clusteringData });
+  if (!chatId) {
+    throw new Error('Chat ID is required');
+  }
+  if (!clusteringData) {
+    throw new Error('Clustering data is required');
+  }
+  
+  console.log(`Saving clustering data to chat ${chatId}:`, {
+    messages: clusteringData.messages?.length || 0,
+    clusters: clusteringData.clusters?.length || 0
+  });
+  
+  const result = await updateChat(chatId, { clustering_data: clusteringData });
+  
+  // Verify the save was successful
+  if (!result || !result.clustering_data) {
+    throw new Error('Failed to verify clustering data was saved');
+  }
+  
+  console.log(`Clustering data saved successfully for chat ${chatId}`);
+  return result;
 };
 
 /**

@@ -13,6 +13,8 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
   const [tooltipData, setTooltipData] = useState(null);
   const [showRecenterButton, setShowRecenterButton] = useState(false);
   const initialTransformRef = useRef(null);
+  const [visibleMessageNodes, setVisibleMessageNodes] = useState(new Set());
+  const updateVisibilityRef = useRef(null);
 
   // Responsive Sizing
   useEffect(() => {
@@ -36,6 +38,22 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
       return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     } catch (e) { return isoString; }
   };
+
+  // Update visible messages based on search
+  useEffect(() => {
+    if (searchQuery && data.nodes) {
+      const matchingMessages = new Set(
+        data.nodes
+          .filter(n => n.type === 'message' && 
+            n.text?.toLowerCase().includes(searchQuery.toLowerCase()))
+          .map(n => n.id)
+      );
+      setVisibleMessageNodes(matchingMessages);
+    } else if (!selectedNode) {
+      // Clear visible messages if no search and no selected node
+      setVisibleMessageNodes(new Set());
+    }
+  }, [searchQuery, data.nodes, selectedNode]);
 
   // Render Graph
   useEffect(() => {
@@ -69,20 +87,27 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
     });
 
     const getTargetRadius = (d) => {
+      // Calculate scale factor based on total nodes - more aggressive scaling
+      const totalNodes = data.nodes.length;
+      const clusterCount = data.nodes.filter(n => n.type === 'cluster').length;
+      
+      // Use cluster count for better scaling (since that's what causes crowding)
+      const scaleFactor = Math.max(1, clusterCount / 35); // Scales up more aggressively
+      
       if (searchQuery) {
-        // Search Logic: If match, pull to inner orbit (radius 50), else push out
+        // Search Logic: If match, pull to inner orbit
         const match = d.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                       (d.tags && d.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase())));
-        if (match) return 50;
+        if (match) return 50 * scaleFactor;
       }
       
-      // Standard Radial Layout
-      if (d.type === 'add-root') return 0; // Center (home page)
-      if (d.type === 'workspace') return 150; // Inner ring (home page)
-      if (d.type === 'message') return 280; // Messages (inside conversations)
-      if (d.level === 1) return 240; // Conversations (outer ring)
-      if (d.level === 2) return 120; // Topics (middle ring)
-      return 150; // Default
+      // Standard Radial Layout with dynamic scaling
+      if (d.type === 'add-root') return 0;
+      if (d.type === 'workspace') return 150 * scaleFactor;
+      if (d.type === 'message') return 280 * scaleFactor;
+      if (d.level === 1) return 240 * scaleFactor; // Conversations
+      if (d.level === 2) return 120 * scaleFactor; // Topics
+      return 150 * scaleFactor;
     };
 
     // 2. Simulation Setup
@@ -98,12 +123,25 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
 
     // 3. Render Links
     const link = g.append("g")
-      .selectAll("line")
-      .data(data.links)
-      .enter().append("line")
-      .attr("stroke", "#4ECDC4")
-      .attr("stroke-opacity", 0.15)
-      .attr("stroke-width", 1);
+    .selectAll("line")
+    .data(data.links)
+    .enter().append("line")
+    .attr("stroke", "#4ECDC4")
+    .attr("stroke-opacity", d => {
+      // Hide links connected to invisible message nodes
+      const sourceNode = data.nodes.find(n => n.id === d.source.id || n.id === d.source);
+      const targetNode = data.nodes.find(n => n.id === d.target.id || n.id === d.target);
+      
+      const sourceIsInvisibleMessage = sourceNode?.type === 'message' && 
+        !visibleMessageNodes.has(sourceNode.id) && 
+        !searchQuery;
+      const targetIsInvisibleMessage = targetNode?.type === 'message' && 
+        !visibleMessageNodes.has(targetNode.id) && 
+        !searchQuery;
+      
+      return (sourceIsInvisibleMessage || targetIsInvisibleMessage) ? 0 : 0.15;
+    })
+    .attr("stroke-width", 1);
 
     // 4. Render Nodes
     const node = g.append("g")
@@ -135,6 +173,17 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
       if (d.type === 'add-root') r = 35;
       if (d.type === 'workspace') r = 20;
       if (d.type === 'message') r = 3; // Small dots for messages
+
+      // Check if message should be visible
+      const isMessageVisible = d.type === 'message' && (
+        visibleMessageNodes.has(d.id) || 
+        isMatch
+      );
+
+      // Skip rendering if message and not visible
+      if (d.type === 'message' && !isMessageVisible) {
+        return; // Don't render this message node
+      }
       
       // Get color based on type
       let nodeColor = "#4ECDC4";
@@ -162,19 +211,19 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
       if (isMatch) {
          el.append("circle")
            .attr("r", r + 10)
-           .attr("fill", "#fff")
+           .attr("fill", "#facc15")
            .attr("opacity", 0.2)
            .attr("class", "search-pulse");
       }
 
       const circle = el.append("circle")
         .attr("r", r)
-        .attr("stroke", isMatch ? "#fff" : nodeColor)
+        .attr("stroke", isMatch ? "#facc15" : nodeColor)
         .attr("stroke-width", d.type === 'message' ? 1 : (isMatch ? 3 : 2))
         .attr("fill", d.type === 'add-root' ? "rgba(78, 205, 196, 0.1)" : nodeColor)
         .attr("fill-opacity", d.type === 'message' ? 0.3 : (d.type === 'add-root' ? 0 : 0.9))
         .attr("class", d.type === 'message' ? 'message-dot' : '')
-        .style("filter", d.type === 'message' ? 'none' : `drop-shadow(0 0 ${isMatch ? 15 : 10}px ${isMatch ? "#fff" : nodeColor})`);
+        .style("filter", d.type === 'message' ? 'none' : `drop-shadow(0 0 ${isMatch ? 15 : 10}px ${isMatch ? "#facc15"   : nodeColor})`);
 
       if (d.type === 'add-root') {
         circle.attr("stroke-dasharray", "5,5");
@@ -218,9 +267,9 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
       .attr("text-anchor", "middle")
       .style("font-size", d => d.type === 'cluster' ? "11px" : "10px")
       .style("font-weight", d => d.type === 'cluster' ? "600" : "500")
-      .style("fill", "#fff")
+      .style("fill", "var(--text-primary)")
       .style("pointer-events", "none")
-      .style("text-shadow", "0px 2px 6px rgba(0,0,0,0.9)");
+      // .style("text-shadow", "0px 2px 6px rgba(0,0,0,0.9)");
 
     // 5. Interaction
     node.on("mouseenter", (event, d) => {
@@ -299,18 +348,85 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
     });
 
     simulation.on("tick", () => {
-      link.attr("x1", d => d.source.x).attr("y1", d => d.source.y)
-          .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+      link
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y)
+        .attr("stroke-opacity", d => {
+          // Update opacity based on current visibility state
+          const sourceIsInvisibleMessage = d.source.type === 'message' && 
+            !visibleMessageNodes.has(d.source.id) && 
+            !(searchQuery && d.source.text?.toLowerCase().includes(searchQuery.toLowerCase()));
+          const targetIsInvisibleMessage = d.target.type === 'message' && 
+            !visibleMessageNodes.has(d.target.id) && 
+            !(searchQuery && d.target.text?.toLowerCase().includes(searchQuery.toLowerCase()));
+          
+          return (sourceIsInvisibleMessage || targetIsInvisibleMessage) ? 0 : 0.15;
+        });
+      
+      // Update node visibility
+      node.style("display", d => {
+        if (d.type === 'message') {
+          const isMatch = searchQuery && d.text?.toLowerCase().includes(searchQuery.toLowerCase());
+          const isVisible = visibleMessageNodes.has(d.id) || isMatch;
+          return isVisible ? null : "none";
+        }
+        return null;
+      });
+      
       node.attr("transform", d => `translate(${d.x},${d.y})`);
     });
 
+    const updateMessageVisibility = () => {
+      node.style("display", d => {
+        if (d.type === 'message') {
+          const isMatch = searchQuery && d.text?.toLowerCase().includes(searchQuery.toLowerCase());
+          const isVisible = visibleMessageNodes.has(d.id) || isMatch;
+          return isVisible ? null : "none";
+        }
+        return null;
+      });
+      
+      link.attr("stroke-opacity", d => {
+        const sourceIsInvisibleMessage = d.source.type === 'message' && 
+          !visibleMessageNodes.has(d.source.id) && 
+          !(searchQuery && d.source.text?.toLowerCase().includes(searchQuery.toLowerCase()));
+        const targetIsInvisibleMessage = d.target.type === 'message' && 
+          !visibleMessageNodes.has(d.target.id) && 
+          !(searchQuery && d.target.text?.toLowerCase().includes(searchQuery.toLowerCase()));
+        
+        return (sourceIsInvisibleMessage || targetIsInvisibleMessage) ? 0 : 0.15;
+      });
+    };
+
+    updateVisibilityRef.current = updateMessageVisibility;
+
     function handleNodeFocus(d, event) {
       setSelectedNode(d);
+      
+      // Show messages connected to this cluster
+      if (d.type === 'cluster') {
+        const connectedMessageIds = new Set();
+        
+        data.nodes.forEach(node => {
+          if (node.type === 'message' && node.parent === d.id) {
+            connectedMessageIds.add(node.id);
+          }
+        });
+        
+        setVisibleMessageNodes(connectedMessageIds);
+        
+        // Update visibility immediately without re-rendering
+        if (updateVisibilityRef.current) {
+          // setTimeout(() => updateVisibilityRef.current(), 0);
+        }
+      }
+      
       const scale = 2; 
       const x = -d.x * scale + width / 2;
       const y = -d.y * scale + height / 2;
       
-      // Use the zoom behavior to zoom in (this will trigger recenter button)
       if (svgD3Ref.current && zoomRef.current) {
         const transform = d3.zoomIdentity.translate(x, y).scale(scale);
         svgD3Ref.current.transition()
@@ -338,6 +454,12 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
 
   }, [data, dimensions, searchQuery]);
 
+  useEffect(() => {
+    if (updateVisibilityRef.current) {
+      updateVisibilityRef.current();
+    }
+  }, [visibleMessageNodes]);
+  
   const handleBackClick = () => {
     // Back button only goes to home, doesn't handle zoom
     if (onBackToHome) {
@@ -351,9 +473,9 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
         .duration(750)
         .call(zoomRef.current.transform, initialTransformRef.current);
       setSelectedNode(null);
+      setVisibleMessageNodes(new Set()); // Hide messages when recentering
       setShowRecenterButton(false);
       
-      // Notify parent that recenter happened
       if (onRecenter) {
         onRecenter();
       }
