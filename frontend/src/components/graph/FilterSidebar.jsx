@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ChevronRight, ChevronDown, ChevronLeft, Search, Settings, RefreshCw } from 'lucide-react';
+import { ChevronRight, ChevronDown, ChevronLeft, ChevronUp, Search, Settings, RefreshCw } from 'lucide-react';
 import './FilterSidebar.css';
 
 const FilterSidebar = ({ isOpen, toggle, onSettingsClick, activeChat, chatData, searchQuery, setSearchQuery, focusedClusterId, stats }) => {
@@ -70,10 +70,14 @@ const FilterSidebar = ({ isOpen, toggle, onSettingsClick, activeChat, chatData, 
     <div 
       ref={sidebarRef}
       className={`app-sidebar ${isOpen ? 'open' : ''}`}
-      style={{ width: isOpen ? `${sidebarWidth}px` : '50px' }}
+      style={{ width: isOpen ? `${sidebarWidth}px` : '360px' }}
     >
-      <button onClick={toggle} className="sidebar-toggle">
-        {isOpen ? <ChevronRight size={32} /> : <ChevronLeft size={32} />}
+      <button onClick={toggle} className="sidebar-toggle" aria-label={isOpen ? "Close sidebar" : "Open sidebar"}>
+        {isOpen ? (
+          <ChevronRight size={24} />
+        ) : (
+          <ChevronLeft size={24} />
+        )}
       </button>
 
       {isOpen && (

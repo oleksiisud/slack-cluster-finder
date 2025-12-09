@@ -22,15 +22,16 @@
   background: var(--primary);
   color: var(--bg-primary);
   border: 1px solid var(--primary-border);
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 12px 24px;
+  border-radius: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 1rem;
   transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
 }
 
 .btn-back:hover {
@@ -52,14 +53,14 @@
   background: var(--primary);
   color: var(--bg-primary);
   border: 1px solid var(--primary-border);
-  padding: 10px 20px;
+  padding: 14px 28px;
   border-radius: 24px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: 1rem;
   transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
   animation: fadeInUp 0.3s ease;
@@ -178,3 +179,57 @@
 /* Message count badge styling */
 /* .message-count-badge {
 } */
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .btn-back {
+    top: 12px;
+    left: 12px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+  }
+
+  .btn-recenter {
+    bottom: 20px;
+    padding: 12px 24px;
+    font-size: 0.9rem;
+  }
+
+  .graph-tooltip {
+    max-width: calc(100vw - 40px);
+    font-size: 0.875rem;
+  }
+
+  .tooltip-title {
+    font-size: 0.95rem;
+  }
+
+  .view-container {
+    min-height: calc(100vh - 72px);
+    height: auto;
+  }
+
+  .graph-svg {
+    min-height: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-back {
+    top: 8px;
+    left: 8px;
+    padding: 4px 10px;
+    font-size: 0.7rem;
+  }
+
+  .btn-recenter {
+    bottom: 16px;
+    padding: 6px 14px;
+    font-size: 0.7rem;
+  }
+
+  .graph-tooltip {
+    max-width: calc(100vw - 24px);
+    padding: 10px;
+  }
+}
