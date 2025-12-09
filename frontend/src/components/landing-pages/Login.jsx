@@ -99,7 +99,7 @@ const Login = () => {
             </>
           )}
         </button>
-        <Link to={'/sign-up'}><p className="navbar-link"><button type="submit">New User? Sign up</button></p></Link>
+        <Link to={'/sign-up'}><p><button type="submit">New User? Sign up</button></p></Link>
       </form>
     </div>
   )
