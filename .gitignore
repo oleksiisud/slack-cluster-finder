@@ -4,11 +4,3 @@ venv/
 .venv/
 __pycache__/
 *.pyc
-node_modules.env
-.vercel
-.env*.local
-
-# SSL Certificates (local development)
-*.pem
-*.key
-*.crt
