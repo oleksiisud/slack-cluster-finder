@@ -84,6 +84,9 @@ const FilterSidebar = ({ isOpen, toggle, onSettingsClick, activeChat, chatData, 
             role="separator"
             aria-orientation="vertical"
             aria-label="Resize sidebar"
+            aria-valuenow={sidebarWidth}
+            aria-valuemin={280}
+            aria-valuemax={600}
             tabIndex={0}
             onKeyDown={(e) => {
               if (e.key === 'ArrowLeft') {

@@ -228,11 +228,7 @@ async def process_clustering_job(job_id: str, request: ClusteringRequest):
 @app.get("/cluster/status/{job_id}", response_model=ClusteringStatus)
 async def get_job_status(job_id: str):
     """Get status of a clustering job"""
-    # if job_id not in jobs:
-    job_data = storage.get_job(job_id)
-    if not job_data:
-        raise HTTPException(status_code=404, detail="Job not found or expired")
-    
+    # if job_id not in jobs:    
     # return jobs[job_id]
     job_data = storage.get_job(job_id)
     if not job_data:
@@ -252,7 +248,7 @@ async def get_job_result(job_id: str):
     if job_data["status"] != "completed":
         raise HTTPException(
             status_code=400,
-            detail=f"Job not completed. Current status: {job_data["status"]}"
+            detail=f"Job not completed. Current status: {job_data['status']}"
         )
     
     # if job_id not in results:
