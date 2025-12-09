@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import { ArrowLeft } from 'lucide-react';
 import './InteractiveGraph.css';
 
-const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '', onBackToHome }) => {
+const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '', onBackToHome, onRecenter }) => {
   const svgRef = useRef(null);
   const wrapperRef = useRef(null);
   const zoomRef = useRef(null);
@@ -134,7 +134,7 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
       let r = d.type === 'cluster' ? 25 : 8;
       if (d.type === 'add-root') r = 35;
       if (d.type === 'workspace') r = 20;
-      if (d.type === 'message') r = 4; // Small dots for messages
+      if (d.type === 'message') r = 3; // Small dots for messages
       
       // Get color based on type
       let nodeColor = "#4ECDC4";
@@ -162,35 +162,65 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
       if (isMatch) {
          el.append("circle")
            .attr("r", r + 10)
-           .attr("fill", "#FFD700")
-           .attr("opacity", 0.25)
+           .attr("fill", "#fff")
+           .attr("opacity", 0.2)
            .attr("class", "search-pulse");
       }
 
       const circle = el.append("circle")
         .attr("r", r)
-        .attr("stroke", isMatch ? "#FFD700" : nodeColor)
+        .attr("stroke", isMatch ? "#fff" : nodeColor)
         .attr("stroke-width", d.type === 'message' ? 1 : (isMatch ? 3 : 2))
         .attr("fill", d.type === 'add-root' ? "rgba(78, 205, 196, 0.1)" : nodeColor)
         .attr("fill-opacity", d.type === 'message' ? 0.3 : (d.type === 'add-root' ? 0 : 0.9))
         .attr("class", d.type === 'message' ? 'message-dot' : '')
-        .style("filter", d.type === 'message' ? 'none' : `drop-shadow(0 0 ${isMatch ? 15 : 10}px ${isMatch ? "#FFD700" : nodeColor})`);
+        .style("filter", d.type === 'message' ? 'none' : `drop-shadow(0 0 ${isMatch ? 15 : 10}px ${isMatch ? "#fff" : nodeColor})`);
 
       if (d.type === 'add-root') {
         circle.attr("stroke-dasharray", "5,5");
         el.append("text").text("+").attr("dy", 5).attr("text-anchor", "middle").attr("fill", "#4ECDC4").style("font-size", "24px");
+      }
+
+      // Add message count badge for clusters (like the old version)
+      if (d.type === 'cluster' && d.messages && d.messages.length > 0) {
+        const badgeRadius = 10;
+        const badgeX = r - 5;
+        const badgeY = -r + 5;
+        
+        // Badge background circle
+        el.append("circle")
+          .attr("cx", badgeX)
+          .attr("cy", badgeY)
+          .attr("r", badgeRadius)
+          .attr("fill", "rgba(255, 255, 255, 0.95)")
+          .attr("stroke", nodeColor)
+          .attr("stroke-width", 2)
+          .attr("class", "message-count-badge");
+        
+        // Badge text (message count)
+        el.append("text")
+          .attr("x", badgeX)
+          .attr("y", badgeY)
+          .attr("dy", "0.35em")
+          .attr("text-anchor", "middle")
+          .attr("fill", "#000")
+          .style("font-size", "10px")
+          .style("font-weight", "bold")
+          .style("pointer-events", "none")
+          .text(d.messages.length);
       }
     });
 
     // Labels
     node.append("text")
       .text(d => d.type === 'message' ? '' : d.name)
-      .attr("dy", d => d.type === 'add-root' ? 55 : (d.type === 'cluster' ? 40 : 20))
+      .attr("dy", d => d.type === 'add-root' ? 55 : (d.type === 'cluster' ? 42 : 20))
       .attr("text-anchor", "middle")
-      .style("font-size", "10px")
+      .style("font-size", d => d.type === 'cluster' ? "11px" : "10px")
+      .style("font-weight", d => d.type === 'cluster' ? "600" : "500")
       .style("fill", "#fff")
       .style("pointer-events", "none")
-      .style("text-shadow", "0px 2px 4px rgba(0,0,0,0.8)");
+      .style("text-shadow", "0px 2px 6px rgba(0,0,0,0.9)");
 
     // 5. Interaction
     node.on("mouseenter", (event, d) => {
@@ -322,6 +352,11 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
         .call(zoomRef.current.transform, initialTransformRef.current);
       setSelectedNode(null);
       setShowRecenterButton(false);
+      
+      // Notify parent that recenter happened
+      if (onRecenter) {
+        onRecenter();
+      }
     }
   };
 

@@ -17,6 +17,7 @@ function Home() {
   const [homeData, setHomeData] = useState({ nodes: [], links: [] });
   const [loading, setLoading] = useState(true);
   const [editingChat, setEditingChat] = useState(null);
+  const [focusedClusterId, setFocusedClusterId] = useState(null);
   
   // AI State
   const [aiState, setAiState] = useState({ clusterId: null, type: null, loading: false, content: null });
@@ -117,8 +118,18 @@ function Home() {
         setView('dashboard');
       }
     } else if (node.type === 'cluster') {
+      // Open sidebar and expand the clicked cluster
       setSidebarOpen(true);
+      setFocusedClusterId(node.id);
+    } else {
+      // For non-cluster nodes, clear the focused cluster
+      setFocusedClusterId(null);
     }
+  };
+
+  const handleRecenter = () => {
+    // Clear focused cluster when recentering
+    setFocusedClusterId(null);
   };
 
   const handleBackToHome = () => {
@@ -126,6 +137,7 @@ function Home() {
     setActiveChat(null);
     setActiveChatData(null);
     setSearchQuery('');
+    setFocusedClusterId(null);
     loadUserChats(); // Refresh in case of changes
   };
 
@@ -146,6 +158,7 @@ function Home() {
             onNodeClick={handleNodeClick} 
             searchQuery={searchQuery}
             onBackToHome={handleBackToHome}
+            onRecenter={handleRecenter}
           />
         ) : (
           <EmptyState 
@@ -166,6 +179,12 @@ function Home() {
           setSearchQuery={setSearchQuery}
           onAiAction={handleAiAction}
           aiState={aiState}
+          focusedClusterId={focusedClusterId}
+          stats={{
+            messages: activeChatData?.nodes?.filter(n => n.type === 'message').length || 0,
+            clusters: activeChatData?.nodes?.filter(n => n.type === 'cluster').length || 0,
+            processingTime: activeChat?.chatData?.clustering_data?.metadata?.processing_time_seconds || 0
+          }}
         />
       )}
       <SettingsModal 

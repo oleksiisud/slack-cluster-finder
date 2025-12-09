@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from typing import Dict, Optional
+from supabase_job_storage import get_job_storage
 import logging
 import uuid
 
@@ -49,8 +50,9 @@ app.include_router(slack_oauth_router)
 app.include_router(discord_oauth_router)
 
 # Job storage (in production, use Redis or database)
-jobs: Dict[str, ClusteringStatus] = {}
-results: Dict[str, ClusteringOutput] = {}
+#jobs: Dict[str, ClusteringStatus] = {}
+#results: Dict[str, ClusteringOutput] = {}
+storage = get_job_storage()
 
 @app.on_event("startup")
 async def startup_event():
@@ -72,6 +74,7 @@ async def startup_event():
         logger.warning(f"Warmup failed ({type(e).__name__}): {e}")
     except Exception as e:
         logger.warning(f"Warmup failed with unexpected error ({type(e).__name__}): {e}")
+    storage.cleanup_old_jobs()
 
 @app.get("/")
 async def root():
@@ -145,11 +148,20 @@ async def cluster_messages_async(
     job_id = str(uuid.uuid4())
     
     # Initialize job status
-    jobs[job_id] = ClusteringStatus(
+    # jobs[job_id] = ClusteringStatus(
+    #     status="processing",
+    #     progress=0.0,
+    #     message="Starting clustering job",
+    #     job_id=job_id
+    # )
+    storage.create_job(
+        job_id=job_id,
         status="processing",
         progress=0.0,
         message="Starting clustering job",
-        job_id=job_id
+        distance_threshold=request.distance_threshold,
+        min_cluster_size=request.min_cluster_size,
+        force_recluster=request.force_recluster
     )
     
     # Add background task
@@ -165,13 +177,23 @@ async def cluster_messages_async(
 async def process_clustering_job(job_id: str, request: ClusteringRequest):
     """Background task for clustering"""
     try:
-        jobs[job_id].message = "Processing messages..."
-        jobs[job_id].progress = 10.0
+        # jobs[job_id].message = "Processing messages..."
+        # jobs[job_id].progress = 10.0
+        storage.update_job_status(
+            job_id=job_id,
+            message="Processing messages...",
+            progress=10.0
+        )
         
         orchestrator = get_orchestrator()
         
-        jobs[job_id].message = "Generating embeddings..."
-        jobs[job_id].progress = 30.0
+        # jobs[job_id].message = "Generating embeddings..."
+        # jobs[job_id].progress = 30.0
+        storage.update_job_status(
+            job_id=job_id,
+            message="Generating embeddings...",
+            progress=30.0
+        )
         
         result = orchestrator.process_messages(
             messages=request.messages,
@@ -180,43 +202,62 @@ async def process_clustering_job(job_id: str, request: ClusteringRequest):
             min_cluster_size=request.min_cluster_size
         )
         
-        jobs[job_id].message = "Clustering complete"
-        jobs[job_id].progress = 100.0
-        jobs[job_id].status = "completed"
-        
-        results[job_id] = result
+        # jobs[job_id].message = "Clustering complete"
+        # jobs[job_id].progress = 100.0
+        #jobs[job_id].status = "completed"
+        #results[job_id] = result
+        storage.save_result(job_id, result.dict())
+        storage.update_job_status(
+            job_id=job_id,
+            message="Clustering complete",
+            progress=100.0,
+            status="completed"
+        )
         
     except Exception as e:
         logger.error(f"Error in background job {job_id}: {e}", exc_info=True)
-        jobs[job_id].status = "error"
-        jobs[job_id].message = str(e)
+        # jobs[job_id].status = "error"
+        # jobs[job_id].message = str(e)
+        storage.update_job_status(
+            job_id=job_id,
+            message=str(e),
+            status="error"
+        )
 
 
 @app.get("/cluster/status/{job_id}", response_model=ClusteringStatus)
 async def get_job_status(job_id: str):
     """Get status of a clustering job"""
-    if job_id not in jobs:
-        raise HTTPException(status_code=404, detail="Job not found")
-    
-    return jobs[job_id]
+    # if job_id not in jobs:    
+    # return jobs[job_id]
+    job_data = storage.get_job(job_id)
+    if not job_data:
+        raise HTTPException(status_code=404, detail="Job not found or expired")
+    return ClusteringStatus(**job_data)
 
 
 @app.get("/cluster/result/{job_id}", response_model=ClusteringOutput)
 async def get_job_result(job_id: str):
     """Get result of a completed clustering job"""
-    if job_id not in jobs:
-        raise HTTPException(status_code=404, detail="Job not found")
+    # if job_id not in jobs:
+    job_data = storage.get_job(job_id)
+    if not job_data:
+        raise HTTPException(status_code=404, detail="Job not found or expired")
     
-    if jobs[job_id].status != "completed":
+    # if jobs[job_id].status != "completed":
+    if job_data["status"] != "completed":
         raise HTTPException(
             status_code=400,
-            detail=f"Job not completed. Current status: {jobs[job_id].status}"
+            detail=f"Job not completed. Current status: {job_data['status']}"
         )
     
-    if job_id not in results:
-        raise HTTPException(status_code=404, detail="Result not found")
-    
-    return results[job_id]
+    # if job_id not in results:
+    #    raise HTTPException(status_code=404, detail="Result not found")
+    # return results[job_id]
+    result_data = storage.get_result(job_id)
+    if not result_data:
+        raise HTTPException(status_code=404, detail="Result not found or expired")
+    return ClusteringOutput(**result_data)
 
 
 @app.post("/search", response_model=list[SearchResult])
@@ -231,12 +272,48 @@ async def search_messages(request: SearchRequest):
         List of search results
     """
     try:
-        # This endpoint requires messages to be provided or stored
-        # For now, return error - in production, integrate with database
-        raise HTTPException(
-            status_code=501,
-            detail="Search endpoint requires integration with message storage"
+        orchestrator = get_orchestrator()
+        
+        # If messages are provided in request (not ideal but works for small batches)
+        # In a real app, we'd use a job_id or session_id to retrieve stored messages
+        if not request.messages_with_tags:
+             # Fallback: check if we have a recent result in memory (simple stateful approach)
+             # This is a hack for the demo; in prod use a DB
+             
+            #  if results:
+            #      last_job_id = list(results.keys())[-1]
+            #      request.messages_with_tags = results[last_job_id].messages
+             recent_jobs = storage.get_recent_jobs(limit=1)
+             if recent_jobs:
+                result_data = storage.get_result(recent_jobs[0]["job_id"])
+                if result_data:
+                    request.messages_with_tags = [
+                        MessageWithTags(**msg) for msg in result_data.get("messages", [])
+                    ]
+             else:
+                raise HTTPException(
+                    status_code=400, 
+                    detail="No context provided for search. Please run clustering first."
+                )
+
+        results_tuples = orchestrator.search_messages(
+            query=request.query,
+            messages_with_tags=request.messages_with_tags,
+            filter_tags=request.filter_tags,
+            filter_clusters=request.filter_clusters,
+            top_k=request.top_k
         )
+        
+        # Convert tuples to SearchResult objects
+        search_results = [
+            SearchResult(
+                message=msg,
+                score=score
+            )
+            for msg, score in results_tuples
+        ]
+        
+        return search_results
     
     except HTTPException:
         raise
@@ -361,6 +438,17 @@ async def fetch_slack_messages(request: SlackFetchRequest):
     except Exception as e:
         logger.error(f"Error fetching Slack messages: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/admin/cleanup-jobs")
+async def cleanup_old_jobs():
+    """Manually trigger cleanup of old jobs (>48 hours)"""
+    deleted_count = storage.cleanup_old_jobs()
+    return {
+        "status": "success",
+        "deleted_jobs": deleted_count,
+        "message": f"Cleaned up {deleted_count} old jobs"
+    }
 
 
 if __name__ == "__main__":

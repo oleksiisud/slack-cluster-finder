@@ -48,30 +48,33 @@ class GeminiLabelService:
     def generate_cluster_label(
         self,
         messages: List[str],
-        max_messages: int = 10,
-        max_length: int = 50
+        max_messages: int = 30,
+        max_length: int = 60
     ) -> str:
         """Generate a descriptive label for a cluster"""
         if not messages:
             return "Empty Cluster"
         
         selected = messages[:max_messages]
-        messages_text = "\n".join([f"- {msg[:150]}" for msg in selected])
+        # Allow slightly longer context per message
+        messages_text = "\n".join([f"- {msg[:200]}" for msg in selected])
         
-        prompt = f"""Analyze these chat messages and create a clear, descriptive topic label in 3-6 words.
-Be specific and concise.
+        prompt = f"""Analyze these chat messages from a team collaboration channel.
+Identify the main project, specific technical issue, or key activity being discussed.
+Create a descriptive, specific title (4-8 words) that clearly distinguishes this topic.
+Avoid generic phrases like "Team Discussion" or "Project Update".
 
 Messages:
 {messages_text}
 
-Topic label (3-6 words):"""
+Specific Topic Title:"""
         
         try:
             response = self.model.generate_content(
                 prompt,
                 generation_config=genai.types.GenerationConfig(
-                    max_output_tokens=20,
-                    temperature=0.7,
+                    max_output_tokens=30,
+                    temperature=0.4,  # Lower temperature for more focused results
                 )
             )
             
@@ -124,10 +127,20 @@ Keywords:"""
     
     def _clean_label(self, label: str) -> str:
         """Clean and format label"""
-        label = label.replace("Topic:", "").replace("topic:", "").strip()
+        # Remove common prefixes/suffixes from LLM output
+        prefixes = ["Title:", "Label:", "Topic:", "Subject:", "The topic is", "Discussion about"]
+        for prefix in prefixes:
+            if label.lower().startswith(prefix.lower()):
+                label = label[len(prefix):].strip()
+        
+        # Remove quotes if present
+        label = label.strip('"\'')
+        
+        # Capitalize first letter
         if label and not label[0].isupper():
             label = label[0].upper() + label[1:]
-        return label[:50] if label else "General Discussion"
+            
+        return label[:60] if label else "General Discussion"
     
     def _clean_tag(self, tag: str) -> str:
         """Clean a tag"""
@@ -136,19 +149,38 @@ Keywords:"""
     
     def _fallback_label(self, messages: List[str]) -> str:
         """Simple fallback if API fails"""
+        if not messages:
+            return "General Discussion"
+        
+        # Try to use the beginning of the first substantial message
+        for msg in messages:
+            if len(msg) > 20:
+                # Find first sentence or up to 50 chars
+                end = msg.find('.')
+                if end > 0:
+                    candidate = msg[:end+1]
+                else:
+                    candidate = msg
+                
+                if len(candidate) > 60:
+                    candidate = candidate[:60].rsplit(' ', 1)[0] + "..."
+                
+                return candidate
+        
+        # Fallback to word counter if all messages are tiny
         from collections import Counter
         words = []
         for msg in messages:
             words.extend(msg.lower().split())
         
-        stopwords = {"the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for"}
+        stopwords = {"the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for", "is", "are", "of", "with"}
         words = [w for w in words if w not in stopwords and len(w) > 3]
         
         if not words:
             return "General Discussion"
         
-        common = Counter(words).most_common(3)
-        return " ".join([word.capitalize() for word, _ in common])
+        common = Counter(words).most_common(2)
+        return " & ".join([word.capitalize() for word, _ in common])
     
     def _fallback_tags(self, messages: List[str], num_tags: int) -> List[str]:
         """Simple fallback tags"""
