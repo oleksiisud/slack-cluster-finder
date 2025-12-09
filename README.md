@@ -16,6 +16,11 @@ Slack is a widely used application, but its search and message filtering are ver
 3. **Automatic Topic Labeling** - AI-generated labels and tags for each cluster using open-source LLMs, making it easier to understand conversation themes at a glance
 4. **Interactive Dashboards** - Visual cluster graphs and analytics to explore conversation patterns across your Slack channels
 
+### Workflow Diagram
+<img width="1200" height="627" alt="Workflow_Diagram" src="https://github.com/user-attachments/assets/f56c6d40-2a72-4597-ae2b-59faf5f0bfab" />
+
+
+
 
 ### Built With
 [![React][React]][React-url]
