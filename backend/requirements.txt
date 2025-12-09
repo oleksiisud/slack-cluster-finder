@@ -14,3 +14,4 @@ google-generativeai
 supabase
 slack-sdk
 discord.py
+tenacity

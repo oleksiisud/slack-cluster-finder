@@ -1,3 +1,5 @@
+@import '../../styles/animations.css';
+
 .view-container {
   width: 100%;
   height: 100%;
@@ -41,51 +43,86 @@
   transform: translateY(0);
 }
 
+.btn-recenter {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  background: var(--primary);
+  color: var(--bg-primary);
+  border: 1px solid var(--primary-border);
+  padding: 10px 20px;
+  border-radius: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+  animation: fadeInUp 0.3s ease;
+}
+
+.btn-recenter:hover {
+  background: #3ab5ad;
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+}
+
+.btn-recenter:active {
+  transform: translateX(-50%) translateY(0);
+}
+
 .graph-tooltip {
   position: absolute;
-  background: var(--bg-glass);
-  border: 1px solid var(--primary-border);
-  border-radius: 8px;
-  padding: 12px;
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 14px;
   pointer-events: none;
   z-index: 1000;
   max-width: 300px;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 12px var(--shadow-color);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
 .tooltip-card {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .tooltip-title {
   color: var(--primary);
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 700;
   margin: 0;
+  letter-spacing: 0.3px;
 }
 
 .tooltip-tags {
   display: flex;
-  gap: 4px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .tag-pill {
-  background: var(--primary-dim);
-  color: var(--primary);
-  padding: 2px 8px;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 20px;
   font-size: 0.75rem;
-  font-weight: 500;
-  border: 1px solid var(--primary-border);
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .tooltip-user {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
   opacity: 0.9;
 }
 
@@ -116,4 +153,28 @@
 
 .search-pulse {
   animation: search-pulse 1s ease-in-out infinite;
+}
+
+/* Message dots styling */
+.message-dot {
+  transition: fill-opacity 0.3s ease, r 0.3s ease;
+  cursor: pointer;
+}
+
+.message-dot:hover {
+  fill-opacity: 0.8 !important;
+  stroke-width: 2;
+}
+
+/* Zoom-based opacity for messages */
+.zoomed-in .message-dot {
+  fill-opacity: 0.7 !important;
+}
+
+.zoomed-out .message-dot {
+  fill-opacity: 0.2 !important;
+}
+
+/* Message count badge styling */
+.message-count-badge {
 }

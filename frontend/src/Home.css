@@ -1,6 +1,6 @@
 .app-container {
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - 72px); /* Account for 72px navbar height */
   background: var(--bg-primary);
   display: flex;
   flex-direction: column;
@@ -13,11 +13,6 @@
   display: flex;
   position: relative;
   overflow: hidden;
-  transition: margin-right 0.3s ease;
-}
-
-.main-content.sidebar-active {
-  margin-right: 320px;
 }
 
 .view-container {
@@ -26,4 +21,42 @@
   position: relative;
   background: var(--bg-primary);
   transition: background 0.3s ease;
+}
+
+.home-hint {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(78, 205, 196, 0.1);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  backdrop-filter: blur(10px);
+  animation: fadeInUp 0.5s ease;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.loading-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }

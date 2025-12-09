@@ -4,18 +4,21 @@ import fs from 'fs'
 
 // https://vite.dev/config/
 export default defineConfig({
+  plugins: [react()],
   server: {
     port: process.env.PORT || 5173,
-    https: {
-      key: fs.readFileSync('./localhost-key.pem'),
-      cert: fs.readFileSync('./localhost.pem'),
-    },
+    // Only enable HTTPS in local development if cert files exist
+    ...(fs.existsSync('./localhost-key.pem') && fs.existsSync('./localhost.pem') ? {
+      https: {
+        key: fs.readFileSync('./localhost-key.pem'),
+        cert: fs.readFileSync('./localhost.pem'),
+      }
+    } : {}),
     allowedHosts: process.env.ALLOWED_HOSTS ? process.env.ALLOWED_HOSTS.split(',') : [
       '0071328835d1.ngrok-free.app',
       '4149daca23eb.ngrok-free.app'
     ]
-  },
-  plugins: [react()]
-});
+  }
+})
 
 

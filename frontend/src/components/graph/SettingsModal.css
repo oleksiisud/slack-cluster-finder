@@ -1,15 +1,16 @@
+
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
 }
 
 .modal-content {
@@ -165,9 +166,21 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background-color: #00ff00;
+  background-color: var(--success-color);
   flex-shrink: 0;
-  box-shadow: 0 0 8px rgba(0, 255, 0, 0.5);
+  box-shadow: 0 0 8px var(--success-color);
+  opacity: 0.8;
+}
+
+.status-dot.connected {
+  background-color: var(--success-color);
+  box-shadow: 0 0 8px var(--success-color);
+  opacity: 1;
+}
+
+.status-dot.disconnected {
+  background-color: var(--text-tertiary);
+  box-shadow: none;
 }
 
 .integration-title {
@@ -258,7 +271,7 @@
 }
 
 .btn-upload:hover:not(:disabled) {
-  background: #3ab5ad;
+  opacity: 0.9;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px var(--primary-dim);
 }
@@ -276,15 +289,17 @@
 }
 
 .upload-status.success {
-  background: rgba(34, 197, 94, 0.1);
+  background: var(--bg-tertiary);
   color: var(--success-color);
-  border: 1px solid rgba(34, 197, 94, 0.3);
+  border: 1px solid var(--success-color);
+  opacity: 0.9;
 }
 
 .upload-status.error {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--bg-tertiary);
   color: var(--error-color);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  border: 1px solid var(--error-color);
+  opacity: 0.9;
 }
 
 .clustering-spinner {
@@ -346,16 +361,7 @@ code {
   font-weight: 500;
 }
 
-.status-dot.connected {
-  background-color: var(--success-color);
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
-}
-
-.status-dot.disconnected {
-  background-color: var(--text-tertiary);
-  box-shadow: none;
-}
-
+/* Footer Buttons */
 .modal-footer {
   padding: 20px;
   border-top: 1px solid var(--border-color);
@@ -394,11 +400,269 @@ code {
 }
 
 .btn-save:hover {
-  background: #3ab5ad;
+  opacity: 0.9;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px var(--primary-dim);
 }
 
 .btn-save:active {
   transform: translateY(0);
+}
+
+/* ==========================================
+   ADDED FROM FILE A — CLUSTER STATISTICS
+=========================================== */
+.cluster-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+  padding: 16px;
+  background: var(--primary-dim);
+  border: 1px solid var(--primary-border);
+  border-radius: 8px;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cluster-list {
+  margin-top: 12px;
+}
+
+.cluster-topics {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.cluster-topics::-webkit-scrollbar {
+  width: 4px;
+}
+
+.cluster-topics::-webkit-scrollbar-track {
+  background: var(--primary-dim);
+  border-radius: 2px;
+}
+
+.cluster-topics::-webkit-scrollbar-thumb {
+  background: var(--primary-border);
+  border-radius: 2px;
+}
+
+.cluster-topic-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--primary-border);
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.cluster-topic-name {
+  color: var(--text-primary);
+  font-weight: 500;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cluster-topic-count {
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+/* ==========================================
+   ADDED FROM FILE A — API STATUS INDICATORS
+=========================================== */
+.api-status-warning {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--error-color);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  opacity: 0.9;
+}
+
+.warning-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.warning-content {
+  flex: 1;
+}
+
+.warning-title {
+  font-weight: 600;
+  color: var(--error-color);
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+.warning-message {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.warning-detail {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  opacity: 0.8;
+  font-family: monospace;
+}
+
+.api-status-success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--success-color);
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+  color: var(--success-color);
+  opacity: 0.9;
+}
+
+.success-icon {
+  font-weight: 700;
+  color: var(--success-color);
+}
+
+
+.btn-delete {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--error-color);
+  color: var(--error-color);
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  opacity: 0.9;
+}
+
+.btn-delete:hover:not(:disabled) {
+  background: var(--primary-dim);
+  border-color: var(--error-color);
+  opacity: 1;
+}
+
+.btn-delete:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--primary-border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--bg-secondary);
+}
+
+/* Delete Confirmation Dialog */
+.delete-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  backdrop-filter: blur(8px);
+}
+
+.delete-confirm-dialog {
+  background: var(--bg-secondary);
+  border: 2px solid var(--error-color);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 400px;
+  box-shadow: 0 20px 60px var(--shadow-color);
+}
+
+.delete-confirm-dialog h3 {
+  margin: 0 0 12px 0;
+  color: var(--error-color);
+  font-size: 1.25rem;
+}
+
+.delete-confirm-dialog p {
+  color: var(--text-secondary);
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.delete-confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.btn-delete-confirm {
+  background: var(--error-color);
+  border: none;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.btn-delete-confirm:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.btn-delete-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

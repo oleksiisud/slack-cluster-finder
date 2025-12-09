@@ -73,12 +73,15 @@ class SearchRequest(BaseModel):
     top_k: int = Field(10, description="Number of results to return")
     filter_tags: Optional[List[str]] = Field(None, description="Filter by specific tags")
     filter_clusters: Optional[List[str]] = Field(None, description="Filter by specific clusters")
+    # Add optional context messages for the search
+    messages_with_tags: Optional[List[MessageWithTags]] = Field(None, description="Context messages to search within")
 
 class SearchResult(BaseModel):
     """Single search result"""
     message: MessageWithTags
-    similarity_score: float = Field(..., description="Similarity score to query")
-    rank: int = Field(..., description="Result rank")
+    score: float = Field(..., description="Similarity score to query")
+    # rank is not strictly needed if we return a list, but keeping it if UI uses it
+    # rank: int = Field(..., description="Result rank") # Removing rank as it's implied by order
 
 class SlackFetchRequest(BaseModel):
     """Request model for fetching Slack messages"""
