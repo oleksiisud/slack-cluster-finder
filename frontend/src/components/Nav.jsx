@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, Menu, X } from 'lucide-react';
 import { setTheme as setThemeFunction } from '../themes.js';
 import { useAuth } from '../AuthContext.jsx';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
@@ -10,6 +10,7 @@ import './Nav.css'
 const Nav = () => {
   const { session, signOut } = useAuth();
   const [theme, setThemeState] = useState(localStorage.getItem('theme') || 'theme-dark');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   // sign out redirects user to landing page
@@ -51,33 +52,42 @@ const Nav = () => {
            {userName}'s Stellar Search Dashboards
         </div>
         
-        <div className="navbar-right">
+        <button 
+          className="mobile-menu-toggle"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+        </button>
+        
+        <div className={`navbar-right ${mobileMenuOpen ? 'mobile-open' : ''}`}>
           <ul className="navbar-links">
             <li>
-              <Link to={'/home'} className="navbar-link">Home</Link>
+              <Link to={'/home'} className="navbar-link" onClick={() => setMobileMenuOpen(false)}>Home</Link>
             </li>
             <li>
-              <Link to={'https://github.com/oleksiisud/slack-cluster-finder'} className="navbar-link"> <FaGithub/> </Link>
+              <Link to={'https://github.com/oleksiisud/slack-cluster-finder'} className="navbar-link" onClick={() => setMobileMenuOpen(false)}> <FaGithub/> </Link>
             </li>
             <li>
-              <Link to={'/account'} className="navbar-link">Account</Link>
+              <Link to={'/account'} className="navbar-link" onClick={() => setMobileMenuOpen(false)}>Account</Link>
             </li>
-            <button className="dark-mode-toggle" onClick={toggleTheme} aria-label="Toggle theme">
-            {theme === 'theme-dark' ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
-          
-          {session ? (
-            <button onClick={handleSignOut} className="sign-out-btn">
-              Sign Out
-            </button>
-          ) : (
-            <button onClick={() => navigate('/log-in')} className="sign-out-btn">
-              Log In
-            </button>
-          )}
+            <li>
+              <button className="dark-mode-toggle" onClick={toggleTheme} aria-label="Toggle theme">
+                {theme === 'theme-dark' ? <Sun size={20} /> : <Moon size={20} />}
+              </button>
+            </li>
+            <li>
+              {session ? (
+                <button onClick={() => { handleSignOut(); setMobileMenuOpen(false); }} className="sign-out-btn">
+                  Sign Out
+                </button>
+              ) : (
+                <button onClick={() => { navigate('/log-in'); setMobileMenuOpen(false); }} className="sign-out-btn">
+                  Log In
+                </button>
+              )}
+            </li>
           </ul>
-          
-       
         </div>
       </div>
     </nav>

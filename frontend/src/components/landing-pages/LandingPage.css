@@ -26,21 +26,16 @@ body {
 
 .Homepage {
   padding-top: 150px;
-  /* space for navbar */
-  padding-top: 150px;
-  /* space for navbar */
+  padding-bottom: 2rem;
   color: white;
   background-color: transparent !important;
   display: flex;
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-  /* use min-height instead */
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: visible;
 }
 
 /* Header fade-in on page load */
@@ -191,14 +186,17 @@ body {
 
 .messages-window {
   flex: 1;
-  overflow-y: scroll;
-  padding-right: 10 0px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 10px;
   display: flex;
   flex-direction: column;
   gap: 10px;
   width: 80%;
   /* makes chat narrower */
   margin: 0 auto;
+  scroll-behavior: smooth;
+  /* Auto-scroll enabled - smooth scrolling animation */
 }
 
 .message {
@@ -342,11 +340,136 @@ body {
   .AboutInfo {
     flex-direction: column;
     align-items: center;
+    gap: 2rem;
   }
 
   .Motive,
   .Solution {
     width: 90%;
     padding: 1.5rem;
+    margin-top: 2rem;
+  }
+}
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+  .Homepage {
+    padding-top: 100px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-bottom: 2rem;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+
+  .HomepageHeader {
+    font-size: 1.5rem;
+    padding: 0 1rem;
+  }
+
+  .Walkthrough {
+    width: 95%;
+    max-width: 100%;
+    height: auto;
+    min-height: 400px;
+    margin-top: 20px;
+    padding: 1rem;
+  }
+
+  .Steps {
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    gap: 15px;
+  }
+
+  .messages,
+  .gif,
+  .cluster {
+    width: 100%;
+    min-height: 250px;
+    max-height: 300px;
+  }
+
+  .walkthrough-headers {
+    font-size: 1rem;
+    margin-bottom: 10px;
+  }
+
+  .gif-image {
+    width: 150px;
+    height: 150px;
+  }
+
+  .AboutInfo {
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem 1rem;
+  }
+
+  .Motive,
+  .Solution {
+    width: 100%;
+    max-width: 100%;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    border-radius: 2rem;
+  }
+
+  .Motive p,
+  .Solution p {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .Homepage {
+    padding-top: 80px;
+    padding-bottom: 2rem;
+    width: 100%;
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+
+  .HomepageHeader {
+    font-size: 1.25rem;
+  }
+
+  .Walkthrough {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 10px;
+  }
+
+  .Steps {
+    gap: 10px;
+  }
+
+  .messages,
+  .gif,
+  .cluster {
+    min-height: 200px;
+    max-height: 250px;
+  }
+
+  .walkthrough-headers {
+    font-size: 0.9rem;
+  }
+
+  .gif-image {
+    width: 120px;
+    height: 120px;
+  }
+
+  .Motive,
+  .Solution {
+    padding: 1rem;
+    border-radius: 1.5rem;
+  }
+
+  .Motive p,
+  .Solution p {
+    font-size: 0.9rem;
   }
 }
