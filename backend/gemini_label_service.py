@@ -40,8 +40,8 @@ class GeminiLabelService:
             raise ValueError("GEMINI_API_KEY not set")
         
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
-        self.model_name = "gemini-1.5-flash"
+        self.model = genai.GenerativeModel('gemini-2.0-flash-lite')
+        self.model_name = "gemini-2.0-flash-lite"
         logger.info("Gemini label service initialized")
     
     @rate_limit(max_per_minute=15)
@@ -100,26 +100,51 @@ Specific Topic Title:"""
         selected = messages[:max_messages]
         messages_text = "\n".join([f"- {msg[:150]}" for msg in selected])
         
-        prompt = f"""Generate {num_tags} specific topic keywords for these messages.
-Use concrete terms, comma-separated.
+        prompt = f"""Analyze these chat messages and generate {num_tags} specific, topical keywords that describe the main subjects discussed.
+
+Requirements:
+- Use concrete, meaningful terms (nouns or noun phrases)
+- Each keyword should be 4+ characters
+- Avoid common words like "yes", "no", "ok", "will", "have", "can"
+- Avoid contractions like "I'll", "we're", "don't"
+- Focus on topics, technologies, projects, or activities mentioned
+- Separate keywords with commas only
 
 Messages:
 {messages_text}
 
-Keywords:"""
+Generate {num_tags} topical keywords (comma-separated):"""
         
         try:
             response = self.model.generate_content(
                 prompt,
                 generation_config=genai.types.GenerationConfig(
                     max_output_tokens=50,
-                    temperature=0.7,
+                    temperature=0.5,  # Lower temperature for more focused, consistent tags
                 )
             )
             
             tags_text = response.text.strip()
-            tags = [tag.strip().lower() for tag in tags_text.split(",")]
-            return [self._clean_tag(tag) for tag in tags if tag][:num_tags]
+            # Remove common prefixes that LLMs sometimes add
+            for prefix in ["Keywords:", "Tags:", "Topics:", "Keywords are:", "Tags are:"]:
+                if tags_text.lower().startswith(prefix.lower()):
+                    tags_text = tags_text[len(prefix):].strip()
+            
+            # Split by comma, handle multiple separators
+            tags = []
+            for tag in tags_text.split(","):
+                tag = tag.strip()
+                if tag:
+                    tags.append(tag)
+            
+            # Clean and validate tags
+            cleaned_tags = []
+            for tag in tags:
+                cleaned = self._clean_tag(tag)
+                if cleaned and self._is_valid_tag(cleaned):
+                    cleaned_tags.append(cleaned)
+            
+            return cleaned_tags[:num_tags]
             
         except Exception as e:
             logger.exception(f"Tag generation failed")
@@ -143,9 +168,53 @@ Keywords:"""
         return label[:60] if label else "General Discussion"
     
     def _clean_tag(self, tag: str) -> str:
-        """Clean a tag"""
+        """Clean a tag - remove special characters and normalize"""
+        if not tag:
+            return ""
+        
+        # Remove quotes and common artifacts
+        tag = tag.strip('"\'.,;:!?()[]{}')
+        
+        # Remove special characters, keep alphanumeric, hyphens, and spaces
         tag = "".join(c if c.isalnum() or c in ["-", " "] else "" for c in tag)
-        return "-".join(tag.strip().split())
+        
+        # Normalize whitespace and convert to lowercase
+        tag = " ".join(tag.split())
+        tag = tag.lower()
+        
+        # Replace spaces with hyphens for consistency
+        tag = "-".join(tag.split())
+        
+        return tag.strip()
+    
+    def _is_valid_tag(self, tag: str) -> bool:
+        """Validate that a tag is meaningful and topical"""
+        if not tag or len(tag) < 4:
+            return False
+        
+        # Common stopwords and contractions to filter out
+        invalid_tags = {
+            "yes", "no", "ok", "okay", "sure", "maybe", "well", "hmm", "hey", "hi", "bye",
+            "ill", "im", "ive", "youre", "were", "theyre", "dont", "wont", "cant", "isnt",
+            "will", "have", "has", "had", "can", "could", "should", "would", "might",
+            "this", "that", "these", "those", "what", "when", "where", "who", "why", "how",
+            "the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with",
+            "let", "lets", "go", "get", "got", "see", "say", "said", "think", "know", "make"
+        }
+        
+        # Check if tag is in invalid list
+        if tag.lower() in invalid_tags:
+            return False
+        
+        # Check if tag is just a single common word (not a phrase)
+        if "-" not in tag and tag.lower() in invalid_tags:
+            return False
+        
+        # Must contain at least one letter
+        if not any(c.isalpha() for c in tag):
+            return False
+        
+        return True
     
     def _fallback_label(self, messages: List[str]) -> str:
         """Simple fallback if API fails"""
@@ -183,17 +252,45 @@ Keywords:"""
         return " & ".join([word.capitalize() for word, _ in common])
     
     def _fallback_tags(self, messages: List[str], num_tags: int) -> List[str]:
-        """Simple fallback tags"""
+        """Simple fallback tags with better filtering"""
         from collections import Counter
+        import re
+        
         words = []
         for msg in messages:
-            words.extend(msg.lower().split())
+            # Extract words, handling contractions
+            msg_words = re.findall(r'\b[a-z]{4,}\b', msg.lower())
+            words.extend(msg_words)
         
-        stopwords = {"the", "a", "an", "and", "or", "but"}
-        words = [w for w in words if w not in stopwords and len(w) > 3]
+        # Expanded stopwords list
+        stopwords = {
+            "the", "a", "an", "and", "or", "but", "in", "on", "at", "to", "for", "of", "with",
+            "is", "are", "was", "were", "be", "been", "have", "has", "had", "do", "does", "did",
+            "will", "would", "could", "should", "might", "this", "that", "these", "those",
+            "what", "when", "where", "who", "why", "how", "yes", "no", "ok", "okay", "sure",
+            "well", "just", "very", "really", "more", "most", "some", "any", "all", "can",
+            "let", "lets", "get", "got", "see", "say", "said", "think", "know", "make", "take"
+        }
         
-        common = Counter(words).most_common(num_tags)
-        return [word for word, _ in common]
+        # Filter stopwords and short words
+        words = [w for w in words if w not in stopwords and len(w) >= 4]
+        
+        if not words:
+            return []
+        
+        # Get most common words
+        common = Counter(words).most_common(num_tags * 2)
+        
+        # Clean and validate tags
+        tags = []
+        for word, _ in common:
+            cleaned = self._clean_tag(word)
+            if cleaned and self._is_valid_tag(cleaned):
+                tags.append(cleaned)
+                if len(tags) >= num_tags:
+                    break
+        
+        return tags
 
 
 # Module-level singleton

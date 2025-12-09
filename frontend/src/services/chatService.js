@@ -86,12 +86,26 @@ export const updateChat = async (chatId, updates) => {
  * @returns {Promise<void>}
  */
 export const deleteChat = async (chatId) => {
+  // First, get the chat to potentially clear cache
+  let chat = null;
+  try {
+    chat = await getChatById(chatId);
+  } catch (e) {
+    // Chat might not exist, continue with deletion
+    console.warn('Could not fetch chat before deletion:', e);
+  }
+
+  // Delete the chat from database
   const { error } = await supabase
     .from('user_chats')
     .delete()
     .eq('id', chatId);
 
   if (error) throw error;
+
+  // Note: Backend cache is keyed by message content hash, so if the same messages
+  // are used in a new chat, they'll get cached results. This is handled by
+  // forcing re-cluster when creating new chats (see SettingsModal.jsx)
 };
 
 /**

@@ -3,6 +3,7 @@ import Nav from "./Nav.jsx";
 import { useAuth } from "../AuthContext.jsx";
 import { supabase } from "../supabaseClient.js";
 import { deleteChat } from "../services/chatService";
+import { Trash2, Calendar, FolderKanban, Loader2 } from "lucide-react";
 import "./Account.css";
 
 const Account = () => {
@@ -115,20 +116,37 @@ const Account = () => {
 
           <h2>Your Dashboards</h2>
           {loading ? (
-            <p>Loading dashboards...</p>
+            <div className="loading-state">
+              <Loader2 size={24} className="spinning" />
+              <p>Loading dashboards...</p>
+            </div>
           ) : dashboards.length === 0 ? (
-            <p>No dashboards found.</p>
+            <div className="empty-state">
+              <FolderKanban size={48} />
+              <p>No dashboards found.</p>
+              <p className="empty-hint">Create a new dashboard from the home page</p>
+            </div>
           ) : (
             <div className="dashboard-list">
               {dashboards.map((dash) => (
                 <div key={dash.id} className="dashboard-card">
-                  <h3>{dash.title}</h3>
-                  <p>Type: {dash.type}</p>
-                  {/* {dash.user_id && <p>Token: {dash.user_id}</p>} */}
-                  <p>Created at: {dash.creation}</p>
-                  {/* <p>Time left: {dash.time_left}</p> */}
-
-                  <button className="delete_dashboard" onClick={() => handleDelete(dash.id)}>Remove Dashboard</button>
+                  <div className="dashboard-header">
+                    <FolderKanban size={20} className="dashboard-icon" />
+                    <h3>{dash.title}</h3>
+                  </div>
+                  <div className="dashboard-info">
+                    <p className="dashboard-meta">
+                      <span className="meta-label">Type:</span> {dash.type}
+                    </p>
+                    <p className="dashboard-meta">
+                      <Calendar size={14} className="meta-icon" />
+                      <span className="meta-label">Created:</span> {dash.creation}
+                    </p>
+                  </div>
+                  <button className="delete_dashboard" onClick={() => handleDelete(dash.id)}>
+                    <Trash2 size={16} />
+                    Remove Dashboard
+                  </button>
                 </div>
               ))}
             </div>

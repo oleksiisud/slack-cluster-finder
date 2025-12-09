@@ -81,7 +81,10 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, existingChat = null, on
         // 3. Cluster
         setStatus(prev => ({ ...prev, message: 'Running AI clustering...' }));
         try {
-            const clusterResult = await clusterMessages(messages, false);
+            // Force re-cluster for new chats to avoid stale cache from deleted chats
+            // For existing chats being updated, use cache if available
+            const forceRecluster = !existingChat;
+            const clusterResult = await clusterMessages(messages, forceRecluster);
             
             // Save clustering data to database
             setStatus(prev => ({ ...prev, message: 'Saving clustering results...' }));
