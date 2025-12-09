@@ -82,11 +82,34 @@ const SettingsModal = ({ isOpen, onClose, onChatCreated, existingChat = null, on
         setStatus(prev => ({ ...prev, message: 'Running AI clustering...' }));
         try {
             const clusterResult = await clusterMessages(messages, false);
-            await saveChatClusteringData(chat.id, clusterResult);
+            
+            // Save clustering data to database
+            setStatus(prev => ({ ...prev, message: 'Saving clustering results...' }));
+            try {
+                await saveChatClusteringData(chat.id, clusterResult);
+                console.log(`Clustering data saved for chat ${chat.id}:`, {
+                    messages: clusterResult.messages?.length || 0,
+                    clusters: clusterResult.clusters?.length || 0
+                });
+            } catch (saveError) {
+                console.error('Failed to save clustering data:', saveError);
+                setStatus(prev => ({ 
+                    ...prev, 
+                    message: 'Clustering completed but failed to save. Data may be in cache.',
+                    error: 'Save failed: ' + (saveError.message || 'Unknown error')
+                }));
+                // Still call onChatCreated so user can see the chat, even if save failed
+                // They can use migration script if needed
+            }
+            
             if (onChatCreated) onChatCreated(chat, clusterResult);
         } catch (e) {
-            console.warn('Clustering failed:', e);
-            setStatus(prev => ({ ...prev, message: 'Clustering failed, saved messages only.' }));
+            console.error('Clustering failed:', e);
+            setStatus(prev => ({ 
+                ...prev, 
+                message: 'Clustering failed, saved messages only.',
+                error: e.message || 'Clustering service unavailable'
+            }));
             if (onChatCreated) onChatCreated(chat, null);
         }
       } else if (existingChat) {

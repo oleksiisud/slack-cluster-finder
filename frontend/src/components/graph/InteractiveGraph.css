@@ -77,7 +77,7 @@
 
 .graph-tooltip {
   position: absolute;
-  background: rgba(0, 0, 0, 0.9);
+  background: var(--bg-primary);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 10px;
   padding: 14px;
@@ -176,5 +176,5 @@
 }
 
 /* Message count badge styling */
-.message-count-badge {
-}
+/* .message-count-badge {
+} */
