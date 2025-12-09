@@ -9,14 +9,14 @@ from typing import List, Dict, Tuple, Optional
 from datetime import datetime
 import logging
 
-from models import (
+from .models import (
     Message, MessageWithTags, ClusterInfo, ClusteringOutput
 )
-from embedding_service import get_embedding_service
-from clustering_service import get_clustering_service
-from label_generation_service import get_label_service
-from hierarchical_clustering_service import get_hierarchical_service
-from config import config
+from .embedding_service import get_embedding_service
+from .clustering_service import get_clustering_service
+from .label_generation_service import get_label_service
+from .hierarchical_clustering_service import get_hierarchical_service
+from .config import config
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

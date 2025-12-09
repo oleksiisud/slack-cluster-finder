@@ -5,7 +5,7 @@ import torch
 import numpy as np
 from typing import List, Optional
 from sentence_transformers import SentenceTransformer
-from config import config
+from .config import config
 import logging
 
 logging.basicConfig(level=logging.INFO)
