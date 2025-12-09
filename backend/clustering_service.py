@@ -7,7 +7,7 @@ from sklearn.cluster import AgglomerativeClustering
 from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 from scipy.spatial.distance import pdist, squareform
 import logging
-from config import config
+from .config import config
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

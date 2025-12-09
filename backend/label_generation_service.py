@@ -5,7 +5,7 @@ import os
 from typing import List, Optional
 import logging
 from huggingface_hub import InferenceClient
-from config import config
+from .config import config
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
