@@ -121,7 +121,8 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
       .force("collide", d3.forceCollide().radius(d => (d.type === 'cluster' ? 45 : 15) + 5).strength(1))
       .force("charge", d3.forceManyBody().strength(-200));
 
-    // 3. Render Links
+    // 3. Render Links with build node lookup map 
+    const nodeMap = new Map(data.nodes.map(n => [n.id, n]));
     const link = g.append("g")
     .selectAll("line")
     .data(data.links)
@@ -129,8 +130,10 @@ const InteractiveGraph = ({ data, onNodeClick, isHome = false, searchQuery = '',
     .attr("stroke", "#4ECDC4")
     .attr("stroke-opacity", d => {
       // Hide links connected to invisible message nodes
-      const sourceNode = data.nodes.find(n => n.id === d.source.id || n.id === d.source);
-      const targetNode = data.nodes.find(n => n.id === d.target.id || n.id === d.target);
+      const sourceId = d.source.id ?? d.source;
+      const targetId = d.target.id ?? d.target;
+      const sourceNode = nodeMap.get(sourceId);
+      const targetNode = nodeMap.get(targetId);
       
       const sourceIsInvisibleMessage = sourceNode?.type === 'message' && 
         !visibleMessageNodes.has(sourceNode.id) && 
