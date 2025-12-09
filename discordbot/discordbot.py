@@ -1,51 +1,69 @@
 import os
-import ssl
-import certifi
-
-# Fix SSL certificates for macOS
-_create_default_https_context = ssl.create_default_context
-ssl._create_default_https_context = lambda *args, **kwargs: _create_default_https_context(cafile=certifi.where(), *args, **kwargs)
-
-import json
-import hashlib
-import asyncio
-import requests
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
+from backend.utils import hash_user_id, extract_metadata_from_discord
+from backend import database
+
 load_dotenv()
 DISCORD_BOT_TOKEN = os.getenv('DISCORD_BOT_TOKEN')
-FORWARD_URL = os.getenv('FORWARD_URL')  # e.g. http://localhost:8000/webhook/discord
-FORWARD_SECRET = os.getenv('FORWARD_SECRET')
-HASH_SALT = os.getenv('HASH_SALT', 'dev-salt')
-
-# Feature flags (use 'true'/'1' to enable)
-ENABLE_MESSAGE_CONTENT = os.getenv('DISCORD_ENABLE_MESSAGE_CONTENT', 'false').lower() in ('1', 'true', 'yes')
-ENABLE_MEMBERS = os.getenv('DISCORD_ENABLE_MEMBERS', 'false').lower() in ('1', 'true', 'yes')
 
 intents = discord.Intents.default()
-ENABLE_MEMBERS = os.getenv('DISCORD_ENABLE_MEMBERS', 'false').lower() in ('1', 'true', 'yes')
-
-intents = discord.Intents.default()
-# Only enable privileged intents when explicitly requested via env
-intents.message_content = bool(ENABLE_MESSAGE_CONTENT)
-if ENABLE_MEMBERS:
-    intents.members = True
-
 bot = commands.Bot(command_prefix="!", intents=intents)
-
-
-def hash_user(user_id: str) -> str:
-    h = hashlib.sha256()
-    h.update(HASH_SALT.encode('utf-8'))
-    h.update(user_id.encode('utf-8'))
-    return h.hexdigest()
-
 
 @bot.event
 async def on_ready():
-    print(f"Logged in as {bot.user}")
+    LOGGER.info("Logged in as %s", bot.user)
+
+
+@bot.event
+async def on_message(message: discord.Message) -> None:
+    """Handle incoming messages: store metadata and process commands.
+
+    This function intentionally avoids logging message contents.
+    """
+    # ignore bot messages
+    if message.author.bot:
+        return
+
+    try:
+        user_hash = hash_user_id(str(message.author.id))
+        channel_id = str(message.channel.id)
+        timestamp = message.created_at.isoformat()
+        metadata = extract_metadata_from_discord(message)
+        # Store message; content stored but not logged
+        try:
+            await asyncio.get_event_loop().run_in_executor(None, database.insert_channel_if_not_exists, channel_id, str(message.channel), "discord")
+            await asyncio.get_event_loop().run_in_executor(None, database.insert_message, channel_id, user_hash, message.content, timestamp, metadata)
+        except Exception as e:
+            LOGGER.exception("DB insert failed: %s", e)
+    except Exception:
+        LOGGER.exception("Error processing message metadata")
+
+    await bot.process_commands(message)
+
+
+def is_admin(ctx: commands.Context) -> bool:
+    """Return True if the command invoker is an administrator in the guild."""
+    try:
+        return ctx.author.guild_permissions.administrator
+    except Exception:
+        return False
+
+
+@bot.command()
+@commands.check(lambda ctx: is_admin(ctx))
+async def cleanup(ctx: commands.Context) -> None:
+    """Run retention cleanup (admin only)."""
+    await ctx.send("Starting cleanup job...")
+    try:
+        count = await asyncio.get_event_loop().run_in_executor(None, database.cleanup_old_messages, 90)
+        await ctx.send(f"Cleanup completed. Removed {count} messages older than 90 days.")
+    except Exception as e:
+        LOGGER.exception("Cleanup failed: %s", e)
+        await ctx.send("Cleanup failed; check logs.")
+
 
 
 @bot.event
@@ -93,19 +111,63 @@ async def on_message(message: discord.Message):
 
 
 @bot.command()
-async def hello(ctx):
-    await ctx.send("Hello from DiscordBot!")
+async def retention_status(ctx: commands.Context) -> None:
+    """Return a short retention status summary."""
+    try:
+        status = await asyncio.get_event_loop().run_in_executor(None, database.get_retention_status)
+        await ctx.send(f"Retention status: total={status.get('total')} older_than_90={status.get('older_than_90_days')}")
+    except Exception as e:
+        LOGGER.exception("Retention status failed: %s", e)
+        await ctx.send("Could not fetch retention status; check logs.")
+
 
 
 @bot.command()
-async def ping(ctx):
-    await ctx.send("Pong!")
+async def mydata(ctx: commands.Context) -> None:
+    """Export the requesting user's data and DM it as a JSON file."""
+    try:
+        user_hash = hash_user_id(str(ctx.author.id))
+        rows = await asyncio.get_event_loop().run_in_executor(None, database.export_user_data, user_hash)
+        # write to temp file and send as attachment
+        import tempfile
+        with tempfile.NamedTemporaryFile("w+", delete=False, suffix=".json") as f:
+            json.dump(rows, f, default=str)
+            tmp_path = f.name
+        await ctx.author.send(file=discord.File(tmp_path), content="Your exported data (JSON)")
+        await ctx.send("I sent your data via DM.")
+    except Exception as e:
+        LOGGER.exception("mydata failed: %s", e)
+        await ctx.send("Could not export your data; check logs.")
+
 
 
 @bot.command()
-async def greet(ctx, name: str):
-    await ctx.send(f"Hello, {name}!")
+async def deletemydata(ctx: commands.Context) -> None:
+    """Delete the requesting user's data from storage."""
+    try:
+        user_hash = hash_user_id(str(ctx.author.id))
+        deleted = await asyncio.get_event_loop().run_in_executor(None, database.delete_user_messages, user_hash)
+        await ctx.send(f"Deleted {deleted} messages associated with your account.")
+    except Exception as e:
+        LOGGER.exception("deletemydata failed: %s", e)
+        await ctx.send("Could not delete your data; check logs.")
+
 
 
 if __name__ == "__main__":
-    bot.run(DISCORD_BOT_TOKEN)
+    # Basic validation to fail fast with a helpful message
+    if not DISCORD_BOT_TOKEN:
+        LOGGER.error("DISCORD_BOT_TOKEN is not set in .env. Please set your bot token (do not share it).")
+        raise SystemExit("DISCORD_BOT_TOKEN missing; see .env.example")
+
+    try:
+        bot.run(DISCORD_BOT_TOKEN)
+    except Exception as exc:
+        # Catch common login failure and provide actionable advice
+        import discord
+        if isinstance(exc, discord.errors.LoginFailure):
+            LOGGER.error("Discord login failed: Improper token passed. Check that DISCORD_BOT_TOKEN is the bot token from the Developer Portal and has not been revoked.")
+            raise SystemExit("Discord login failed: invalid bot token. Regenerate/reset the token in the Developer Portal and update .env")
+        # Re-raise for other exceptions so traceback is visible
+        LOGGER.exception("Discord bot failed to start: %s", exc)
+        raise

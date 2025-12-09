@@ -1,6 +1,3 @@
 slack_sdk
 discord.py
 slack_bolt
-fastapi
-uvicorn
-requests
