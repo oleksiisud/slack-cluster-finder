@@ -99,6 +99,7 @@ const Login = () => {
             </>
           )}
         </button>
+        {/* fixed button */}
         <Link to={'/sign-up'}><p><button type="submit">New User? Sign up</button></p></Link>
       </form>
     </div>
